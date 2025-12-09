@@ -1,0 +1,194 @@
+﻿<Window x:Class="BankApp_WPF.SaldoRaadplegenPagina"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:customControls="clr-namespace:BankApp_WPF.CustomControls"
+        Title="Saldo Raadplegen" 
+        Height="900"
+        Width="1600"
+        WindowStartupLocation="CenterScreen"
+        WindowState="Maximized"
+        Background="#000000"
+        KeyDown="Window_KeyDown">
+
+    <Window.Resources>
+        <!-- Transaction Button Style -->
+        <Style x:Key="TransactionButton" TargetType="Button">
+            <Setter Property="Background" Value="#1F2937"/>
+            <Setter Property="BorderBrush" Value="#4B5563"/>
+            <Setter Property="BorderThickness" Value="4"/>
+            <Setter Property="Padding" Value="24"/>
+            <Setter Property="Margin" Value="0,8"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                CornerRadius="10"
+                                Padding="{TemplateBinding Padding}">
+                            <ContentPresenter/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Background" Value="#374151"/>
+                            </Trigger>
+                            <Trigger Property="IsFocused" Value="True">
+                                <Setter Property="BorderBrush" Value="#FFD700"/>
+                                <Setter Property="Background" Value="#374151"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </Window.Resources>
+
+    <Grid>
+        <!-- Top Bar -->
+        <Border Background="#000000" 
+                Height="100" 
+                VerticalAlignment="Top"
+                Padding="40,20">
+            <Grid>
+                <!-- Terug Button -->
+                <Button HorizontalAlignment="Left"
+                        Width="150"
+                        Height="60"
+                        Background="White"
+                        Foreground="Black"
+                        BorderBrush="White"
+                        BorderThickness="4"
+                        FontSize="18"
+                        FontWeight="Bold"
+                        Cursor="Hand"
+                        Click="BtnBack_Click"
+                        AutomationProperties.Name="Terug naar hoofdpagina">
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="←" FontSize="24" Margin="0,0,8,0"/>
+                        <TextBlock Text="Terug" VerticalAlignment="Center"/>
+                    </StackPanel>
+                    <Button.Template>
+                        <ControlTemplate TargetType="Button">
+                            <Border Background="{TemplateBinding Background}"
+                                    BorderBrush="{TemplateBinding BorderBrush}"
+                                    BorderThickness="{TemplateBinding BorderThickness}"
+                                    CornerRadius="10"
+                                    Padding="12">
+                                <ContentPresenter HorizontalAlignment="Center"
+                                                VerticalAlignment="Center"/>
+                            </Border>
+                        </ControlTemplate>
+                    </Button.Template>
+                </Button>
+            </Grid>
+        </Border>
+
+        <!-- Main Content -->
+        <ScrollViewer Margin="0,100,0,0" 
+                     VerticalScrollBarVisibility="Auto"
+                     HorizontalScrollBarVisibility="Disabled"
+                     CanContentScroll="False"
+                     PanningMode="VerticalOnly">
+            <StackPanel MaxWidth="1200" 
+                       Margin="40,20">
+
+                <!-- Page Title -->
+                <Label Content="Saldo Raadplegen"
+                       FontSize="48"
+                       FontWeight="Bold"
+                       Foreground="White"
+                       Margin="0,0,0,30"/>
+
+                <!-- Current Balance Card -->
+                <Border Background="#1E3A8A"
+                        CornerRadius="20"
+                        Padding="40"
+                        Margin="0,0,0,30"
+                        BorderBrush="#3B82F6"
+                        BorderThickness="4">
+                    <StackPanel>
+                        <Label Content="Huidig Saldo"
+                               FontSize="24"
+                               Foreground="#93C5FD"
+                               Margin="0,0,0,10"/>
+
+                        <Label x:Name="lblCurrentBalance"
+                               Content="€ 12.847,50"
+                               FontSize="64"
+                               FontWeight="Bold"
+                               Foreground="White"
+                               Margin="0,0,0,10"
+                               AutomationProperties.Name="Huidig saldo"/>
+
+                        <Label x:Name="lblAccountInfo"
+                               Content="Zichtrekening •••• 4892"
+                               FontSize="20"
+                               Foreground="#93C5FD"
+                               Opacity="0.8"
+                               Margin="0,0,0,20"/>
+
+                        <!-- Balance Change -->
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock x:Name="txtBalanceChangeIcon"
+                                      Text="📈"
+                                      FontSize="32"
+                                      Margin="0,0,10,0"
+                                      VerticalAlignment="Center"/>
+                            <Label x:Name="lblBalanceChange"
+                                   Content=""
+                                   FontSize="24"
+                                   Foreground="#4ADE80"
+                                   VerticalAlignment="Center"/>
+                        </StackPanel>
+
+                        <Label Content="Vandaag ontvangen"
+                               FontSize="18"
+                               Foreground="#93C5FD"
+                               Margin="0,5,0,0"/>
+                    </StackPanel>
+                </Border>
+
+                <!-- Transactions Section -->
+                <Border Background="#1F2937"
+                        CornerRadius="20"
+                        Padding="40"
+                        BorderBrush="#4B5563"
+                        BorderThickness="4">
+                    <StackPanel>
+                        <Label Content="Laatste Transacties"
+                               FontSize="32"
+                               FontWeight="Bold"
+                               Foreground="White"
+                               Margin="0,0,0,20"/>
+
+                        <!-- Transactions List -->
+                        <ScrollViewer MaxHeight="600" 
+                                    VerticalScrollBarVisibility="Auto"
+                                    HorizontalScrollBarVisibility="Disabled"
+                                    CanContentScroll="False"
+                                    PanningMode="VerticalOnly">
+                            <StackPanel x:Name="TransactionsPanel">
+                                <!-- Transactions will be added here programmatically -->
+                            </StackPanel>
+                        </ScrollViewer>
+                    </StackPanel>
+                </Border>
+
+                <!-- Keyboard Hint -->
+                <Border Background="#1F2937"
+                        BorderBrush="#4B5563"
+                        BorderThickness="2"
+                        CornerRadius="10"
+                        Padding="20"
+                        Margin="0,30,0,40"
+                        HorizontalAlignment="Center">
+                    <Label Content="⌨️ Druk op 'Z' om terug te gaan"
+                           FontSize="16"
+                           Foreground="#9CA3AF"/>
+                </Border>
+            </StackPanel>
+        </ScrollViewer>
+    </Grid>
+</Window>

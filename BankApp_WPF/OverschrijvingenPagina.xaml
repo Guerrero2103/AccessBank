@@ -1,0 +1,223 @@
+﻿<Window x:Class="BankApp_WPF.OverschrijvingenPagina"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Overschrijving Maken"
+        Height="900"
+        Width="1600"
+        WindowStartupLocation="CenterScreen"
+        WindowState="Maximized"
+        Background="#000000"
+        KeyDown="Window_KeyDown">
+	<Grid Margin="30">
+		<Grid.RowDefinitions>
+			<RowDefinition Height="Auto"/>
+			<RowDefinition Height="*"/>
+			<RowDefinition Height="Auto"/>
+		</Grid.RowDefinitions>
+
+		<!-- HEADER -->
+		<Grid Grid.Row="0" Margin="0,0,0,30">
+			<Grid.ColumnDefinitions>
+				<ColumnDefinition Width="Auto"/>
+				<ColumnDefinition Width="*"/>
+			</Grid.ColumnDefinitions>
+
+			<Button x:Name="BackButton"
+                    Grid.Column="0"
+                    Height="60"
+                    Width="180"
+                    FontSize="20"
+                        FontWeight="Bold"
+                    Background="White"
+                    Foreground="Black"
+                    BorderBrush="White"
+                    BorderThickness="4"
+                    Cursor="Hand"
+                    Click="BtnTerug_Click">
+				<StackPanel Orientation="Horizontal">
+					<TextBlock Text="←" FontSize="24" Margin="0,0,10,0"/>
+					<TextBlock Text="Terug" VerticalAlignment="Center"/>
+				</StackPanel>
+                </Button>
+
+			<TextBlock Grid.Column="1"
+                       Text="Overschrijving Maken"
+                       FontSize="36"
+                       FontWeight="Bold"
+                       Foreground="White"
+                       VerticalAlignment="Center"
+                       HorizontalAlignment="Center"/>
+            </Grid>
+
+		<!-- SCROLLABLE CONTENT -->
+		<ScrollViewer Grid.Row="1"
+                      VerticalScrollBarVisibility="Auto"
+                      HorizontalScrollBarVisibility="Disabled"
+                      CanContentScroll="False"
+                      PanningMode="VerticalOnly">
+			<StackPanel>
+
+				<!-- OVERSCHRIJVING CARD -->
+				<Border Background="#1C1C1C"
+                        BorderBrush="#374151"
+                        BorderThickness="4"
+                        CornerRadius="12"
+                        Padding="40"
+                        Margin="0,0,0,30">
+                    <StackPanel>
+						<StackPanel Orientation="Horizontal" Margin="0,0,0,30">
+							<Border Background="#32CD32"
+                                    Width="50"
+                                    Height="50"
+                                    CornerRadius="25"
+                                    Margin="0,0,15,0">
+								<TextBlock Text="💸"
+                                         FontSize="28"
+                                         HorizontalAlignment="Center"
+                                         VerticalAlignment="Center"/>
+							</Border>
+							<TextBlock Text="Overschrijving Gegevens"
+                                     FontSize="32"
+                               FontWeight="Bold"
+                                     Foreground="White"
+                                     VerticalAlignment="Center"/>
+						</StackPanel>
+
+						<!-- IBAN van ontvanger -->
+						<TextBlock Text="IBAN van ontvanger *"
+                                 FontSize="20"
+                                 FontWeight="SemiBold"
+                                 Foreground="White"
+                                 Margin="0,0,0,8"/>
+						<TextBox x:Name="txtIban"
+                               Height="60"
+                               FontSize="18"
+                               Background="#1F2937"
+                               Foreground="White"
+                               BorderBrush="#4B5563"
+                               BorderThickness="4"
+                               Padding="15,0"
+                               VerticalContentAlignment="Center"
+                               Margin="0,0,0,20"/>
+
+						<!-- Naam ontvanger -->
+						<TextBlock Text="Naam ontvanger *"
+                                 FontSize="20"
+                                 FontWeight="SemiBold"
+                                 Foreground="White"
+                                 Margin="0,0,0,8"/>
+						<TextBox x:Name="txtNaamOntvanger"
+                               Height="60"
+                               FontSize="18"
+                               Background="#1F2937"
+                               Foreground="White"
+                               BorderBrush="#4B5563"
+                               BorderThickness="4"
+                               Padding="15,0"
+                               VerticalContentAlignment="Center"
+                               Margin="0,0,0,20"/>
+
+						<!-- Bedrag -->
+						<TextBlock Text="Bedrag (€) *"
+                                 FontSize="20"
+                                 FontWeight="SemiBold"
+                                 Foreground="White"
+                                 Margin="0,0,0,8"/>
+						<TextBox x:Name="txtBedrag"
+                               Height="60"
+                               FontSize="18"
+                               Background="#1F2937"
+                               Foreground="White"
+                               BorderBrush="#4B5563"
+                               BorderThickness="4"
+                               Padding="15,0"
+                               VerticalContentAlignment="Center"
+                               Margin="0,0,0,20"/>
+
+						<!-- Omschrijving -->
+						<TextBlock Text="Omschrijving"
+                                 FontSize="20"
+                                 FontWeight="SemiBold"
+                                 Foreground="White"
+                                 Margin="0,0,0,8"/>
+						<TextBox x:Name="txtOmschrijving"
+                               Height="120"
+                               FontSize="18"
+                               Background="#1F2937"
+                               Foreground="White"
+                               BorderBrush="#4B5563"
+                               BorderThickness="4"
+                               Padding="15,10"
+                               TextWrapping="Wrap"
+                               AcceptsReturn="True"
+                               VerticalScrollBarVisibility="Auto"
+                               Margin="0,0,0,30"/>
+
+						<!-- Knoppen -->
+						<Grid Margin="0,0,0,0">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="20"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+
+                            <Button Grid.Column="0"
+                              Height="80"
+                              FontSize="24"
+                              FontWeight="Bold"
+                              Background="#DC2626"
+                              Foreground="White"
+                              BorderBrush="#F87171"
+                              BorderThickness="4"
+                              Cursor="Hand"
+                                    Content="Annuleren"
+                                    Click="BtnAnnuleren_Click"
+                                    AutomationProperties.Name="Annuleren knop"/>
+
+                            <Button Grid.Column="2"
+                              Height="80"
+                              FontSize="24"
+                              FontWeight="Bold"
+                              Background="#32CD32"
+                              Foreground="White"
+                              BorderBrush="#4ADE80"
+                              BorderThickness="4"
+                              Cursor="Hand"
+                                    Content="Verzenden →"
+                                    Click="BtnVerzenden_Click"
+                                    AutomationProperties.Name="Verzenden knop"/>
+                        </Grid>
+                    </StackPanel>
+                </Border>
+
+            </StackPanel>
+        </ScrollViewer>
+
+		<!-- KEYBOARD HINT -->
+		<Border Grid.Row="2"
+                Background="#1F2937"
+                BorderBrush="#374151"
+                BorderThickness="2"
+                CornerRadius="8"
+                Padding="15"
+                Margin="0,20,0,0"
+                HorizontalAlignment="Center">
+			<StackPanel Orientation="Horizontal">
+				<Border Background="#4B5563"
+                        CornerRadius="6"
+                        Padding="10,5"
+                        Margin="0,0,10,0">
+					<TextBlock Text="Z"
+                             FontSize="16"
+                             FontWeight="Bold"
+                             Foreground="White"/>
+				</Border>
+				<TextBlock Text="Druk op 'Z' om terug te gaan"
+                         FontSize="16"
+                         Foreground="#D1D5DB"
+                         VerticalAlignment="Center"/>
+			</StackPanel>
+		</Border>
+
+    </Grid>
+</Window>

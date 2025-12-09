@@ -1,0 +1,176 @@
+﻿<Window x:Class="BankApp_WPF.HoofdPagina"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="AccessBank"
+        Height="900"
+        Width="1600"
+        WindowStartupLocation="CenterScreen"
+        WindowState="Maximized"
+        Background="#000000">
+
+    <Window.Resources>
+        <!-- Modern Button Style -->
+        <Style x:Key="ModernActionButton" TargetType="Button">
+            <Setter Property="FontSize" Value="24"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Height" Value="120"/>
+            <Setter Property="Margin" Value="0,10"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}"
+                                CornerRadius="15"
+                                Padding="20">
+                            <ContentPresenter HorizontalAlignment="Center"
+                                              VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Opacity" Value="0.9"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter Property="Opacity" Value="0.8"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- Saldo Card Style -->
+        <Style x:Key="SaldoCard" TargetType="Border">
+            <Setter Property="Background" Value="#FFD700"/>
+            <Setter Property="CornerRadius" Value="20"/>
+            <Setter Property="Padding" Value="40"/>
+            <Setter Property="Margin" Value="0,20,0,30"/>
+        </Style>
+    </Window.Resources>
+
+    <Grid>
+        <!-- Top Bar -->
+        <Border Background="#000000"
+                Height="80"
+                VerticalAlignment="Top"
+                Padding="40,0">
+            <Grid>
+                <Label Content="AccessBank"
+                       FontSize="28"
+                       FontWeight="Bold"
+                       Foreground="White"
+                       VerticalAlignment="Center"
+                       HorizontalAlignment="Left"/>
+            </Grid>
+        </Border>
+
+        <!-- Main Content -->
+        <ScrollViewer Margin="0,80,0,0"
+                      VerticalScrollBarVisibility="Auto"
+                      HorizontalScrollBarVisibility="Disabled"
+                      CanContentScroll="False"
+                      PanningMode="VerticalOnly">
+            <StackPanel MaxWidth="1400"
+                        Margin="40">
+
+                <!-- Saldo Card -->
+                <Border Style="{StaticResource SaldoCard}">
+                    <StackPanel>
+                        <Label Content="Huidig Saldo"
+                               FontSize="22"
+                               Foreground="#000000"
+                               Margin="0,0,0,10"/>
+
+                        <Label x:Name="lblTotalSaldo"
+                               Content="€12543.75"
+                               FontSize="72"
+                               FontWeight="Bold"
+                               Foreground="#000000"
+                               Margin="0,0,0,10"/>
+
+                        <Label x:Name="lblAccountNumber"
+                               Content="Zichtrekening •••• 4892"
+                               FontSize="18"
+                               Foreground="#000000"
+                               Opacity="0.8"/>
+
+                        <!-- Saldo Raadplegen Button -->
+                        <Button Content="Saldo Raadplegen →"
+                                Background="#000000"
+                                Foreground="#FFD700"
+                                FontSize="20"
+                                FontWeight="Bold"
+                                Height="70"
+                                Margin="0,30,0,0"
+                                BorderThickness="0"
+                                Cursor="Hand"
+                                Click="BtnViewSaldo_Click"
+                                AutomationProperties.Name="Saldo raadplegen knop">
+                            <Button.Template>
+                                <ControlTemplate TargetType="Button">
+                                    <Border Background="{TemplateBinding Background}"
+                                            CornerRadius="10"
+                                            Padding="20">
+                                        <ContentPresenter HorizontalAlignment="Center"
+                                                          VerticalAlignment="Center"/>
+                                    </Border>
+                                </ControlTemplate>
+                            </Button.Template>
+                        </Button>
+                    </StackPanel>
+                </Border>
+
+                <!-- Snelle Acties -->
+                <Label Content="Snelle Acties"
+                       FontSize="32"
+                       FontWeight="Bold"
+                       Foreground="White"
+                       Margin="0,20,0,20"/>
+
+                <!-- Action Buttons Grid -->
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+
+                    <Button Grid.Row="0"
+                            Content="Overschrijven"
+                            Background="#32CD32"
+                            Style="{StaticResource ModernActionButton}"
+                            Click="BtnTransfer_Click"
+                            AutomationProperties.Name="Overschrijven knop"/>
+
+                    <Button Grid.Row="1"
+                            Content="Profiel raadplegen"
+                            Background="#9370DB"
+                            Style="{StaticResource ModernActionButton}"
+                            Click="BtnProfile_Click"
+                            AutomationProperties.Name="Profiel raadplegen knop"/>
+
+
+                    <Button Grid.Row="3"
+                            Content="Contact"
+                            Background="#FF6347"
+                            Style="{StaticResource ModernActionButton}"
+                            Click="BtnContact_Click"
+                            AutomationProperties.Name="Contact knop"/>
+
+                    <Button Grid.Row="4"
+                            Content="Uitloggen"
+                            Background="#DC143C"
+                            Style="{StaticResource ModernActionButton}"
+                            Width="600"
+                            HorizontalAlignment="Center"
+                            Margin="0,40,0,40"
+                            Click="BtnLogout_Click"
+                            AutomationProperties.Name="Uitloggen knop"/>
+                </Grid>
+            </StackPanel>
+        </ScrollViewer>
+    </Grid>
+</Window>

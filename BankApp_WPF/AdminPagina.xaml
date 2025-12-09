@@ -1,0 +1,659 @@
+﻿<Window x:Class="BankApp_WPF.AdminPagina" 
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:BankApp_WPF"
+        mc:Ignorable="d"
+        Title="AdminPagina"
+        Height="900"
+        Width="1600"
+        WindowStartupLocation="CenterScreen"
+        WindowState="Maximized"
+        Background="#000000">
+
+    <Grid Background="#000000">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="70"/>
+            <RowDefinition Height="80"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <!-- Terug knop bovenaan -->
+        <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="20,15" Background="#000000">
+            <Button x:Name="BackButton"
+                    Width="50" Height="41"
+                    Background="#a855f7"
+                    
+                    Foreground="White"
+                    FontSize="20"
+                    Click="BtnTerug_Click"
+                    Cursor="Hand"
+                    Padding="0">
+                ←
+            </Button>
+        </StackPanel>
+
+        <!-- Titel en beschrijving -->
+        <StackPanel Grid.Row="1" Margin="20,0" Background="#000000">
+            <TextBlock Text="Admin Panel"
+                       Foreground="White"
+                       FontSize="24"
+                       FontWeight="Bold"/>
+            <TextBlock Text="Beheer klanten, kaarten en aanvragen"
+                       Foreground="#999999"
+                       FontSize="12"
+                       Margin="0,5,0,0"/>
+
+        </StackPanel>
+
+        <!-- Tabbladen -->
+        <TabControl Grid.Row="2"
+                    Background="Transparent"
+                    Foreground="White"
+                    Margin="0,0,0,0">
+            <TabControl.Resources>
+                <!-- Gedeelde Tab Style voor alle tabs -->
+                <Style TargetType="TabItem">
+                    <Setter Property="Foreground" Value="White"/>
+                    <Setter Property="Background" Value="#1E2939"/>
+                    <Setter Property="Template">
+                        <Setter.Value>
+                            <ControlTemplate TargetType="TabItem">
+                                <Border Name="Border"
+                                        Background="#2a3142"
+                                        BorderBrush="#3a4152"
+                                        BorderThickness="1"
+                                        Margin="0,0,5,0"
+                                        Padding="20,10">
+                                    <ContentPresenter x:Name="ContentSite"
+                                                      ContentSource="Header"
+                                                      VerticalAlignment="Center"
+                                                      HorizontalAlignment="Center"/>
+                                </Border>
+                                <ControlTemplate.Triggers>
+                                    <!-- Hover effect -->
+                                    <Trigger Property="IsMouseOver" Value="True">
+                                        <Setter TargetName="Border" Property="Background" Value="#3a4152"/>
+                                    </Trigger>
+                                    <!-- Selected (actief) tab -->
+                                    <Trigger Property="IsSelected" Value="True">
+                                        <Setter TargetName="Border" Property="Background" Value="#a855f7"/>
+                                        <Setter Property="Foreground" Value="White"/>
+                                    </Trigger>
+                                </ControlTemplate.Triggers>
+                            </ControlTemplate>
+                        </Setter.Value>
+                    </Setter>
+                </Style>
+            </TabControl.Resources>
+
+            <!-- Klanten tab -->
+            <TabItem Header="Klanten" Height="38" VerticalAlignment="Top">
+
+                <!-- ScrollViewer met CanContentScroll fix -->
+                <ScrollViewer VerticalScrollBarVisibility="Auto" 
+                              HorizontalScrollBarVisibility="Disabled"
+                              CanContentScroll="False"
+                              PanningMode="VerticalOnly">
+                    <Grid Background="#1a1f2e" Margin="20">
+                        <!-- Formulier voor nieuwe klant -->
+                        <Border
+                                Background="#2a3142"
+                                BorderBrush="#3a4152"
+                                BorderThickness="1"
+                                CornerRadius="5"
+                                Padding="20">
+                            <StackPanel>
+
+                                <TextBlock Text="Nieuwe klant toevoegen"
+                                           Foreground="White"
+                                           FontSize="14"
+                                           FontWeight="Bold"
+                                           Margin="0,0,0,15"/>
+
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="20"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="10"/>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="10"/>
+                                        <RowDefinition Height="Auto"/>
+
+                                        <RowDefinition Height="10"/>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="10"/>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="10"/>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="10"/>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="10"/>
+                                        <RowDefinition Height="Auto"/>
+                                    </Grid.RowDefinitions>
+
+                                    <!-- Hidden CustomerID voor bewerken -->
+                                    <TextBox x:Name="CustomerIdTextBox"
+                                             Visibility="Collapsed"
+                                             Grid.Row="0" Grid.Column="0"/>
+
+                                    <!-- Voornaam -->
+                                    <StackPanel Grid.Row="0" Grid.Column="0">
+                                        <TextBlock Text="Voornaam *" Foreground="White" FontSize="12" Margin="0,0,0,5"/>
+                                        <TextBox x:Name="FirstNameTextBox"
+                                                 Background="#1f2533"
+                                                 Foreground="White"
+                                                 BorderBrush="#3a4152"
+                                                 BorderThickness="1"
+                                                 Padding="10,8"
+                                                 Height="35"/>
+                                    </StackPanel>
+
+                                    <!-- Achternaam -->
+                                    <StackPanel Grid.Row="0" Grid.Column="2">
+                                        <TextBlock Text="Achternaam *" Foreground="White" FontSize="12" Margin="0,0,0,5"/>
+                                        <TextBox x:Name="LastNameTextBox"
+                                                 Background="#1f2533"
+                                                 Foreground="White"
+                                                 BorderBrush="#3a4152"
+                                                 BorderThickness="1"
+                                                 Padding="10,8"
+                                                 Height="35"/>
+                                    </StackPanel>
+
+                                    <!-- Email -->
+                                    <StackPanel Grid.Row="2" Grid.Column="0">
+                                        <TextBlock Text="Email *" Foreground="White" FontSize="12" Margin="0,0,0,5"/>
+                                        <TextBox x:Name="EmailTextBox"
+                                                 Background="#1f2533"
+                                                 Foreground="White"
+                                                 BorderBrush="#3a4152"
+                                                 BorderThickness="1"
+                                                 Padding="10,8"
+                                                 Height="35"/>
+                                    </StackPanel>
+
+                                    <!-- Wachtwoord -->
+                                    <StackPanel Grid.Row="2" Grid.Column="2">
+                                        <TextBlock Text="Wachtwoord *" Foreground="White" FontSize="12" Margin="0,0,0,5"/>
+                                        <PasswordBox x:Name="PasswordBox"
+                                                     Background="#1f2533"
+                                                     Foreground="White"
+                                                     BorderBrush="#3a4152"
+                                                     BorderThickness="1"
+                                                     Padding="10,8"
+                                                     Height="35"/>
+                                    </StackPanel>
+
+                                    <!-- Telefoonnummer -->
+                                    <StackPanel Grid.Row="4" Grid.Column="0">
+                                        <TextBlock Text="Telefoonnummer *" Foreground="White" FontSize="12" Margin="0,0,0,5"/>
+                                        <TextBox x:Name="PhoneNumberTextBox"
+                                                 Background="#1f2533"
+                                                 Foreground="White"
+                                                 BorderBrush="#3a4152"
+                                                 BorderThickness="1"
+                                                 Padding="10,8"
+                                                 Height="35"/>
+                                    </StackPanel>
+
+                                    <!-- Geboortedatum -->
+                                    <StackPanel Grid.Row="6" Grid.Column="0">
+                                        <TextBlock Text="Geboortedatum *" Foreground="White" FontSize="12" Margin="0,0,0,5"/>
+                                        <DatePicker x:Name="BirthDatePicker"
+                                                    Height="35"
+                                                    FontSize="14"
+                                                    Background="#1f2533"
+                                                    Foreground="White"
+                                                    BorderBrush="#3a4152"
+                                                    BorderThickness="1"
+                                                    Margin="0,0,0,0">
+                                            <DatePicker.Resources>
+                                                <Style TargetType="DatePickerTextBox">
+                                                    <Setter Property="Foreground" Value="White"/>
+                                                    <Setter Property="Background" Value="#1f2533"/>
+                                                    <Setter Property="BorderBrush" Value="#3a4152"/>
+                                                    <Setter Property="BorderThickness" Value="0"/>
+                                                    <Setter Property="Padding" Value="10,8,0,0"/>
+                                                    <Setter Property="FontSize" Value="14"/>
+                                                </Style>
+                                                <Style TargetType="TextBlock">
+                                                    <Setter Property="Foreground" Value="White"/>
+                                                    <Setter Property="FontSize" Value="14"/>
+                                                </Style>
+                                            </DatePicker.Resources>
+                                        </DatePicker>
+                                    </StackPanel>
+
+                                    <!-- Straatnaam -->
+                                    <StackPanel Grid.Row="6" Grid.Column="2">
+                                        <TextBlock Text="Straatnaam *" Foreground="White" FontSize="12" Margin="0,0,0,5"/>
+                                        <TextBox x:Name="StreetNameTextBox"
+                                                 Background="#1f2533"
+                                                 Foreground="White"
+                                                 BorderBrush="#3a4152"
+                                                 BorderThickness="1"
+                                                 Padding="10,8"
+                                                 Height="35"/>
+                                    </StackPanel>
+
+                                    <!-- Huisnummer -->
+                                    <StackPanel Grid.Row="8" Grid.Column="0">
+                                        <TextBlock Text="Huisnummer *" Foreground="White" FontSize="12" Margin="0,0,0,5"/>
+                                        <TextBox x:Name="HouseNumberTextBox"
+                                                 Background="#1f2533"
+                                                 Foreground="White"
+                                                 BorderBrush="#3a4152"
+                                                 BorderThickness="1"
+                                                 Padding="10,8"
+                                                 Height="35"/>
+                                    </StackPanel>
+
+                                    <!-- Bus -->
+                                    <StackPanel Grid.Row="8" Grid.Column="2">
+                                        <TextBlock Text="Bus" Foreground="White" FontSize="12" Margin="0,0,0,5"/>
+                                        <TextBox x:Name="BusTextBox"
+                                                 Background="#1f2533"
+                                                 Foreground="White"
+                                                 BorderBrush="#3a4152"
+                                                 BorderThickness="1"
+                                                 Padding="10,8"
+                                                 Height="35"/>
+                                    </StackPanel>
+
+                                    <!-- Postcode -->
+                                    <StackPanel Grid.Row="10" Grid.Column="0">
+                                        <TextBlock Text="Postcode *" Foreground="White" FontSize="12" Margin="0,0,0,5"/>
+                                        <TextBox x:Name="PostcodeTextBox"
+                                                 Background="#1f2533"
+                                                 Foreground="White"
+                                                 BorderBrush="#3a4152"
+                                                 BorderThickness="1"
+                                                 Padding="10,8"
+                                                 Height="35"/>
+                                    </StackPanel>
+
+                                    <!-- Gemeente -->
+                                    <StackPanel Grid.Row="10" Grid.Column="2">
+                                        <TextBlock Text="Gemeente *" Foreground="White" FontSize="12" Margin="0,0,0,5"/>
+                                        <TextBox x:Name="CityTextBox"
+                                                 Background="#1f2533"
+                                                 Foreground="White"
+                                                 BorderBrush="#3a4152"
+                                                 BorderThickness="1"
+                                                 Padding="10,8"
+                                                 Height="35"/>
+                                    </StackPanel>
+
+                                    <!-- Land -->
+                                    <StackPanel Grid.Row="12" Grid.Column="0">
+                                        <TextBlock Text="Land *" Foreground="White" FontSize="12" Margin="0,0,0,5"/>
+                                        <TextBox x:Name="CountryTextBox"
+                                                 Background="#1f2533"
+                                                 Foreground="White"
+                                                 BorderBrush="#3a4152"
+                                                 BorderThickness="1"
+                                                 Padding="10,8"
+                                                 Height="35"
+                                                 Text="België"/>
+                                    </StackPanel>
+
+                                    <!-- IBAN Bericht -->
+                                    <StackPanel Grid.Row="12" Grid.Column="2" VerticalAlignment="Bottom">
+                                        <TextBlock Text="Uw IBAN wordt automatisch toegewezen na succesvolle registratie"
+                                                   Foreground="#fbbf24"
+                                                   FontSize="11"
+                                                   FontStyle="Italic"
+                                                   Margin="0,15,0,0"
+                                                   TextWrapping="Wrap"/>
+                                    </StackPanel>
+
+                                    <!-- Rol -->
+                                    <StackPanel Grid.Row="14" Grid.Column="0">
+                                        <TextBlock Text="Rol *" Foreground="White" FontSize="12" Margin="0,0,0,5"/>
+                                        <ComboBox x:Name="RoleComboBox"
+                                                  Background="#1f2533"
+                                                  BorderBrush="#3a4152"
+                                                  BorderThickness="1"
+                                                  Padding="10,8"
+                                                  Height="35"
+                                                  Foreground="White">
+                                            <ComboBox.Resources>
+                                                <Style TargetType="ComboBoxItem">
+                                                    <Setter Property="Foreground" Value="White"/>
+                                                    <Setter Property="Background" Value="#1f2533"/>
+                                                    <Style.Triggers>
+                                                        <Trigger Property="IsHighlighted" Value="True">
+                                                            <Setter Property="Background" Value="#3a4152"/>
+                                                            <Setter Property="Foreground" Value="White"/>
+                                                        </Trigger>
+                                                        <Trigger Property="IsSelected" Value="True">
+                                                            <Setter Property="Background" Value="#3a4152"/>
+                                                            <Setter Property="Foreground" Value="White"/>
+                                                        </Trigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </ComboBox.Resources>
+                                            <ComboBoxItem Content="Klant" Foreground="White"/>
+                                            <ComboBoxItem Content="Medewerker" Foreground="White"/>
+                                            <ComboBoxItem Content="Admin" Foreground="White"/>
+                                        </ComboBox>
+                                    </StackPanel>
+
+                                    <!-- Knoppen Opslaan en Annuleren -->
+                                    <Grid Grid.Row="14" Grid.Column="2">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="10"/>
+                                            <ColumnDefinition Width="*"/>
+                                        </Grid.ColumnDefinitions>
+
+                                        <Button x:Name="SaveCustomerButton"
+                                                Grid.Column="0"
+                                                Background="#22c55e"
+                                                Foreground="White"
+                                                FontWeight="Bold"
+                                                Padding="15,8"
+                                                Height="35"
+                                                Cursor="Hand"
+                                                Click="BtnKlantOpslaan_Click">
+                                            👤 Klant toevoegen
+                                        </Button>
+
+                                        <Button x:Name="CancelButton"
+                                                Grid.Column="2"
+                                                Background="#6b7280"
+                                                Foreground="White"
+                                                FontWeight="Bold"
+                                                Padding="15,8"
+                                                Height="35"
+                                                Cursor="Hand"
+                                                Click="BtnAnnuleren_Click">
+                                            ✕ Annuleren
+                                        </Button>
+                                    </Grid>
+                                </Grid>
+                            </StackPanel>
+                        </Border>
+                    </Grid>
+                </ScrollViewer>
+            </TabItem>
+
+            <!-- Gebruikers tab (Klanten overzicht) -->
+            <TabItem Header="Gebruikers" Height="38" VerticalAlignment="Top">
+                <!-- ScrollViewer met CanContentScroll fix -->
+                <ScrollViewer VerticalScrollBarVisibility="Auto" 
+                              HorizontalScrollBarVisibility="Disabled"
+                              CanContentScroll="False"
+                              PanningMode="VerticalOnly">
+                    <Grid Background="#1a1f2e" Margin="20">
+                        <Border Background="#2a3142"
+                                BorderBrush="#3a4152"
+                                BorderThickness="1"
+                                CornerRadius="5"
+                                Padding="20">
+                            <StackPanel>
+                                <!-- Zoekveld voor klanten -->
+                                <Border Background="#1f2533"
+                                        BorderBrush="#3a4152"
+                                        BorderThickness="1"
+                                        CornerRadius="5"
+                                        Padding="15"
+                                        Margin="0,0,0,15">
+                                    <StackPanel>
+                                        <TextBlock Text="Zoek klant"
+                                                   Foreground="White"
+                                                   FontSize="14"
+                                                   FontWeight="Bold"
+                                                   Margin="0,0,0,10"/>
+                                        <Grid>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition Width="10"/>
+                                                <ColumnDefinition Width="Auto"/>
+                                            </Grid.ColumnDefinitions>
+                                            <TextBox x:Name="ZoekTextBox"
+                                                     Grid.Column="0"
+                                                     Background="#2a3142"
+                                                     Foreground="White"
+                                                     BorderBrush="#3a4152"
+                                                     BorderThickness="1"
+                                                     Padding="10,8"
+                                                     Height="35"
+                                                     FontSize="14"/>
+                                            <Button Grid.Column="2"
+                                                    x:Name="BtnZoek"
+                                                    Content="Zoek"
+                                                    Background="#a855f7"
+                                                    Foreground="White"
+                                                    BorderThickness="0"
+                                                    Padding="20,8"
+                                                    Height="35"
+                                                    Cursor="Hand"
+                                                    Click="BtnZoek_Click"/>
+                                        </Grid>
+                                        <Button Content="Toon alle klanten"
+                                                Background="#3a4152"
+                                                Foreground="White"
+                                                BorderThickness="0"
+                                                Padding="10,5"
+                                                Margin="0,10,0,0"
+                                                Cursor="Hand"
+                                                Click="BtnToonAlles_Click"/>
+                                    </StackPanel>
+                                </Border>
+
+                                <TextBlock x:Name="KlantenTellerTextBlock"
+                                           Text="Klanten overzicht (0)"
+                                           Foreground="White"
+                                           FontSize="14"
+                                           FontWeight="Bold"
+                                           Margin="0,0,0,15"/>
+
+                                <!-- ItemsControl met data binding (geen eigen scroll) -->
+                                <ItemsControl x:Name="KlantenListBox">
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate>
+                                            <Border Background="#1f2533"
+                                                    BorderBrush="#3a4152"
+                                                    BorderThickness="1"
+                                                    CornerRadius="5"
+                                                    Padding="15"
+                                                    Margin="0,0,0,10">
+                                                <Grid>
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="*"/>
+                                                        <ColumnDefinition Width="Auto"/>
+                                                    </Grid.ColumnDefinitions>
+
+                                                    <StackPanel Grid.Column="0">
+                                                        <TextBlock Foreground="White"
+                                                                   FontWeight="Bold"
+                                                                   FontSize="12">
+															<Run Text="{Binding Voornaam}"/>
+															<Run Text=" "/>
+															<Run Text="{Binding Achternaam}"/>
+															<Run Text=" | "/>
+															<Run Text="{Binding Email}"/>
+                                                        </TextBlock>
+                                                        <TextBlock Foreground="#999999" FontSize="11" Margin="0,3,0,0">
+															<Run Text="Telefoon: "/>
+															<Run Text="{Binding Telefoonnummer}"/>
+                                                        </TextBlock>
+                                                        <TextBlock Foreground="#999999" FontSize="11" Margin="0,3,0,0">
+															<Run Text="Adres: "/>
+															<Run Text="{Binding Straatnaam}"/>
+															<Run Text=" "/>
+															<Run Text="{Binding Huisnummer}"/>
+															<Run Text=", "/>
+															<Run Text="{Binding Postcode}"/>
+															<Run Text=" "/>
+															<Run Text="{Binding Gemeente}"/>
+                                                        </TextBlock>
+                                                        <TextBlock Foreground="#a855f7" FontSize="11" Margin="0,3,0,0" FontWeight="Bold">
+															<Run Text="Email: "/>
+															<Run Text="{Binding Email}"/>
+                                                        </TextBlock>
+                                                    </StackPanel>
+
+                                                    <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
+                                                        <Button Background="#3b82f6"
+                                                                Foreground="White"
+                                                                Padding="15,8"
+                                                                Margin="5"
+                                                                Cursor="Hand"
+                                                                Click="BtnBewerken_Click"
+                                                                Tag="{Binding Id}">
+                                                            ✏️ Bewerken
+                                                        </Button>
+                                                        <Button Background="#ec4899"
+                                                                Foreground="White"
+                                                                Padding="15,8"
+                                                                Margin="5"
+                                                                Cursor="Hand"
+                                                                Click="BtnVerwijderen_Click"
+                                                                Tag="{Binding Id}">
+                                                            🗑️ Verwijderen
+                                                        </Button>
+                                                    </StackPanel>
+                                                </Grid>
+                                            </Border>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+                            </StackPanel>
+                        </Border>
+                    </Grid>
+                </ScrollViewer>
+            </TabItem>
+
+            <!-- Kaarten tab -->
+            <TabItem Header="Kaarten" Height="38" VerticalAlignment="Top">
+                <!-- ScrollViewer met CanContentScroll fix -->
+                <ScrollViewer VerticalScrollBarVisibility="Auto" 
+                              HorizontalScrollBarVisibility="Disabled"
+                              CanContentScroll="False"
+                              PanningMode="VerticalOnly">
+                    <Grid Background="#1a1f2e" Margin="20">
+                        <Border Background="#2a3142"
+                                BorderBrush="#3a4152"
+                                BorderThickness="1"
+                                CornerRadius="5"
+                                Padding="20">
+                            <StackPanel>
+                                <!-- Zoekveld voor kaarten -->
+                                <Border Background="#1f2533" BorderBrush="#3a4152" BorderThickness="1" CornerRadius="5" Padding="15" Margin="0,0,0,15">
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="10"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                        </Grid.ColumnDefinitions>
+                                        <TextBox x:Name="ZoekKaartTextBox" Grid.Column="0" Background="#2a3142" Foreground="White" BorderBrush="#3a4152" Padding="10,8" Height="35" FontSize="14"/>
+                                        <Button Grid.Column="2" Content="Zoek" Background="#a855f7" Foreground="White" Padding="20,8" Height="35" Cursor="Hand" Click="BtnZoekKaart_Click"/>
+                                    </Grid>
+                                </Border>
+
+                                <TextBlock x:Name="KaartenTellerTextBlock"
+                                           Text="Kaart beheer ({0})"
+                                           Foreground="White"
+                                           FontSize="14"
+                                           FontWeight="Bold"
+                                           Margin="0,0,0,15"/>
+
+                                <!-- ListBox met data binding -->
+                                <ListBox x:Name="KaartenListBox"
+                                         Background="Transparent"
+                                         BorderThickness="0"
+                                         ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                                         ScrollViewer.VerticalScrollBarVisibility="Auto"
+                                         ScrollViewer.CanContentScroll="False">
+                                    <ListBox.ItemTemplate>
+                                        <DataTemplate>
+                                            <Border Background="#1f2533"
+                                                    BorderBrush="#3a4152"
+                                                    BorderThickness="1"
+                                                    CornerRadius="5"
+                                                    Padding="15"
+                                                    Margin="0,0,0,10">
+                                                <Grid>
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="*"/>
+                                                        <ColumnDefinition Width="Auto"/>
+                                                    </Grid.ColumnDefinitions>
+
+                                                    <StackPanel Grid.Column="0">
+                                                        <TextBlock Foreground="White" FontWeight="Bold" FontSize="13">
+															<Run Text="Kaart ID: "/>
+															<Run Text="{Binding Id}"/>
+															<Run Text=" | "/>
+															<Run Text="{Binding Gebruiker.Email}"/>
+                                                        </TextBlock>
+                                                        <TextBlock Foreground="#999999" FontSize="11" Margin="0,3,0,0">
+															<Run Text="Kaartnummer: "/>
+															<Run Text="{Binding KaartNummer}"/>
+                                                        </TextBlock>
+                                                        <TextBlock Foreground="#999999" FontSize="11" Margin="0,3,0,0">
+															<Run Text="Gebruiker: "/>
+															<Run Text="{Binding Gebruiker.Email}"/>
+															<Run Text=" (ID: "/>
+															<Run Text="{Binding GebruikerId}"/>
+															<Run Text=")"/>
+                                                        </TextBlock>
+                                                        <TextBlock FontSize="11" Margin="0,3,0,0">
+															<Run Text="Status: "/>
+															<Run Text="{Binding Status}"/>
+                                                        </TextBlock>
+                                                    </StackPanel>
+
+                                                    <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
+                                                        <Button Background="#22c55e"
+                                                                Foreground="White"
+                                                                Padding="15,8"
+                                                                Margin="5"
+                                                                Cursor="Hand"
+                                                                Click="BtnActiefMaken_Click"
+                                                                Tag="{Binding Id}">
+                                                            ✅ Actief maken
+                                                        </Button>
+
+                                                        <Button Background="#fbbf24"
+                                                                Foreground="White"
+                                                                Padding="15,8"
+                                                                Margin="5"
+                                                                Cursor="Hand"
+                                                                Click="BtnBevriezen_Click"
+                                                                Tag="{Binding Id}">
+                                                            ❄️ Bevriezen
+                                                        </Button>
+
+                                                        <Button Background="#ef4444"
+                                                                Foreground="White"
+                                                                Padding="15,8"
+                                                                Margin="5"
+                                                                Cursor="Hand"
+                                                                Click="BtnBlokkeren_Click"
+                                                                Tag="{Binding Id}">
+                                                            🔒 Blokkeren
+                                                        </Button>
+                                                    </StackPanel>
+                                                </Grid>
+                                            </Border>
+                                        </DataTemplate>
+                                    </ListBox.ItemTemplate>
+                                </ListBox>
+                            </StackPanel>
+                        </Border>
+                    </Grid>
+                </ScrollViewer>
+            </TabItem>
+
+        </TabControl>
+    </Grid>
+</Window>

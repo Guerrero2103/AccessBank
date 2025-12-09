@@ -1,0 +1,122 @@
+<Window x:Class="BankApp_WPF.CardStopPagina"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="AccessBank - Card Stop"
+        Height="900"
+        Width="1600"
+        WindowStartupLocation="CenterScreen"
+        WindowState="Maximized"
+        Background="#000000"
+        KeyDown="Window_KeyDown">
+
+    <Window.Resources>
+        <!-- Herbruikbare knopstijl -->
+        <Style x:Key="ModernActionButton" TargetType="Button">
+            <Setter Property="FontSize" Value="20"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Height" Value="55"/>
+            <Setter Property="Margin" Value="0,10"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}"
+                                CornerRadius="10"
+                                Padding="10,5">
+                            <ContentPresenter HorizontalAlignment="Center"
+                                              VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Opacity" Value="0.9"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter Property="Opacity" Value="0.8"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </Window.Resources>
+
+    <Grid>
+        <!-- Header -->
+        <Border Background="#000000"
+                Height="80"
+                VerticalAlignment="Top"
+                Padding="40,0">
+            <Grid>
+                <Label Content="AccessBank - Card Stop"
+                       FontSize="28"
+                       FontWeight="Bold"
+                       Foreground="White"
+                       VerticalAlignment="Center"
+                       HorizontalAlignment="Left"/>
+            </Grid>
+        </Border>
+
+        <!-- Main content -->
+        <ScrollViewer Margin="-621,70,-677,10" 
+                      VerticalScrollBarVisibility="Auto"
+                      HorizontalScrollBarVisibility="Disabled"
+                      CanContentScroll="False"
+                      PanningMode="VerticalOnly">
+            <StackPanel MaxWidth="1000"
+                        Margin="40"
+                        HorizontalAlignment="Center"
+                        VerticalAlignment="Center">
+                <Border Background="#0A1128"
+                        CornerRadius="20"
+                        Padding="60">
+                    <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+                        <TextBlock Text="Card Stop"
+                                   FontSize="40"
+                                   FontWeight="Bold"
+                                   Foreground="#FFD700"
+                                   HorizontalAlignment="Center"
+                                   Margin="0,0,0,30"/>
+
+                        <TextBlock Text="Bel onmiddellijk dit nummer om uw kaart te blokkeren:"
+                                   FontSize="22"
+                                   Foreground="White"
+                                   TextAlignment="Center"
+                                   Margin="0,0,0,20"/>
+
+                        <Border Background="#FFD700"
+                                CornerRadius="15"
+                                Padding="30,20"
+                                Margin="0,20,0,20"
+                                HorizontalAlignment="Center">
+                            <TextBlock Text="+32 70 344 344"
+                                       FontSize="36"
+                                       FontWeight="Bold"
+                                       Foreground="Black"
+                                       HorizontalAlignment="Center"
+                                       TextAlignment="Center"/>
+                        </Border>
+
+                        <TextBlock Text="24/7 bereikbaar in België en vanuit het buitenland."
+                                   FontSize="18"
+                                   Foreground="#8EA9FF"
+                                   TextAlignment="Center"
+                                   Margin="0,10,0,20"/>
+
+                        <Button x:Name="BtnTerug"
+                                Content="Terug naar startpagina"
+                                Width="300"
+                                Background="#1E90FF"
+                                Foreground="White"
+                                FontWeight="Bold"
+                                FontSize="18"
+                                Style="{StaticResource ModernActionButton}"
+                                Click="BtnTerug_Click"
+                                HorizontalAlignment="Center"/>
+                    </StackPanel>
+                </Border>
+            </StackPanel>
+        </ScrollViewer>
+    </Grid>
+</Window>
