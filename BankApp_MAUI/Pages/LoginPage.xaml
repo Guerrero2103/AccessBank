@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:BankApp_MAUI.ViewModels"
+             x:Class="BankApp_MAUI.Pages.LoginPage"
+             x:DataType="vm:LoginViewModel"
+             Shell.NavBarIsVisible="False"
+             BackgroundColor="{StaticResource BackgroundBlack}">
+
+    <ScrollView>
+        <VerticalStackLayout Padding="30" Spacing="20" VerticalOptions="Center">
+            
+            <!-- Logo -->
+            <Label Text="AccessBank"
+                   FontSize="48"
+                   FontAttributes="Bold"
+                   HorizontalOptions="Center"
+                   TextColor="White"
+                   Margin="0,0,0,40"/>
+
+            <!-- Card voor login form -->
+            <Frame BackgroundColor="White"
+                   CornerRadius="10"
+                   Padding="20"
+                   HasShadow="True">
+                
+                <VerticalStackLayout Spacing="15">
+                    <Label Text="Inloggen bij AccessBank"
+                           FontSize="24"
+                           FontAttributes="Bold"
+                           HorizontalOptions="Center"/>
+
+                    <!-- Email -->
+                    <Label Text="E-mail"/>
+                    <Entry Text="{Binding Email}"
+                           Placeholder="voorbeeld@email.com"
+                           Keyboard="Email"
+                           BackgroundColor="{StaticResource InputGray}"
+                           TextColor="White"/>
+
+                    <!-- Wachtwoord -->
+                    <Label Text="Wachtwoord"/>
+                    <Entry Text="{Binding Password}"
+                           IsPassword="True"
+                           Placeholder="********"
+                           BackgroundColor="{StaticResource InputGray}"
+                           TextColor="White"/>
+
+                    <!-- Error message -->
+                    <Label Text="{Binding ErrorMessage}"
+                           TextColor="Red"
+                           IsVisible="{Binding ErrorMessage, Converter={StaticResource StringToBoolConverter}}"
+                           FontSize="12"/>
+
+                    <!-- Login button -->
+                    <Button Text="Inloggen"
+                            Command="{Binding LoginCommand}"
+                            IsEnabled="{Binding IsBusy, Converter={StaticResource InvertedBoolConverter}}"
+                            BackgroundColor="{StaticResource PrimaryGreen}"
+                            TextColor="White"
+                            Margin="0,10,0,0"/>
+
+                    <!-- Loading indicator -->
+                    <ActivityIndicator IsRunning="{Binding IsBusy}"
+                                     IsVisible="{Binding IsBusy}"
+                                     Color="{StaticResource PrimaryGreen}"/>
+                </VerticalStackLayout>
+            </Frame>
+
+            <!-- Test accounts info -->
+            <Label Text="Test accounts:"
+                   TextColor="White"
+                   FontSize="12"
+                   Margin="0,20,0,0"/>
+            <Label Text="jan.peeters@example.com / Password123!"
+                   TextColor="White"
+                   FontSize="10"/>
+            <Label Text="admin@bankapp.local / Admin123!"
+                   TextColor="White"
+                   FontSize="10"/>
+
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>

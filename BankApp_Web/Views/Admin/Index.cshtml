@@ -1,0 +1,50 @@
+@model IEnumerable<BankApp_Models.BankUser>
+
+@{
+    ViewData["Title"] = "Gebruikersbeheer";
+}
+
+<h1>Gebruikersbeheer</h1>
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Email</th>
+            <th>Naam</th>
+            <th>Telefoon</th>
+            <th>Status</th>
+            <th>Acties</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>@Html.DisplayFor(modelItem => item.Email)</td>
+                <td>@Html.DisplayFor(modelItem => item.Voornaam) @Html.DisplayFor(modelItem => item.Achternaam)</td>
+                <td>@Html.DisplayFor(modelItem => item.Telefoonnummer)</td>
+                <td>
+                    @if (item.LockoutEnd.HasValue && item.LockoutEnd > DateTimeOffset.UtcNow)
+                    {
+                        <span class="badge bg-danger">Geblokkeerd</span>
+                    }
+                    else
+                    {
+                        <span class="badge bg-success">Actief</span>
+                    }
+                </td>
+                <td>
+                    <a asp-action="GebruikerDetails" asp-route-id="@item.Id" class="btn btn-sm btn-info">Details</a>
+                    @if (item.LockoutEnd.HasValue && item.LockoutEnd > DateTimeOffset.UtcNow)
+                    {
+                        <a asp-action="DeBlokkeerGebruiker" asp-route-id="@item.Id" class="btn btn-sm btn-success">Deblokkeer</a>
+                    }
+                    else
+                    {
+                        <a asp-action="BlokkeerGebruiker" asp-route-id="@item.Id" class="btn btn-sm btn-warning">Blokkeer</a>
+                    }
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

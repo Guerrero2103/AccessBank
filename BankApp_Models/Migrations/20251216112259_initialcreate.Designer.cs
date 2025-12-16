@@ -11,14 +11,14 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace BankApp_Models.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20251204150809_initialcreate")]
+    [Migration("20251216112259_initialcreate")]
     partial class initialcreate
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
-            modelBuilder.HasAnnotation("ProductVersion", "9.0.10");
+            modelBuilder.HasAnnotation("ProductVersion", "9.0.0");
 
             modelBuilder.Entity("BankApp_Models.Adres", b =>
                 {

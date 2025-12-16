@@ -78,13 +78,13 @@ namespace BankApp_WPF
 
             if (gebruiker != null)
             {
-                // Update UserSession direct na succesvolle login
+                // Bewaar ingelogde gebruiker
                 UserSession.IngelogdeGebruiker = gebruiker;
 
                 MessageBox.Show($"Welkom {gebruiker.Email}!", "Login Succesvol",
                     MessageBoxButton.OK, MessageBoxImage.Information);
 
-                // Controleer of gebruiker Admin is via Identity Roles
+                // Controleer welke rol gebruiker heeft
                 bool isAdmin = false;
                 
                 using (var context = new AppDbContext())
@@ -93,18 +93,18 @@ namespace BankApp_WPF
                     null!, new PasswordHasher<BankUser>(),
                     null!, null!, null!, null!, null!, null!))
                 {
-                    // Haal gebruiker opnieuw op in deze context om rollen correct te kunnen ophalen
+                    // Haal gebruiker opnieuw op om rollen te kunnen bekijken
                     var gebruikerMetRollen = await context.Users
                         .FirstOrDefaultAsync(u => u.Id == gebruiker.Id);
 
                     if (gebruikerMetRollen != null)
                     {
-                        // Reload gebruiker om rollen te kunnen ophalen
+                        // Laad rollen opnieuw
                         await context.Entry(gebruikerMetRollen).ReloadAsync();
                         
                         var roles = await userManager.GetRolesAsync(gebruikerMetRollen);
                         
-                        // Debug: toon rollen voor troubleshooting
+                        // Toon rollen voor controle
                         if (roles != null && roles.Any())
                         {
                             string rollenString = string.Join(", ", roles);
@@ -115,7 +115,7 @@ namespace BankApp_WPF
                             Console.WriteLine("Geen rollen gevonden voor gebruiker!");
                         }
 
-                        // Controleer op Admin en Medewerker rol (case-insensitive)
+                        // Controleer of gebruiker Admin of Medewerker is
                         bool isAdminRole = roles != null && roles.Any(r => 
                             r.Equals("Admin", StringComparison.OrdinalIgnoreCase));
                         bool isMedewerkerRole = roles != null && roles.Any(r => 
@@ -123,7 +123,7 @@ namespace BankApp_WPF
                         
                         isAdmin = isAdminRole;
                         
-                        // Redirect op basis van rol - Admin heeft voorrang
+                        // Ga naar juiste pagina op basis van rol
                         if (isAdminRole)
                         {
                             Console.WriteLine("Admin gedetecteerd - ga naar AdminPagina");
@@ -147,7 +147,7 @@ namespace BankApp_WPF
                     }
                 }
 
-                // Fallback: controleer ook op admin email als rollen niet werken
+                // Als rollen niet werken, controleer email
                 if (!isAdmin && gebruiker.Email != null && 
                     (gebruiker.Email.Equals("admin@bankapp.local", StringComparison.OrdinalIgnoreCase) ||
                      gebruiker.Email.Equals("beheerder@bankapp.local", StringComparison.OrdinalIgnoreCase)))
@@ -159,7 +159,7 @@ namespace BankApp_WPF
                     return;
                 }
 
-                // Geen admin of medewerker - ga naar HoofdPagina
+                // Normale klant - ga naar hoofdpagina
                 Console.WriteLine("Klant - ga naar HoofdPagina");
                 HoofdPagina hoofd = new HoofdPagina();
                 hoofd.Show();
@@ -214,7 +214,7 @@ namespace BankApp_WPF
             }
         }
 
-        // Identity Framework - Login validatie met UserManager
+        // Controleer inloggegevens
         private async Task<BankUser?> ValidateLoginAsync(string email, string password)
         {
             using var context = new AppDbContext();
@@ -232,7 +232,7 @@ namespace BankApp_WPF
             if (gebruiker == null)
                 return null;
 
-            // Identity Framework password check
+            // Controleer wachtwoord
             var result = await userManager.CheckPasswordAsync(gebruiker, password);
             if (result)
             {

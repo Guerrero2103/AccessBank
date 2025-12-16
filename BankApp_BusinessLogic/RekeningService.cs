@@ -34,7 +34,7 @@ namespace BankApp_BusinessLogic
 
         public async Task<List<Rekening>> GetRekeningenByGebruikerIdAsync(string gebruikerId)
         {
-            // LINQ METHOD SYNTAX
+            // Haal alle rekeningen van gebruiker op
             return await _context.Rekeningen
                 .Where(r => r.GebruikerId == gebruikerId && r.Deleted == DateTime.MaxValue)
                 .ToListAsync();
@@ -42,7 +42,7 @@ namespace BankApp_BusinessLogic
 
         public async Task<Rekening> MaakRekeningAanAsync(string gebruikerId)
         {
-            // LINQ QUERY SYNTAX: Controleer of gebruiker bestaat
+            // Controleer of gebruiker bestaat
             var gebruiker = (from user in _context.Users
                             where user.Id == gebruikerId && user.Deleted == DateTime.MaxValue
                             select user)
@@ -86,7 +86,7 @@ namespace BankApp_BusinessLogic
 
         public async Task<decimal> GetTotaalSaldoAsync(string gebruikerId)
         {
-            // LINQ QUERY SYNTAX: Bereken totaal saldo
+            // Bereken totaal saldo van alle rekeningen
             var totaalSaldo = (from rekening in _context.Rekeningen
                               where rekening.GebruikerId == gebruikerId && rekening.Deleted == DateTime.MaxValue
                               select rekening.Saldo)

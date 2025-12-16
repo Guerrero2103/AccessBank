@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:BankApp_MAUI.ViewModels"
+             x:Class="BankApp_MAUI.Pages.OverschrijvingPage"
+             x:DataType="vm:OverschrijvingViewModel"
+             Title="{Binding Title}">
+
+    <ScrollView>
+        <VerticalStackLayout Padding="20" Spacing="15">
+
+            <!-- Van rekening -->
+            <Label Text="Van rekening"/>
+            <Picker ItemsSource="{Binding EigenRekeningen}"
+                    SelectedItem="{Binding GeselecteerdeRekening}"
+                    ItemDisplayBinding="{Binding Iban}"/>
+
+            <!-- Naar IBAN -->
+            <Label Text="Naar IBAN"/>
+            <Entry Text="{Binding NaarIban}"
+                   Placeholder="BE00 0000 0000 0000"
+                   Keyboard="Text"/>
+
+            <!-- Bedrag -->
+            <Label Text="Bedrag (€)"/>
+            <Entry Text="{Binding Bedrag}"
+                   Placeholder="0.00"
+                   Keyboard="Numeric"/>
+
+            <!-- Omschrijving -->
+            <Label Text="Omschrijving"/>
+            <Entry Text="{Binding Omschrijving}"
+                   Placeholder="Optioneel"
+                   Keyboard="Text"/>
+
+            <!-- Waarschuwing voor grote bedragen -->
+            <Frame BackgroundColor="LightYellow"
+                   BorderColor="Orange"
+                   CornerRadius="5"
+                   Padding="10"
+                   IsVisible="{Binding Bedrag, Converter={StaticResource GreaterThanConverter}, ConverterParameter=500}">
+                <Label Text="⚠️ Bedragen vanaf €500 vereisen goedkeuring van een medewerker"
+                       FontSize="12"
+                       TextColor="DarkOrange"/>
+            </Frame>
+
+            <!-- Error message -->
+            <Label Text="{Binding ErrorMessage}"
+                   TextColor="Red"
+                   IsVisible="{Binding ErrorMessage, Converter={StaticResource StringToBoolConverter}}"
+                   FontSize="12"/>
+
+            <!-- Success message -->
+            <Label Text="{Binding SuccessMessage}"
+                   TextColor="Green"
+                   IsVisible="{Binding SuccessMessage, Converter={StaticResource StringToBoolConverter}}"
+                   FontSize="12"/>
+
+            <!-- Verzend button -->
+            <Button Text="Verzenden"
+                    Command="{Binding VerzendOverschrijvingCommand}"
+                    IsEnabled="{Binding IsBusy, Converter={StaticResource InvertedBoolConverter}}"
+                    BackgroundColor="{StaticResource Primary}"
+                    TextColor="White"
+                    Margin="0,10,0,0"/>
+
+            <!-- Loading indicator -->
+            <ActivityIndicator IsRunning="{Binding IsBusy}"
+                             IsVisible="{Binding IsBusy}"
+                             Color="{StaticResource Primary}"/>
+
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>

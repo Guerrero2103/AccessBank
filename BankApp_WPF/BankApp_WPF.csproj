@@ -21,4 +21,15 @@
     <ProjectReference Include="..\BankApp_BusinessLogic\BankApp_BusinessLogic.csproj" />
   </ItemGroup>
 
+  <!-- Exclude the included Agenda-master sample apps (MAUI) from this WPF project build -->
+  <ItemGroup>
+    <Compile Remove="Agenda-master\**\*.xaml.cs" />
+    <Page Remove="Agenda-master\**\*.xaml" />
+    <ApplicationDefinition Remove="Agenda-master\**\App.xaml" />
+    <None Remove="Agenda-master\**" />
+    <EmbeddedResource Remove="Agenda-master\**\*.*" />
+    <!-- Also remove all C# source files under Agenda-master so MAUI code won't be compiled here -->
+    <Compile Remove="Agenda-master\**\*.cs" />
+  </ItemGroup>
+
 </Project>

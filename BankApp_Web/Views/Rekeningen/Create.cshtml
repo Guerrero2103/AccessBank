@@ -1,0 +1,35 @@
+@model BankApp_Models.Rekening
+
+@{
+    ViewData["Title"] = "Nieuwe Rekening";
+}
+
+<h1>Nieuwe Rekening</h1>
+
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="Create">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="form-group">
+                <label asp-for="Iban" class="control-label"></label>
+                <input asp-for="Iban" class="form-control" />
+                <span asp-validation-for="Iban" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Saldo" class="control-label"></label>
+                <input asp-for="Saldo" class="form-control" type="number" step="0.01" />
+                <span asp-validation-for="Saldo" class="text-danger"></span>
+            </div>
+            <input type="hidden" asp-for="GebruikerId" />
+            <div class="form-group mt-3">
+                <input type="submit" value="Aanmaken" class="btn btn-primary" />
+                <a asp-action="Index" class="btn btn-secondary">Annuleren</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

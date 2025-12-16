@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:BankApp_MAUI.ViewModels"
+             xmlns:model="clr-namespace:BankApp_MAUI.Models"
+             x:Class="BankApp_MAUI.Pages.RekeningenPage"
+             x:DataType="vm:RekeningenViewModel"
+             Title="{Binding Title}">
+
+    <RefreshView IsRefreshing="{Binding IsRefreshing}"
+                 Command="{Binding RefreshCommand}">
+        <CollectionView ItemsSource="{Binding Rekeningen}"
+                       SelectionMode="None">
+            <CollectionView.EmptyView>
+                <VerticalStackLayout HorizontalOptions="Center" VerticalOptions="Center">
+                    <Label Text="Geen rekeningen gevonden"
+                           FontSize="16"
+                           TextColor="Gray"/>
+                </VerticalStackLayout>
+            </CollectionView.EmptyView>
+
+            <CollectionView.ItemTemplate>
+                <DataTemplate x:DataType="model:LocalRekening">
+                    <Frame Margin="10,5"
+                           Padding="15"
+                           BackgroundColor="White"
+                           BorderColor="{StaticResource Primary}"
+                           CornerRadius="10"
+                           HasShadow="True">
+                        <VerticalStackLayout Spacing="10">
+                            <Label Text="Zichtrekening"
+                                   FontAttributes="Bold"
+                                   FontSize="16"/>
+                            <Label Text="{Binding Iban}"
+                                   FontSize="14"
+                                   TextColor="Gray"/>
+                            <Label Text="{Binding Saldo, StringFormat='€ {0:N2}'}"
+                                   FontSize="24"
+                                   FontAttributes="Bold"
+                                   TextColor="{StaticResource Primary}"/>
+                        </VerticalStackLayout>
+                    </Frame>
+                </DataTemplate>
+            </CollectionView.ItemTemplate>
+        </CollectionView>
+    </RefreshView>
+</ContentPage>

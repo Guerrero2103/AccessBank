@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -19,13 +19,18 @@ namespace BankApp_Models
         public DbSet<LogEntry> LogEntries { get; set; }
         public DbSet<KlantBericht> KlantBerichten { get; set; }
 
-        // Constructor
+        // Constructor voor WPF (parameterless)
         public AppDbContext()
         {
             // Database.EnsureCreated() verwijderd - gebruik migraties i.p.v.
         }
 
-        // SQLite configuratie
+        // Constructor voor ASP.NET Core / MAUI (met options)
+        public AppDbContext(DbContextOptions<AppDbContext> options) : base(options)
+        {
+        }
+
+        // SQLite configuratie (alleen voor WPF parameterless constructor)
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             if (!optionsBuilder.IsConfigured)

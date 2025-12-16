@@ -41,13 +41,13 @@ namespace BankApp_BusinessLogic
 
         public async Task<List<Transactie>> GetTransactiesByGebruikerIdAsync(string gebruikerId, int aantal = 50)
         {
-            // LINQ QUERY SYNTAX: Haal IBANs op van gebruiker
+            // Haal alle rekeningnummers van gebruiker op
             var gebruikerIbans = await (from rekening in _context.Rekeningen
                                         where rekening.GebruikerId == gebruikerId && rekening.Deleted == DateTime.MaxValue
                                         select rekening.Iban)
                 .ToListAsync();
 
-            // LINQ METHOD SYNTAX: Haal transacties op
+            // Haal transacties op die bij deze rekeningen horen
             return await _context.Transacties
                 .Where(t => t.Deleted == DateTime.MaxValue)
                 .Where(t => gebruikerIbans.Contains(t.VanIban) || gebruikerIbans.Contains(t.NaarIban))
@@ -87,7 +87,7 @@ namespace BankApp_BusinessLogic
             if (vanIban == naarIban)
                 return (false, "Kan niet naar dezelfde rekening overschrijven", null);
 
-            // Fraud detection: controleer verdachte transactiepatronen
+            // Controleer op verdachte transacties
             var fraudCheck = await ControleerFraudPatternAsync(gebruikerId, bedrag);
             if (fraudCheck.IsVerdacht)
             {
@@ -95,7 +95,7 @@ namespace BankApp_BusinessLogic
                 return (false, $"Transactie geweigerd: Verdacht patroon gedetecteerd. {fraudCheck.Reden}. Uw kaart is tijdelijk bevroren voor uw veiligheid.", null);
             }
 
-            // Check of bedrag >= 500€ - dan status Wachtend
+            // Bij bedrag van 500 euro of meer moet medewerker goedkeuren
             const decimal WACHTEND_DREMPEL = 500.00m;
             bool moetWachten = bedrag >= WACHTEND_DREMPEL;
 
@@ -103,13 +103,13 @@ namespace BankApp_BusinessLogic
 
             try
             {
-                // Alleen saldo aftrekken als bedrag < 500€ (directe overschrijving)
+                // Bij bedrag onder 500 euro: direct geld overmaken
                 if (!moetWachten)
             {
                 vanRekening.Saldo -= bedrag;
                 naarRekening.Saldo += bedrag;
                 }
-                // Bij 500€+ wordt saldo NIET afgetrokken - wacht op medewerker bevestiging
+                // Bij 500 euro of meer: wachten op goedkeuring medewerker
 
                 var transactie = new Transactie
                 {
@@ -141,11 +141,11 @@ namespace BankApp_BusinessLogic
             }
         }
 
-        // Fraud detection: controleer of gebruiker verdacht patroon vertoont
-        // Als gebruiker 4-5 transacties in korte tijd doet en dan ineens een zeer groot bedrag
+        // Controleer of gebruiker verdachte transacties doet
+        // Bijvoorbeeld: veel kleine transacties en dan ineens een groot bedrag
         private async Task<(bool IsVerdacht, string Reden)> ControleerFraudPatternAsync(string gebruikerId, decimal huidigBedrag)
         {
-            // LINQ QUERY SYNTAX: Haal alle IBANs van de gebruiker op
+            // Haal alle rekeningnummers van gebruiker op
             var gebruikerIbans = await (from rekening in _context.Rekeningen
                                        where rekening.GebruikerId == gebruikerId && rekening.Deleted == DateTime.MaxValue
                                        select rekening.Iban)
@@ -154,10 +154,10 @@ namespace BankApp_BusinessLogic
             if (!gebruikerIbans.Any())
                 return (false, string.Empty);
 
-            // Tijdvenster: laatste 30 minuten
+            // Kijk naar transacties van de laatste 30 minuten
             var tijdVenster = DateTime.Now.AddMinutes(-30);
 
-            // LINQ QUERY SYNTAX: Haal recente transacties op (laatste 30 minuten)
+            // Haal recente transacties op
             var recenteTransacties = await (from transactie in _context.Transacties
                                            where transactie.Deleted == DateTime.MaxValue &&
                                                  gebruikerIbans.Contains(transactie.VanIban) &&
@@ -168,11 +168,11 @@ namespace BankApp_BusinessLogic
 
             int aantalRecenteTransacties = recenteTransacties.Count;
 
-            // Drempelwaarden voor fraud detection
+            // Instellingen voor controle
             const int MIN_AANTAL_TRANSACTIES = 4; // Minimaal 4 transacties in korte tijd
-            const decimal GROOT_BEDRAG_DREMPEL = 1000.00m; // Bedrag groter dan 1000 euro wordt als "groot" beschouwd
+            const decimal GROOT_BEDRAG_DREMPEL = 1000.00m; // Bedrag groter dan 1000 euro is verdacht
 
-            // Controleer patroon: 4-5 transacties in korte tijd EN dan ineens een zeer groot bedrag
+            // Controleer patroon: veel transacties in korte tijd en dan een groot bedrag
             if (aantalRecenteTransacties >= MIN_AANTAL_TRANSACTIES && huidigBedrag >= GROOT_BEDRAG_DREMPEL)
             {
                 decimal totaalBedrag = recenteTransacties.Sum(t => t.Bedrag) + huidigBedrag;
@@ -182,10 +182,10 @@ namespace BankApp_BusinessLogic
             return (false, string.Empty);
         }
 
-        // Bevries alle actieve kaarten van een gebruiker
+        // Blokkeer alle kaarten van gebruiker
         private async Task BevriesKaartenVanGebruikerAsync(string gebruikerId)
         {
-            // LINQ QUERY SYNTAX: Haal alle actieve kaarten van gebruiker op
+            // Haal alle actieve kaarten van gebruiker op
             var kaarten = await (from kaart in _context.Kaarten
                                 where kaart.GebruikerId == gebruikerId &&
                                       kaart.Deleted == DateTime.MaxValue &&
@@ -204,7 +204,7 @@ namespace BankApp_BusinessLogic
             }
         }
 
-        // Haal alle wachtende overschrijvingen op (500€+)
+        // Haal alle overschrijvingen op die wachten op goedkeuring
         public async Task<List<Transactie>> GetWachtendeOverschrijvingenAsync()
         {
             return await _context.Transacties
@@ -215,7 +215,7 @@ namespace BankApp_BusinessLogic
                 .ToListAsync();
         }
 
-        // Bevestig overschrijving (medewerker)
+        // Medewerker keurt overschrijving goed
         public async Task<(bool Succes, string Bericht)> BevestigOverschrijvingAsync(int transactieId, string medewerkerId)
         {
             var transactie = await _context.Transacties
@@ -244,11 +244,11 @@ namespace BankApp_BusinessLogic
 
             try
             {
-                // Trek nu pas saldo af
+                // Haal geld af van rekening en zet op andere rekening
                 vanRekening.Saldo -= transactie.Bedrag;
                 naarRekening.Saldo += transactie.Bedrag;
 
-                // Update transactie status
+                // Zet status op voltooid
                 transactie.Status = TransactieStatus.Voltooid;
                 transactie.BevestigdOp = DateTime.Now;
                 transactie.BevestigdDoor = medewerkerId;
@@ -265,7 +265,7 @@ namespace BankApp_BusinessLogic
             }
         }
 
-        // Afwijs overschrijving (medewerker)
+        // Medewerker wijst overschrijving af
         public async Task<(bool Succes, string Bericht)> AfwijsOverschrijvingAsync(int transactieId, string medewerkerId, string reden)
         {
             var transactie = await _context.Transacties

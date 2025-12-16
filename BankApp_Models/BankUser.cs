@@ -108,23 +108,6 @@ namespace BankApp_Models
         public ICollection<Transactie> Transacties { get; set; } = new List<Transactie>();
         public ICollection<LogEntry> Logs { get; set; } = new List<LogEntry>();
 
-        // Databank - Dummy object
-        public static readonly BankUser Dummy = new()
-        {
-            Id = "-",
-            UserName = "Dummy",
-            NormalizedUserName = "DUMMY",
-            Email = "dummy@bankapp.local",
-            NormalizedEmail = "DUMMY@BANKAPP.LOCAL",
-            Voornaam = "Dummy",
-            Achternaam = "User",
-            Telefoonnummer = string.Empty,
-            Geboortedatum = DateTime.UtcNow,
-            Deleted = DateTime.MinValue,
-            LockoutEnabled = true,
-            LockoutEnd = DateTimeOffset.MaxValue
-        };
-
         private void EnsureAdres()
         {
             if (Adres == null)
@@ -141,16 +124,22 @@ namespace BankApp_Models
                 null!, new Microsoft.AspNetCore.Identity.PasswordHasher<BankUser>(),
                 null!, null!, null!, null!, null!, null!);
 
-            // Voeg rollen toe (Identity Roles)
-            if (!context.Roles.Any())
+            using var roleManager = new Microsoft.AspNetCore.Identity.RoleManager<Microsoft.AspNetCore.Identity.IdentityRole>(
+                new Microsoft.AspNetCore.Identity.EntityFrameworkCore.RoleStore<Microsoft.AspNetCore.Identity.IdentityRole>(context),
+                null!, null!, null!, null!);
+
+            // Voeg rollen toe (Identity Roles) via RoleManager
+            if (!await roleManager.RoleExistsAsync("Klant"))
             {
-                context.Roles.AddRange(new List<Microsoft.AspNetCore.Identity.IdentityRole>
-                {
-                    new Microsoft.AspNetCore.Identity.IdentityRole { Id = "Klant", Name = "Klant", NormalizedName = "KLANT" },
-                    new Microsoft.AspNetCore.Identity.IdentityRole { Id = "Medewerker", Name = "Medewerker", NormalizedName = "MEDEWERKER" },
-                    new Microsoft.AspNetCore.Identity.IdentityRole { Id = "Admin", Name = "Admin", NormalizedName = "ADMIN" }
-                });
-                await context.SaveChangesAsync();
+                await roleManager.CreateAsync(new Microsoft.AspNetCore.Identity.IdentityRole("Klant"));
+            }
+            if (!await roleManager.RoleExistsAsync("Medewerker"))
+            {
+                await roleManager.CreateAsync(new Microsoft.AspNetCore.Identity.IdentityRole("Medewerker"));
+            }
+            if (!await roleManager.RoleExistsAsync("Admin"))
+            {
+                await roleManager.CreateAsync(new Microsoft.AspNetCore.Identity.IdentityRole("Admin"));
             }
 
             // Voeg gebruikers toe

@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:BankApp_MAUI.ViewModels"
+             xmlns:model="clr-namespace:BankApp_MAUI.Models"
+             x:Class="BankApp_MAUI.Pages.TransactiesPage"
+             x:DataType="vm:TransactiesViewModel"
+             Title="{Binding Title}">
+
+    <VerticalStackLayout>
+        <!-- Filter -->
+        <HorizontalStackLayout Padding="10" Spacing="10">
+            <Label Text="Filter:" VerticalOptions="Center"/>
+            <Picker SelectedItem="{Binding FilterStatus}"
+                    HorizontalOptions="FillAndExpand">
+                <Picker.ItemsSource>
+                    <x:Array Type="{x:Type x:String}">
+                        <x:String>Alle</x:String>
+                        <x:String>Voltooid</x:String>
+                        <x:String>Wachtend</x:String>
+                        <x:String>Afgewezen</x:String>
+                    </x:Array>
+                </Picker.ItemsSource>
+            </Picker>
+        </HorizontalStackLayout>
+
+        <!-- Transacties lijst -->
+        <RefreshView IsRefreshing="{Binding IsRefreshing}"
+                     Command="{Binding RefreshCommand}">
+            <CollectionView ItemsSource="{Binding Transacties}"
+                           SelectionMode="None">
+                <CollectionView.EmptyView>
+                    <VerticalStackLayout HorizontalOptions="Center" VerticalOptions="Center">
+                        <Label Text="Geen transacties gevonden"
+                               FontSize="16"
+                               TextColor="Gray"/>
+                    </VerticalStackLayout>
+                </CollectionView.EmptyView>
+
+                <CollectionView.ItemTemplate>
+                    <DataTemplate x:DataType="model:LocalTransactie">
+                        <Frame Margin="10,5"
+                               Padding="15"
+                               BackgroundColor="White"
+                               BorderColor="LightGray"
+                               CornerRadius="10"
+                               HasShadow="True">
+                            <Grid ColumnDefinitions="*,Auto" RowDefinitions="Auto,Auto,Auto">
+                                <Label Grid.Column="0" Grid.Row="0"
+                                       Text="{Binding Datum, StringFormat='{0:dd/MM/yyyy HH:mm}'}"
+                                       FontSize="12"
+                                       TextColor="Gray"/>
+                                
+                                <Label Grid.Column="0" Grid.Row="1"
+                                       Text="{Binding NaamOntvanger}"
+                                       FontSize="16"
+                                       FontAttributes="Bold"/>
+                                
+                                <Label Grid.Column="0" Grid.Row="2"
+                                       Text="{Binding Omschrijving}"
+                                       FontSize="12"
+                                       TextColor="Gray"/>
+
+                                <Label Grid.Column="1" Grid.Row="1"
+                                       Text="{Binding Bedrag, StringFormat='€ {0:N2}'}"
+                                       FontSize="18"
+                                       FontAttributes="Bold"
+                                       TextColor="{StaticResource Primary}"
+                                       VerticalOptions="Center"/>
+                                
+                                <Label Grid.Column="1" Grid.Row="2"
+                                       Text="{Binding Status}"
+                                       FontSize="10"
+                                       HorizontalOptions="End"
+                                       TextColor="Gray"/>
+                            </Grid>
+                        </Frame>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+        </RefreshView>
+    </VerticalStackLayout>
+</ContentPage>

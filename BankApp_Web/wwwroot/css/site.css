@@ -1,0 +1,251 @@
+/* ===== AccessBank WPF Theme ===== */
+:root {
+  --background-black: #000000;
+  --gold-card: #FFD700;
+  --primary-green: #10B981;
+  --secondary-blue: #1E88E5;
+  --profile-purple: #9370DB;
+  --contact-red: #FF6347;
+  --logout-crimson: #DC143C;
+  --input-gray: #1F2937;
+  --text-white: #FFFFFF;
+}
+
+html {
+  font-size: 14px;
+  position: relative;
+  min-height: 100%;
+}
+
+@media (min-width: 768px) {
+  html {
+    font-size: 16px;
+  }
+}
+
+body {
+  margin-bottom: 60px;
+  background-color: var(--background-black) !important;
+  color: var(--text-white) !important;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+}
+
+/* ===== Saldo Card (Goud) ===== */
+.saldo-card {
+  background-color: var(--gold-card);
+  color: #000000;
+  border-radius: 20px;
+  padding: 40px;
+  margin: 20px 0 30px 0;
+  box-shadow: 0 10px 30px rgba(255, 215, 0, 0.3);
+}
+
+.saldo-card h2 {
+  font-size: 22px;
+  margin-bottom: 10px;
+  color: #000000;
+}
+
+.saldo-card .saldo-amount {
+  font-size: 72px;
+  font-weight: bold;
+  color: #000000;
+  margin: 10px 0;
+}
+
+.saldo-card .account-info {
+  font-size: 18px;
+  color: #000000;
+  opacity: 0.8;
+}
+
+/* ===== Buttons (WPF Colors) ===== */
+.btn-primary, .btn-overschrijven {
+  background-color: var(--primary-green) !important;
+  border-color: var(--primary-green) !important;
+  color: white !important;
+  font-weight: bold;
+  border-radius: 10px;
+  padding: 15px 30px;
+  font-size: 18px;
+  transition: all 0.3s ease;
+}
+
+.btn-primary:hover, .btn-overschrijven:hover {
+  background-color: #0D9E72 !important;
+  transform: scale(1.05);
+}
+
+.btn-secondary, .btn-terug {
+  background-color: var(--secondary-blue) !important;
+  border-color: var(--secondary-blue) !important;
+  color: white !important;
+  font-weight: bold;
+  border-radius: 10px;
+}
+
+.btn-profile {
+  background-color: var(--profile-purple) !important;
+  border-color: var(--profile-purple) !important;
+  color: white !important;
+  font-weight: bold;
+}
+
+.btn-contact {
+  background-color: var(--contact-red) !important;
+  border-color: var(--contact-red) !important;
+  color: white !important;
+  font-weight: bold;
+}
+
+.btn-danger, .btn-uitloggen {
+  background-color: var(--logout-crimson) !important;
+  border-color: var(--logout-crimson) !important;
+  color: white !important;
+  font-weight: bold;
+}
+
+/* ===== Action Buttons (WPF Style) ===== */
+.action-button {
+  height: 120px;
+  margin: 10px 0;
+  font-size: 24px;
+  font-weight: bold;
+  border: none;
+  border-radius: 15px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.action-button:hover {
+  opacity: 0.9;
+  transform: translateY(-2px);
+}
+
+.action-button:active {
+  opacity: 0.8;
+  transform: translateY(0);
+}
+
+/* ===== Forms ===== */
+.form-control {
+  background-color: var(--input-gray) !important;
+  border: 1px solid #374151;
+  color: var(--text-white) !important;
+  border-radius: 5px;
+  padding: 10px 15px;
+}
+
+.form-control:focus {
+  box-shadow: 0 0 0 0.2rem rgba(16, 185, 129, 0.25);
+  border-color: var(--primary-green);
+  background-color: var(--input-gray) !important;
+  color: var(--text-white) !important;
+}
+
+.form-control::placeholder {
+  color: #9CA3AF;
+}
+
+.form-label {
+  color: var(--text-white);
+  font-weight: 500;
+  margin-bottom: 8px;
+}
+
+/* ===== Cards ===== */
+.card {
+  background-color: #1C1C1C;
+  border: 1px solid #374151;
+  border-radius: 10px;
+  color: var(--text-white);
+}
+
+.card-header {
+  background-color: #111111;
+  border-bottom: 1px solid #374151;
+  color: var(--text-white);
+  font-weight: bold;
+}
+
+/* ===== Navigation ===== */
+.navbar {
+  background-color: var(--background-black) !important;
+  border-bottom: 2px solid var(--gold-card);
+}
+
+.navbar-brand {
+  color: var(--text-white) !important;
+  font-size: 28px;
+  font-weight: bold;
+}
+
+.nav-link {
+  color: var(--text-white) !important;
+}
+
+.nav-link:hover {
+  color: var(--gold-card) !important;
+}
+
+/* ===== Tables ===== */
+.table {
+  color: var(--text-white);
+}
+
+.table thead {
+  background-color: #1C1C1C;
+  border-bottom: 2px solid var(--gold-card);
+}
+
+.table tbody tr {
+  background-color: #111111;
+  border-bottom: 1px solid #374151;
+}
+
+.table tbody tr:hover {
+  background-color: #1C1C1C;
+}
+
+/* ===== Footer ===== */
+.footer {
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  white-space: nowrap;
+  line-height: 60px;
+  background-color: var(--background-black);
+  color: var(--text-white);
+  border-top: 1px solid #374151;
+}
+
+/* ===== Alerts ===== */
+.alert-success {
+  background-color: var(--primary-green);
+  color: white;
+  border: none;
+}
+
+.alert-danger {
+  background-color: var(--logout-crimson);
+  color: white;
+  border: none;
+}
+
+.alert-warning {
+  background-color: var(--contact-red);
+  color: white;
+  border: none;
+}
+
+/* ===== Responsive ===== */
+@media (max-width: 768px) {
+  .saldo-card .saldo-amount {
+    font-size: 48px;
+  }
+  
+  .action-button {
+    height: 80px;
+    font-size: 18px;
+  }
+}

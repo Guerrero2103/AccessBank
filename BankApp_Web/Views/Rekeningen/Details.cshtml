@@ -1,0 +1,35 @@
+@model BankApp_Models.Rekening
+
+@{
+    ViewData["Title"] = "Rekening Details";
+}
+
+<h1>Rekening Details</h1>
+
+<div>
+    <h4>Rekening</h4>
+    <hr />
+    <dl class="row">
+        <dt class="col-sm-2">
+            IBAN
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Iban)
+        </dd>
+        <dt class="col-sm-2">
+            Saldo
+        </dt>
+        <dd class="col-sm-10">
+            €@Html.DisplayFor(model => model.Saldo)
+        </dd>
+        <dt class="col-sm-2">
+            Gebruiker
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Gebruiker.Email)
+        </dd>
+    </dl>
+</div>
+<div>
+    <a asp-action="Index" class="btn btn-secondary">Terug naar overzicht</a>
+</div>

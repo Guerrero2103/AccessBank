@@ -1,0 +1,133 @@
+@model IEnumerable<BankApp_Models.Transactie>
+
+@{
+    ViewData["Title"] = "Transacties";
+    var page = ViewBag.Page as int? ??1;
+    var pageSize = ViewBag.PageSize as int? ??10;
+    var totalCount = ViewBag.TotalCount as int? ?? Model.Count();
+    int totalPages = (int)Math.Ceiling((double)totalCount / pageSize);
+}
+
+<h1>Mijn Transacties</h1>
+
+<p>
+    <a asp-action="Create" class="btn btn-primary">Nieuwe Overschrijving</a>
+</p>
+
+<div class="row mb-3">
+    <div class="col-md-8">
+        <!-- Filter en Sortering -->
+        <form asp-action="Index" method="get" class="mb-3">
+            <div class="row">
+                <div class="col-md-4">
+                    <label>Status Filter:</label>
+                    @Html.DropDownList("filterStatus", ViewBag.StatusFilter as SelectList, "Alle statussen", new { @class = "form-control", onchange = "this.form.submit();" })
+                </div>
+                <div class="col-md-8">
+                    <label>Sorteren op:</label>
+                    <div class="btn-group" role="group">
+                        <a asp-action="Index" asp-route-sortOrder="@ViewData["DatumSortParm"]" asp-route-filterStatus="@ViewData["CurrentFilter"]" class="btn btn-outline-secondary">Datum</a>
+                        <a asp-action="Index" asp-route-sortOrder="@ViewData["BedragSortParm"]" asp-route-filterStatus="@ViewData["CurrentFilter"]" class="btn btn-outline-secondary">Bedrag</a>
+                        <a asp-action="Index" asp-route-sortOrder="@ViewData["StatusSortParm"]" asp-route-filterStatus="@ViewData["CurrentFilter"]" class="btn btn-outline-secondary">Status</a>
+                    </div>
+                </div>
+            </div>
+            <input type="hidden" name="page" value="@(page)" />
+            <input type="hidden" name="pageSize" value="@(pageSize)" />
+        </form>
+    </div>
+    <div class="col-md-4">
+        <h5>Recente Transacties</h5>
+        <div id="recentTransactionsContainer">
+            <!-- Partial loaded via fetch in wwwroot/js/site.js -->
+        </div>
+    </div>
+</div>
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Datum</th>
+            <th>Van IBAN</th>
+            <th>Naar IBAN</th>
+            <th>Bedrag</th>
+            <th>Omschrijving</th>
+            <th>Status</th>
+            <th>Acties</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>@Html.DisplayFor(modelItem => item.Datum)</td>
+                <td>@Html.DisplayFor(modelItem => item.VanIban)</td>
+                <td>@Html.DisplayFor(modelItem => item.NaarIban)</td>
+                <td>€@Html.DisplayFor(modelItem => item.Bedrag)</td>
+                <td>@Html.DisplayFor(modelItem => item.Omschrijving)</td>
+                <td>
+                    @if (item.Status == TransactieStatus.Voltooid)
+                    {
+                        <span class="badge bg-success">Voltooid</span>
+                    }
+                    else if (item.Status == TransactieStatus.Wachtend)
+                    {
+                        <span class="badge bg-warning">Wachtend</span>
+                    }
+                    else
+                    {
+                        <span class="badge bg-danger">Afgewezen</span>
+                    }
+                </td>
+                <td>
+                    <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-sm btn-info">Details</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<nav aria-label="Pagina navigatie">
+    <ul class="pagination">
+        <li class="page-item @(page <=1 ? "disabled" : "")">
+            <a class="page-link" asp-action="Index" asp-route-page="@(page-1)" asp-route-pageSize="@pageSize" asp-route-sortOrder="@ViewContext.HttpContext.Request.Query["sortOrder"]" asp-route-filterStatus="@ViewContext.HttpContext.Request.Query["filterStatus"]">Vorige</a>
+        </li>
+
+        @for (int i =1; i <= totalPages; i++)
+        {
+            <li class="page-item @(i == page ? "active" : "")">
+                <a class="page-link" asp-action="Index" asp-route-page="@i" asp-route-pageSize="@pageSize" asp-route-sortOrder="@ViewContext.HttpContext.Request.Query["sortOrder"]" asp-route-filterStatus="@ViewContext.HttpContext.Request.Query["filterStatus"]">@i</a>
+            </li>
+        }
+
+        <li class="page-item @(page >= totalPages ? "disabled" : "")">
+            <a class="page-link" asp-action="Index" asp-route-page="@(page+1)" asp-route-pageSize="@pageSize" asp-route-sortOrder="@ViewContext.HttpContext.Request.Query["sortOrder"]" asp-route-filterStatus="@ViewContext.HttpContext.Request.Query["filterStatus"]">Volgende</a>
+        </li>
+    </ul>
+</nav>
+
+<!-- Ajax voor saldo refresh -->
+<div id="saldoContainer" class="mt-3">
+    <button onclick="refreshSaldo()" class="btn btn-secondary">Saldo Vernieuwen</button>
+    <div id="saldoResult" class="mt-2"></div>
+</div>
+
+@section Scripts {
+    <script>
+        async function refreshSaldo() {
+            try {
+                const res = await fetch('@Url.Action("GetSaldo", "Rekeningen")');
+                if (!res.ok) throw new Error('Netwerkfout');
+                const data = await res.text();
+                document.getElementById('saldoResult').innerHTML = `<div class="alert alert-info">Totaal Saldo: €${data}</div>`;
+            } catch (e) {
+                document.getElementById('saldoResult').innerHTML = `<div class="alert alert-danger">Fout bij ophalen saldo</div>`;
+            }
+        }
+
+        // Laad recent transactions on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            if (typeof loadRecentTransactions === 'function') loadRecentTransactions('recentTransactionsContainer',5);
+        });
+    </script>
+}

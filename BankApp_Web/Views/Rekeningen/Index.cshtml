@@ -1,0 +1,56 @@
+@model IEnumerable<BankApp_Models.Rekening>
+
+@{
+    ViewData["Title"] = "Rekeningen";
+    var page = ViewBag.Page as int? ?? 1;
+    var pageSize = ViewBag.PageSize as int? ?? 10;
+    var totalCount = ViewBag.TotalCount as int? ?? Model.Count();
+    int totalPages = (int)Math.Ceiling((double)totalCount / pageSize);
+}
+
+<h1>Mijn Rekeningen</h1>
+
+<p>
+    <a asp-action="Create" class="btn btn-primary">Nieuwe Rekening</a>
+</p>
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>IBAN</th>
+            <th>Saldo</th>
+            <th>Acties</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>@Html.DisplayFor(modelItem => item.Iban)</td>
+                <td>€@Html.DisplayFor(modelItem => item.Saldo)</td>
+                <td>
+                    <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-sm btn-info">Details</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<nav aria-label="Pagina navigatie">
+    <ul class="pagination">
+        <li class="page-item @(page <= 1 ? "disabled" : "")">
+            <a class="page-link" asp-action="Index" asp-route-page="@(page - 1)" asp-route-pageSize="@pageSize">Vorige</a>
+        </li>
+
+        @for (int i = 1; i <= totalPages; i++)
+        {
+            <li class="page-item @(i == page ? "active" : "")">
+                <a class="page-link" asp-action="Index" asp-route-page="@i" asp-route-pageSize="@pageSize">@i</a>
+            </li>
+        }
+
+        <li class="page-item @(page >= totalPages ? "disabled" : "")">
+            <a class="page-link" asp-action="Index" asp-route-page="@(page + 1)" asp-route-pageSize="@pageSize">Volgende</a>
+        </li>
+    </ul>
+</nav>

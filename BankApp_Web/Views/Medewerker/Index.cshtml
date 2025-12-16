@@ -1,0 +1,50 @@
+@model IEnumerable<BankApp_Models.Transactie>
+
+@{
+    ViewData["Title"] = "Wachtende Transacties";
+}
+
+<h1>Wachtende Transacties</h1>
+
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success">@TempData["Success"]</div>
+}
+
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger">@TempData["Error"]</div>
+}
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Datum</th>
+            <th>Van IBAN</th>
+            <th>Naar IBAN</th>
+            <th>Bedrag</th>
+            <th>Gebruiker</th>
+            <th>Acties</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>@Html.DisplayFor(modelItem => item.Datum)</td>
+                <td>@Html.DisplayFor(modelItem => item.VanIban)</td>
+                <td>@Html.DisplayFor(modelItem => item.NaarIban)</td>
+                <td>€@Html.DisplayFor(modelItem => item.Bedrag)</td>
+                <td>@Html.DisplayFor(modelItem => item.Gebruiker.Email)</td>
+                <td>
+                    <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-sm btn-info">Details</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+@if (!Model.Any())
+{
+    <p class="text-muted">Geen wachtende transacties.</p>
+}

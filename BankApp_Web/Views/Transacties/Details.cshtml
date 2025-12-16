@@ -1,0 +1,79 @@
+@model BankApp_Models.Transactie
+
+@{
+    ViewData["Title"] = "Transactie Details";
+}
+
+<h1>Transactie Details</h1>
+
+<div>
+    <h4>Transactie</h4>
+    <hr />
+    <dl class="row">
+        <dt class="col-sm-2">
+            Van IBAN
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.VanIban)
+        </dd>
+        <dt class="col-sm-2">
+            Naar IBAN
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.NaarIban)
+        </dd>
+        <dt class="col-sm-2">
+            Naam Ontvanger
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.NaamOntvanger)
+        </dd>
+        <dt class="col-sm-2">
+            Bedrag
+        </dt>
+        <dd class="col-sm-10">
+            €@Html.DisplayFor(model => model.Bedrag)
+        </dd>
+        <dt class="col-sm-2">
+            Omschrijving
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Omschrijving)
+        </dd>
+        <dt class="col-sm-2">
+            Datum
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Datum)
+        </dd>
+        <dt class="col-sm-2">
+            Status
+        </dt>
+        <dd class="col-sm-10">
+            @if (Model.Status == TransactieStatus.Voltooid)
+            {
+                <span class="badge bg-success">Voltooid</span>
+            }
+            else if (Model.Status == TransactieStatus.Wachtend)
+            {
+                <span class="badge bg-warning">Wachtend</span>
+            }
+            else
+            {
+                <span class="badge bg-danger">Afgewezen</span>
+            }
+        </dd>
+        @if (!string.IsNullOrEmpty(Model.AfwijzingsReden))
+        {
+            <dt class="col-sm-2">
+                Afwijzings Reden
+            </dt>
+            <dd class="col-sm-10">
+                @Html.DisplayFor(model => model.AfwijzingsReden)
+            </dd>
+        }
+    </dl>
+</div>
+<div>
+    <a asp-action="Index" class="btn btn-secondary">Terug naar overzicht</a>
+</div>

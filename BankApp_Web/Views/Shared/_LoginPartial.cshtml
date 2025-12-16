@@ -1,0 +1,76 @@
+@using BankApp_Models
+@using Microsoft.AspNetCore.Identity
+@using Microsoft.AspNetCore.Localization
+@using Microsoft.AspNetCore.Mvc.Localization
+
+@inject SignInManager<BankUser> SignInManager
+@inject UserManager<BankUser> UserManager
+@inject IViewLocalizer _localizer
+
+<ul class="navbar-nav">
+@if (SignInManager.IsSignedIn(User))
+{
+    <li class="nav-item">
+        <a id="manage" class="nav-link text-dark" asp-area="Identity" asp-page="/Account/Manage/Index" title="Beheer">@_localizer["Hallo"] @UserManager.GetUserName(User)!</a>
+    </li>
+    <li class="nav-item">
+        <form id="logoutForm" class="form-inline" asp-area="Identity" asp-page="/Account/Logout" asp-route-returnUrl="@Url.Action("Index", "Home", new { area = "" })">
+            <button id="logout" type="submit" class="nav-link btn btn-link text-dark border-0">@_localizer["Uitloggen"]</button>
+        </form>
+    </li>
+}
+else
+{
+    string languageCode = "nl";
+
+    // Haal de taal/cultuur op van de cookie
+    string cookieCulture = Context.Request.Cookies[CookieRequestCultureProvider.DefaultCookieName];
+    if (cookieCulture != null)
+    {
+        languageCode = cookieCulture.Substring(2, 2);
+    }
+
+    var thisPage = string.IsNullOrEmpty(Context.Request.Path) ? "~/index.html" : $"~{Context.Request.Path.Value}";
+
+    <li class="nav-item">
+        <a class="nav-link text-dark" id="register" asp-area="Identity" asp-page="/Account/Register">@_localizer["Registreren"]</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link text-dark" id="login" asp-area="Identity" asp-page="/Account/Login">@_localizer["Inloggen"]</a>
+    </li>
+    <li class="nav-item dropdown">
+        <a class="nav-link text-dark dropdown-toggle" data-bs-toggle="dropdown">@GetLanguageName(languageCode)</a>
+        <ul class="dropdown-menu">
+            @foreach (var lang in new[] { new { Code = "nl", Name = "Nederlands" }, new { Code = "en", Name = "English" }, new { Code = "fr", Name = "Français" } })
+            {
+                if (lang.Code != languageCode)
+                {
+                    <li class="nav-item">
+                        <a class="nav-link text-dark"
+                           asp-area=""
+                           asp-controller="Home"
+                           asp-action="ChangeLanguage"
+                           asp-route-code="@lang.Code"
+                           asp-route-returnUrl="@thisPage">
+                            @lang.Name
+                        </a>
+                    </li>
+                }
+            }
+        </ul>
+    </li>
+}
+</ul>
+
+@functions {
+    private string GetLanguageName(string code)
+    {
+        return code switch
+        {
+            "nl" => "Nederlands",
+            "en" => "English",
+            "fr" => "Français",
+            _ => "Nederlands"
+        };
+    }
+}

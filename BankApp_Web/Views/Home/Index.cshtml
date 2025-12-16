@@ -1,0 +1,16 @@
+@{
+    ViewData["Title"] = "Home";
+}
+
+<div class="text-center">
+    <h1 class="display-4">Welkom bij BankApp</h1>
+    <p>Uw betrouwbare bankapplicatie voor al uw financiële behoeften.</p>
+    
+    @if (!User.Identity.IsAuthenticated)
+    {
+        <p>
+            <a class="btn btn-primary" asp-area="Identity" asp-page="/Account/Register">Registreren</a>
+            <a class="btn btn-secondary" asp-area="Identity" asp-page="/Account/Login">Inloggen</a>
+        </p>
+    }
+</div>

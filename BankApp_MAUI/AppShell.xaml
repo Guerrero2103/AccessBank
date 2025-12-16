@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<Shell
+    x:Class="BankApp_MAUI.AppShell"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:pages="clr-namespace:BankApp_MAUI.Pages"
+    Shell.FlyoutBehavior="Flyout">
+
+    <!-- Flyout Menu - geen icons -->
+    <FlyoutItem Title="Home">
+        <ShellContent ContentTemplate="{DataTemplate pages:MainPage}" Route="main" />
+    </FlyoutItem>
+
+    <FlyoutItem Title="Rekeningen">
+        <ShellContent ContentTemplate="{DataTemplate pages:RekeningenPage}" Route="rekeningen" />
+    </FlyoutItem>
+
+    <FlyoutItem Title="Overschrijving">
+        <ShellContent ContentTemplate="{DataTemplate pages:OverschrijvingPage}" Route="overschrijving" />
+    </FlyoutItem>
+
+    <FlyoutItem Title="Transacties">
+        <ShellContent ContentTemplate="{DataTemplate pages:TransactiesPage}" Route="transacties" />
+    </FlyoutItem>
+
+    <MenuItem Text="Uitloggen" Clicked="OnLogoutClicked" />
+
+</Shell>

@@ -1,0 +1,46 @@
+@model BankApp_Models.BankUser
+
+@{
+    ViewData["Title"] = "Gebruiker Details";
+}
+
+<h1>Gebruiker Details</h1>
+
+<div>
+    <h4>Gebruiker</h4>
+    <hr />
+    <dl class="row">
+        <dt class="col-sm-2">
+            Email
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Email)
+        </dd>
+        <dt class="col-sm-2">
+            Naam
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Voornaam) @Html.DisplayFor(model => model.Achternaam)
+        </dd>
+        <dt class="col-sm-2">
+            Telefoon
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Telefoonnummer)
+        </dd>
+        <dt class="col-sm-2">
+            Rollen
+        </dt>
+        <dd class="col-sm-10">
+            @foreach (var rol in ViewBag.Roles as IEnumerable<string>)
+            {
+                <span class="badge bg-primary">@rol</span>
+            }
+        </dd>
+    </dl>
+</div>
+
+<div>
+    <a asp-action="Rollen" asp-route-id="@Model.Id" class="btn btn-primary">Rollen Beheren</a>
+    <a asp-action="Index" class="btn btn-secondary">Terug</a>
+</div>

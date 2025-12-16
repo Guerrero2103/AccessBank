@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<Application xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:converters="clr-namespace:BankApp_MAUI.Converters"
+             x:Class="BankApp_MAUI.App">
+    <Application.Resources>
+        <ResourceDictionary>
+            <!-- AccessBank WPF Kleuren -->
+            <Color x:Key="BackgroundBlack">#000000</Color>
+            <Color x:Key="GoldCard">#FFD700</Color>
+            <Color x:Key="PrimaryGreen">#10B981</Color>
+            <Color x:Key="SecondaryBlue">#1E88E5</Color>
+            <Color x:Key="ProfilePurple">#9370DB</Color>
+            <Color x:Key="ContactRed">#FF6347</Color>
+            <Color x:Key="LogoutCrimson">#DC143C</Color>
+            <Color x:Key="InputGray">#1F2937</Color>
+            <Color x:Key="White">White</Color>
+            <Color x:Key="Black">Black</Color>
+            
+            <!-- Backward compatibility -->
+            <Color x:Key="Primary">#10B981</Color>
+            
+            <!-- Converters -->
+            <converters:InvertedBoolConverter x:Key="InvertedBoolConverter" />
+            <converters:StringToBoolConverter x:Key="StringToBoolConverter" />
+            <converters:IsNotNullConverter x:Key="IsNotNullConverter" />
+            <converters:GreaterThanConverter x:Key="GreaterThanConverter" />
+        </ResourceDictionary>
+    </Application.Resources>
+</Application>

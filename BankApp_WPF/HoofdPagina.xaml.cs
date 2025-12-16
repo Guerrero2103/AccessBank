@@ -38,7 +38,7 @@ namespace BankApp_WPF
 
                 Console.WriteLine($"Gebruiker ingelogd: {UserSession.IngelogdeGebruiker?.Email}");
 
-                // Initialize database
+                // Test database verbinding
                 try
                 {
                     using (var context = new AppDbContext())
@@ -54,10 +54,10 @@ namespace BankApp_WPF
                     throw;
                 }
 
-                // Check of gebruiker medewerker of admin is - zo ja, redirect
+                // Controleer of gebruiker medewerker of admin is en ga naar juiste pagina
                 await CheckEnRedirectMedewerker();
                 
-                // Load user data
+                // Laad gebruikersgegevens
                 LoadUserData();
             }
             catch (Exception ex)
@@ -117,7 +117,7 @@ namespace BankApp_WPF
 
                     Console.WriteLine($"Aantal rekeningen: {rekeningen.Count}");
 
-                    // Maak rekening aan als er geen zijn
+                    // Maak nieuwe rekening aan als gebruiker er nog geen heeft
                     if (rekeningen.Count == 0)
                     {
                         Console.WriteLine("Nieuwe zichtrekening aanmaken...");
@@ -131,10 +131,10 @@ namespace BankApp_WPF
                     var totaalSaldo = await rekeningService.GetTotaalSaldoAsync(gebruikerId);
                     Console.WriteLine($"Totaal saldo: €{totaalSaldo}");
 
-                    // Update UI
+                    // Toon saldo op scherm
                     lblTotalSaldo.Content = $"€{totaalSaldo:N2}";
 
-                    // Toon zichtrekening info
+                    // Toon rekeningnummer
                     var zichtRekening = rekeningen.FirstOrDefault();
 
                     if (zichtRekening != null)
@@ -224,7 +224,7 @@ namespace BankApp_WPF
             }
         }
 
-        // Controleer of gebruiker medewerker of admin is en redirect indien nodig
+        // Controleer of gebruiker medewerker of admin is en ga naar juiste pagina
         private async Task CheckEnRedirectMedewerker()
         {
             try
@@ -251,7 +251,7 @@ namespace BankApp_WPF
                     bool isMedewerker = roles != null && roles.Any(r =>
                         r.Equals("Medewerker", StringComparison.OrdinalIgnoreCase));
 
-                    // Als gebruiker Admin is, ga naar AdminPagina
+                    // Admin gaat naar adminpagina
                     if (isAdmin)
                     {
                         Console.WriteLine("Admin gedetecteerd in HoofdPagina - redirect naar AdminPagina");
@@ -261,7 +261,7 @@ namespace BankApp_WPF
                         return;
                     }
                     
-                    // Als gebruiker Medewerker is, ga naar MedewerkerPagina
+                    // Medewerker gaat naar medewerkerpagina
                     if (isMedewerker)
                     {
                         Console.WriteLine("Medewerker gedetecteerd in HoofdPagina - redirect naar MedewerkerPagina");

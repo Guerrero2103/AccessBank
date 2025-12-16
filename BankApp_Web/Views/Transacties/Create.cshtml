@@ -1,0 +1,51 @@
+@model BankApp_Models.Transactie
+
+@{
+    ViewData["Title"] = "Nieuwe Overschrijving";
+}
+
+<h1>Nieuwe Overschrijving</h1>
+
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="Create">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="form-group">
+                <label asp-for="VanIban" class="control-label">Van IBAN</label>
+                @Html.DropDownList("VanIban", ViewBag.VanIban as SelectList, "Selecteer rekening", new { @class = "form-control" })
+                <span asp-validation-for="VanIban" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="NaarIban" class="control-label">Naar IBAN</label>
+                <input asp-for="NaarIban" class="form-control" />
+                <span asp-validation-for="NaarIban" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="NaamOntvanger" class="control-label">Naam Ontvanger</label>
+                <input asp-for="NaamOntvanger" class="form-control" />
+                <span asp-validation-for="NaamOntvanger" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Bedrag" class="control-label"></label>
+                <input asp-for="Bedrag" class="form-control" type="number" step="0.01" min="0.01" />
+                <span asp-validation-for="Bedrag" class="text-danger"></span>
+                <small class="form-text text-muted">Bedragen vanaf €500 vereisen medewerker bevestiging</small>
+            </div>
+            <div class="form-group">
+                <label asp-for="Omschrijving" class="control-label"></label>
+                <input asp-for="Omschrijving" class="form-control" />
+                <span asp-validation-for="Omschrijving" class="text-danger"></span>
+            </div>
+            <input type="hidden" asp-for="GebruikerId" />
+            <div class="form-group mt-3">
+                <input type="submit" value="Verzenden" class="btn btn-primary" />
+                <a asp-action="Index" class="btn btn-secondary">Annuleren</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

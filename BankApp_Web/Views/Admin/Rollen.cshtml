@@ -1,0 +1,48 @@
+@{
+    ViewData["Title"] = "Rollen Beheren";
+}
+
+<h1>Rollen Beheren voor @ViewBag.GebruikerNaam</h1>
+
+<div class="row">
+    <div class="col-md-6">
+        <h3>Huidige Rollen</h3>
+        <ul class="list-group">
+            @foreach (var rol in ViewBag.GebruikerRoles as IEnumerable<string>)
+            {
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    <span class="badge bg-primary">@rol</span>
+                    <form asp-action="VerwijderRol" method="post" class="d-inline">
+                        <input type="hidden" name="gebruikerId" value="@ViewBag.GebruikerId" />
+                        <input type="hidden" name="rolNaam" value="@rol" />
+                        <button type="submit" class="btn btn-sm btn-danger">Verwijderen</button>
+                    </form>
+                </li>
+            }
+        </ul>
+    </div>
+    <div class="col-md-6">
+        <h3>Beschikbare Rollen</h3>
+        <ul class="list-group">
+            @foreach (var rol in ViewBag.AlleRoles as IEnumerable<Microsoft.AspNetCore.Identity.IdentityRole>)
+            {
+                bool heeftRol = (ViewBag.GebruikerRoles as IEnumerable<string>).Contains(rol.Name);
+                if (!heeftRol)
+                {
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        <span>@rol.Name</span>
+                        <form asp-action="VoegRolToe" method="post" class="d-inline">
+                            <input type="hidden" name="gebruikerId" value="@ViewBag.GebruikerId" />
+                            <input type="hidden" name="rolNaam" value="@rol.Name" />
+                            <button type="submit" class="btn btn-sm btn-success">Toevoegen</button>
+                        </form>
+                    </li>
+                }
+            }
+        </ul>
+    </div>
+</div>
+
+<div class="mt-3">
+    <a asp-action="Index" class="btn btn-secondary">Terug naar Gebruikers</a>
+</div>
