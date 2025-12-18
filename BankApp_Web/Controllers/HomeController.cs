@@ -15,6 +15,12 @@ namespace BankApp_Web.Controllers
 
         public IActionResult Index()
         {
+            // Als gebruiker niet is ingelogd, toon welcome pagina
+            if (!User.Identity?.IsAuthenticated ?? true)
+            {
+                return View();
+            }
+
             // Redirect op basis van rol
             if (User.IsInRole("Klant"))
             {
@@ -29,6 +35,7 @@ namespace BankApp_Web.Controllers
                 return RedirectToAction("Index", "Admin");
             }
 
+            // Als gebruiker is ingelogd maar geen rol heeft, blijf op home pagina
             return View();
         }
 
