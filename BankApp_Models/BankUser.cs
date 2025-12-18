@@ -1,469 +1,280 @@
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
-using System.IO;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Threading.Tasks;
 
 namespace BankApp_Models
 {
-    // Identity Framework - DbContext afgeleid van IdentityDbContext (vereiste)
-    public class AppDbContext : IdentityDbContext<BankUser>
+    // Identity Framework - BankUser erft van IdentityUser (vereiste)
+    public class BankUser : IdentityUser
     {
-        // Tabellen (DbSets)
-        public DbSet<Adres> Adressen { get; set; }
-        public DbSet<Rekening> Rekeningen { get; set; }
-        public DbSet<Transactie> Transacties { get; set; }
-        public DbSet<Kaart> Kaarten { get; set; }
-        public DbSet<LogEntry> LogEntries { get; set; }
-        public DbSet<KlantBericht> KlantBerichten { get; set; }
+        // Extra eigenschappen voor de gebruiker (minstens één extra eigenschap vereist)
+        [Required]
+        [MaxLength(50)]
+        public string Voornaam { get; set; } = string.Empty;
 
-        // Constructor voor WPF (parameterless)
-        public AppDbContext()
-        {
-            // Database.EnsureCreated() verwijderd - gebruik migraties i.p.v.
-        }
+        [Required]
+        [MaxLength(50)]
+        public string Achternaam { get; set; } = string.Empty;
 
-        // Constructor voor ASP.NET Core / MAUI (met options)
-        public AppDbContext(DbContextOptions<AppDbContext> options) : base(options)
-        {
-        }
+        [MaxLength(20)]
+        public string Telefoonnummer { get; set; } = string.Empty;
 
-        // SQLite configuratie (alleen voor WPF parameterless constructor)
-        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        [Required]
+        public DateTime Geboortedatum { get; set; }
+
+        // Databank - Soft delete verplicht
+        public DateTime Deleted { get; set; } = DateTime.MaxValue;
+
+        // Databank - Adres koppeling
+        public int? AdresId { get; set; }
+        public Adres? Adres { get; set; }
+
+        // Databank - Adres wrappers voor bestaande UI (backward compatibility)
+        [NotMapped]
+        public string Straatnaam
         {
-            if (!optionsBuilder.IsConfigured)
+            get => Adres?.Straat ?? string.Empty;
+            set
             {
-                string basePath = AppDomain.CurrentDomain.BaseDirectory;
-                string solutionPath = Path.GetFullPath(Path.Combine(basePath, @"..\..\..\..\"));
-                string dbPath = Path.Combine(solutionPath, "BankApp_Models", "bankapp.db");
-
-                Console.WriteLine($"[DB PATH] {dbPath}");
-                Directory.CreateDirectory(Path.GetDirectoryName(dbPath)!);
-
-                optionsBuilder.UseSqlite($"Data Source={dbPath}");
+                EnsureAdres();
+                Adres!.Straat = value;
             }
         }
 
-        // Modelconfiguratie + seeding
-        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        [NotMapped]
+        public string Huisnummer
         {
-            base.OnModelCreating(modelBuilder);
+            get => Adres?.Huisnummer ?? string.Empty;
+            set
+            {
+                EnsureAdres();
+                Adres!.Huisnummer = value;
+            }
+        }
 
-            // Databank - Soft-delete filters
-            modelBuilder.Entity<BankUser>().HasQueryFilter(u => u.Deleted == DateTime.MaxValue);
-            modelBuilder.Entity<Adres>().HasQueryFilter(a => a.Deleted == DateTime.MaxValue);
-            modelBuilder.Entity<Rekening>().HasQueryFilter(r => r.Deleted == DateTime.MaxValue);
-            modelBuilder.Entity<Kaart>().HasQueryFilter(k => k.Deleted == DateTime.MaxValue);
-            modelBuilder.Entity<Transactie>().HasQueryFilter(t => t.Deleted == DateTime.MaxValue);
-            modelBuilder.Entity<KlantBericht>().HasQueryFilter(kb => kb.Deleted == DateTime.MaxValue);
+        [NotMapped]
+        public string? Bus
+        {
+            get => Adres?.Bus;
+            set
+            {
+                EnsureAdres();
+                Adres!.Bus = string.IsNullOrWhiteSpace(value) ? null : value;
+            }
+        }
 
-            // === RELATIES ===
-            modelBuilder.Entity<BankUser>()
-                .HasOne(u => u.Adres)
-                .WithOne(a => a.Gebruiker)
-                .HasForeignKey<BankUser>(u => u.AdresId)
-                .OnDelete(DeleteBehavior.Cascade);
+        [NotMapped]
+        public string Postcode
+        {
+            get => Adres?.Postcode ?? string.Empty;
+            set
+            {
+                EnsureAdres();
+                Adres!.Postcode = value;
+            }
+        }
 
-            modelBuilder.Entity<Rekening>()
-                .HasOne(r => r.Gebruiker)
-                .WithMany(u => u.Rekeningen)
-                .HasForeignKey(r => r.GebruikerId)
-                .OnDelete(DeleteBehavior.Cascade);
+        [NotMapped]
+        public string Gemeente
+        {
+            get => Adres?.Gemeente ?? string.Empty;
+            set
+            {
+                EnsureAdres();
+                Adres!.Gemeente = value;
+            }
+        }
 
-            modelBuilder.Entity<Kaart>()
-                .HasOne(k => k.Gebruiker)
-                .WithMany(u => u.Kaarten)
-                .HasForeignKey(k => k.GebruikerId)
-                .OnDelete(DeleteBehavior.Cascade);
+        [NotMapped]
+        public string Land
+        {
+            get => Adres?.Land ?? string.Empty;
+            set
+            {
+                EnsureAdres();
+                Adres!.Land = value;
+            }
+        }
 
-            modelBuilder.Entity<KlantBericht>()
-                .HasOne(kb => kb.Gebruiker)
-                .WithMany()
-                .HasForeignKey(kb => kb.GebruikerId)
-                .OnDelete(DeleteBehavior.SetNull);
+        // Entity Framework - Navigatie-eigenschappen
+        public ICollection<Rekening> Rekeningen { get; set; } = new List<Rekening>();
+        public ICollection<Kaart> Kaarten { get; set; } = new List<Kaart>();
+        public ICollection<Transactie> Transacties { get; set; } = new List<Transactie>();
+        public ICollection<LogEntry> Logs { get; set; } = new List<LogEntry>();
 
-            // === ADRESSEN SEEDEN ===
-            modelBuilder.Entity<Adres>().HasData(
-                new Adres { Id = 1, Straat = "Kerkstraat", Huisnummer = "12", Bus = "A", Postcode = "2000", Gemeente = "Antwerpen", Land = "België", Deleted = DateTime.MaxValue },
-                new Adres { Id = 2, Straat = "Stationslaan", Huisnummer = "45", Bus = null, Postcode = "3000", Gemeente = "Leuven", Land = "België", Deleted = DateTime.MaxValue },
-                new Adres { Id = 3, Straat = "Marktplein", Huisnummer = "1", Bus = null, Postcode = "1000", Gemeente = "Brussel", Land = "België", Deleted = DateTime.MaxValue }
-            );
-
-            // Gebruikers seeding gebeurt via BankUser.Seeder() methode (zie BankUser.cs)
-
-            // Rekeningen seeding gebeurt via Seeder() methode (na users zijn aangemaakt)
-
-            // Transacties seeding gebeurt via Seeder() methode (na users zijn aangemaakt)
-
-            // Kaarten seeding gebeurt via Seeder() methode (na users zijn aangemaakt)
-
-            // === LOGGING SEEDEN ===
-            modelBuilder.Entity<LogEntry>().HasData(
-                new LogEntry
-                {
-                    Id = 1,
-                    Message = "Seed voltooid",
-                    LogLevel = "Information",
-                    Application = "BankApp",
-                    GebruikerId = null,
-                    TimeStamp = new DateTime(2024, 1, 1)
-                }
-            );
+        private void EnsureAdres()
+        {
+            if (Adres == null)
+            {
+                Adres = new Adres();
+            }
         }
 
         // Seeder methode voor Identity Framework (zoals Agenda-master)
-        // Deze wordt gebruikt vanuit WPF
         public static async Task Seeder(AppDbContext context)
         {
-            await BankUser.Seeder(context);
-        }
+            // Gebruik dezelfde PasswordHasher configuratie als de applicatie
+            var passwordHasher = new Microsoft.AspNetCore.Identity.PasswordHasher<BankUser>();
 
-        // Seeder methode met Dependency Injection (voor ASP.NET Core)
-        public static async Task SeederWithDI(
-            AppDbContext context,
-            Microsoft.AspNetCore.Identity.UserManager<BankUser> userManager,
-            Microsoft.AspNetCore.Identity.RoleManager<Microsoft.AspNetCore.Identity.IdentityRole> roleManager,
-            ILogger logger)
-        {
-            // Seed rollen
-            logger.LogInformation("Seeding rollen...");
-            foreach (var roleName in new[] { "Klant", "Medewerker", "Admin" })
+            using var userManager = new Microsoft.AspNetCore.Identity.UserManager<BankUser>(
+                new Microsoft.AspNetCore.Identity.EntityFrameworkCore.UserStore<BankUser>(context),
+                null!, passwordHasher,
+                null!, null!, null!, null!, null!, null!);
+
+            using var roleManager = new Microsoft.AspNetCore.Identity.RoleManager<Microsoft.AspNetCore.Identity.IdentityRole>(
+                new Microsoft.AspNetCore.Identity.EntityFrameworkCore.RoleStore<Microsoft.AspNetCore.Identity.IdentityRole>(context),
+                null!, null!, null!, null!);
+
+            // Voeg rollen toe (Identity Roles) via RoleManager
+            if (!await roleManager.RoleExistsAsync("Klant"))
             {
-                if (!await roleManager.RoleExistsAsync(roleName))
-                {
-                    var result = await roleManager.CreateAsync(new Microsoft.AspNetCore.Identity.IdentityRole(roleName));
-                    if (result.Succeeded)
-                    {
-                        logger.LogInformation($"Rol '{roleName}' aangemaakt");
-                    }
-                    else
-                    {
-                        logger.LogError($"Fout bij aanmaken rol '{roleName}': {string.Join(", ", result.Errors.Select(e => e.Description))}");
-                    }
-                }
+                await roleManager.CreateAsync(new Microsoft.AspNetCore.Identity.IdentityRole("Klant"));
+            }
+            if (!await roleManager.RoleExistsAsync("Medewerker"))
+            {
+                await roleManager.CreateAsync(new Microsoft.AspNetCore.Identity.IdentityRole("Medewerker"));
+            }
+            if (!await roleManager.RoleExistsAsync("Admin"))
+            {
+                await roleManager.CreateAsync(new Microsoft.AspNetCore.Identity.IdentityRole("Admin"));
             }
 
-            // Seed adressen als ze nog niet bestaan
-            if (!context.Adressen.Any())
-            {
-                logger.LogInformation("Seeding adressen...");
-                context.Adressen.AddRange(
-                    new Adres { Id = 1, Straat = "Kerkstraat", Huisnummer = "12", Bus = "A", Postcode = "2000", Gemeente = "Antwerpen", Land = "België", Deleted = DateTime.MaxValue },
-                    new Adres { Id = 2, Straat = "Stationslaan", Huisnummer = "45", Bus = null, Postcode = "3000", Gemeente = "Leuven", Land = "België", Deleted = DateTime.MaxValue },
-                    new Adres { Id = 3, Straat = "Marktplein", Huisnummer = "1", Bus = null, Postcode = "1000", Gemeente = "Brussel", Land = "België", Deleted = DateTime.MaxValue }
-                );
-                await context.SaveChangesAsync();
-                logger.LogInformation("Adressen aangemaakt");
-            }
-
-            // Seed test gebruikers
-            logger.LogInformation("Seeding test gebruikers...");
-            var testAdres1 = await context.Adressen.FindAsync(1);
-            var testAdres2 = await context.Adressen.FindAsync(2);
-            var testAdres3 = await context.Adressen.FindAsync(3);
+            // Voeg test gebruikers toe (maak opnieuw aan als ze niet bestaan)
+            var adres1 = await context.Adressen.FindAsync(1);
+            var adres2 = await context.Adressen.FindAsync(2);
+            var adres3 = await context.Adressen.FindAsync(3);
 
             // Test gebruiker 1: Jan Peeters (Klant)
-            var user1Email = "jan.peeters@example.com";
-            var testUser1 = await userManager.FindByEmailAsync(user1Email);
-            if (testUser1 == null)
+            var existingUser1 = await userManager.FindByEmailAsync("jan.peeters@example.com");
+            if (existingUser1 == null)
             {
-                testUser1 = new BankUser
+                var user1 = new BankUser
                 {
                     UserName = "jan.peeters",
-                    Email = user1Email,
+                    Email = "jan.peeters@example.com",
                     EmailConfirmed = true,
                     Voornaam = "Jan",
                     Achternaam = "Peeters",
                     Telefoonnummer = "0478123456",
                     Geboortedatum = new DateTime(1990, 4, 15),
                     AdresId = 1,
-                    Adres = testAdres1
+                    Adres = adres1
                 };
 
-                var result = await userManager.CreateAsync(testUser1, "Password123!");
-                if (result.Succeeded)
+                var result1 = await userManager.CreateAsync(user1, "Password123!");
+                if (result1.Succeeded)
                 {
-                    await userManager.AddToRoleAsync(testUser1, "Klant");
-                    logger.LogInformation($"Gebruiker '{user1Email}' aangemaakt met rol Klant");
+                    await userManager.AddToRoleAsync(user1, "Klant");
+                    await context.SaveChangesAsync();
                 }
                 else
                 {
-                    logger.LogError($"Fout bij aanmaken '{user1Email}': {string.Join(", ", result.Errors.Select(e => e.Description))}");
+                    // Log fouten voor debugging
+                    var errors = string.Join(", ", result1.Errors.Select(e => e.Description));
+                    Console.WriteLine($"Fout bij aanmaken gebruiker 1: {errors}");
                 }
             }
             else
             {
-                // Reset wachtwoord
-                var token = await userManager.GeneratePasswordResetTokenAsync(testUser1);
-                var resetResult = await userManager.ResetPasswordAsync(testUser1, token, "Password123!");
+                // Reset wachtwoord als gebruiker al bestaat
+                var token = await userManager.GeneratePasswordResetTokenAsync(existingUser1);
+                var resetResult = await userManager.ResetPasswordAsync(existingUser1, token, "Password123!");
                 if (resetResult.Succeeded)
                 {
-                    logger.LogInformation($"Wachtwoord gereset voor '{user1Email}'");
+                    await context.SaveChangesAsync();
                 }
             }
 
             // Test gebruiker 2: Sarah Janssens (Medewerker)
-            var user2Email = "sarah.janssens@example.com";
-            var testUser2 = await userManager.FindByEmailAsync(user2Email);
-            if (testUser2 == null)
+            var existingUser2 = await userManager.FindByEmailAsync("sarah.janssens@example.com");
+            if (existingUser2 == null)
             {
-                testUser2 = new BankUser
+                var user2 = new BankUser
                 {
                     UserName = "sarah.janssens",
-                    Email = user2Email,
+                    Email = "sarah.janssens@example.com",
                     EmailConfirmed = true,
                     Voornaam = "Sarah",
                     Achternaam = "Janssens",
                     Telefoonnummer = "0498765432",
                     Geboortedatum = new DateTime(1985, 10, 2),
                     AdresId = 2,
-                    Adres = testAdres2
+                    Adres = adres2
                 };
 
-                var result = await userManager.CreateAsync(testUser2, "Password123!");
-                if (result.Succeeded)
+                var result2 = await userManager.CreateAsync(user2, "Password123!");
+                if (result2.Succeeded)
                 {
-                    await userManager.AddToRoleAsync(testUser2, "Medewerker");
-                    logger.LogInformation($"Gebruiker '{user2Email}' aangemaakt met rol Medewerker");
+                    await userManager.AddToRoleAsync(user2, "Medewerker");
+                    await context.SaveChangesAsync();
                 }
                 else
                 {
-                    logger.LogError($"Fout bij aanmaken '{user2Email}': {string.Join(", ", result.Errors.Select(e => e.Description))}");
+                    // Log fouten voor debugging
+                    var errors = string.Join(", ", result2.Errors.Select(e => e.Description));
+                    Console.WriteLine($"Fout bij aanmaken gebruiker 2: {errors}");
                 }
             }
             else
             {
-                // Reset wachtwoord
-                var token = await userManager.GeneratePasswordResetTokenAsync(testUser2);
-                var resetResult = await userManager.ResetPasswordAsync(testUser2, token, "Password123!");
+                // Reset wachtwoord als gebruiker al bestaat
+                var token = await userManager.GeneratePasswordResetTokenAsync(existingUser2);
+                var resetResult = await userManager.ResetPasswordAsync(existingUser2, token, "Password123!");
                 if (resetResult.Succeeded)
                 {
-                    logger.LogInformation($"Wachtwoord gereset voor '{user2Email}'");
+                    await context.SaveChangesAsync();
                 }
             }
 
             // Test gebruiker 3: Admin
-            var adminEmail = "admin@bankapp.local";
-            var testAdmin = await userManager.FindByEmailAsync(adminEmail);
-            if (testAdmin == null)
+            var existingAdmin = await userManager.FindByEmailAsync("admin@bankapp.local");
+            if (existingAdmin == null)
             {
-                testAdmin = new BankUser
+                var admin = new BankUser
                 {
                     UserName = "admin",
-                    Email = adminEmail,
+                    Email = "admin@bankapp.local",
                     EmailConfirmed = true,
                     Voornaam = "Admin",
                     Achternaam = "Beheerder",
                     Telefoonnummer = "0412345678",
                     Geboortedatum = new DateTime(1975, 6, 25),
                     AdresId = 3,
-                    Adres = testAdres3
+                    Adres = adres3
                 };
 
-                var result = await userManager.CreateAsync(testAdmin, "Admin123!");
-                if (result.Succeeded)
+                var result3 = await userManager.CreateAsync(admin, "Admin123!");
+                if (result3.Succeeded)
                 {
-                    await userManager.AddToRoleAsync(testAdmin, "Admin");
-                    logger.LogInformation($"Gebruiker '{adminEmail}' aangemaakt met rol Admin");
+                    await userManager.AddToRoleAsync(admin, "Admin");
+                    await context.SaveChangesAsync();
                 }
                 else
                 {
-                    logger.LogError($"Fout bij aanmaken '{adminEmail}': {string.Join(", ", result.Errors.Select(e => e.Description))}");
+                    // Log fouten voor debugging
+                    var errors = string.Join(", ", result3.Errors.Select(e => e.Description));
+                    Console.WriteLine($"Fout bij aanmaken admin: {errors}");
                 }
             }
             else
             {
-                // Reset wachtwoord
-                var token = await userManager.GeneratePasswordResetTokenAsync(testAdmin);
-                var resetResult = await userManager.ResetPasswordAsync(testAdmin, token, "Admin123!");
+                // Reset wachtwoord als gebruiker al bestaat
+                var token = await userManager.GeneratePasswordResetTokenAsync(existingAdmin);
+                var resetResult = await userManager.ResetPasswordAsync(existingAdmin, token, "Admin123!");
                 if (resetResult.Succeeded)
                 {
-                    logger.LogInformation($"Wachtwoord gereset voor '{adminEmail}'");
+                    await context.SaveChangesAsync();
                 }
             }
 
+            // Zorg dat alle wijzigingen worden opgeslagen
             await context.SaveChangesAsync();
-            logger.LogInformation("Test gebruikers seeding voltooid");
-
-            // Seed rekeningen en transacties alleen voor nieuwe gebruikers (vermijd duplicates)
-            if (!context.Rekeningen.Any())
-            {
-                logger.LogInformation("Seeding rekeningen en transacties...");
-
-                // Haal gebruikers opnieuw op voor rekeningen
-                var klant = await context.Users.FirstOrDefaultAsync(u => u.Email == "jan.peeters@example.com");
-                var medewerker = await context.Users.FirstOrDefaultAsync(u => u.Email == "sarah.janssens@example.com");
-                var adminUser = await context.Users.FirstOrDefaultAsync(u => u.Email == "admin@bankapp.local");
-
-                // Klant rekening
-                if (klant != null)
-                {
-                    context.Rekeningen.Add(
-                        new Rekening { Iban = "BE12345678901234", Saldo = 5000.00m, GebruikerId = klant.Id, Deleted = DateTime.MaxValue }
-                    );
-                    context.Kaarten.Add(
-                        new Kaart { KaartNummer = "1111-2222-3333-4444", Status = KaartStatus.Actief, GebruikerId = klant.Id, Deleted = DateTime.MaxValue }
-                    );
-                }
-
-                // Medewerker rekening
-                if (medewerker != null)
-                {
-                    context.Rekeningen.Add(
-                        new Rekening { Iban = "BE11223344556677", Saldo = 7500.00m, GebruikerId = medewerker.Id, Deleted = DateTime.MaxValue }
-                    );
-                    context.Kaarten.Add(
-                        new Kaart { KaartNummer = "5555-6666-7777-8888", Status = KaartStatus.Actief, GebruikerId = medewerker.Id, Deleted = DateTime.MaxValue }
-                    );
-                }
-
-                // Admin rekening
-                if (adminUser != null)
-                {
-                    context.Rekeningen.Add(
-                        new Rekening { Iban = "BE99887766554433", Saldo = 10000.00m, GebruikerId = adminUser.Id, Deleted = DateTime.MaxValue }
-                    );
-                    context.Kaarten.Add(
-                        new Kaart { KaartNummer = "9999-8888-7777-6666", Status = KaartStatus.Actief, GebruikerId = adminUser.Id, Deleted = DateTime.MaxValue }
-                    );
-                }
-
-                await context.SaveChangesAsync();
-                logger.LogInformation("Rekeningen en kaarten seeding voltooid");
-            }
-        }
-
-        // Seed rekeningen en kaarten na users zijn aangemaakt  
-        private static async Task SeedRekeningenEnKaarten(AppDbContext context)
-        {
-            if (!context.Rekeningen.Any())
-            {
-                var user1 = await context.Users.FirstOrDefaultAsync(u => u.Email == "jan.peeters@example.com");
-                var user2 = await context.Users.FirstOrDefaultAsync(u => u.Email == "sarah.janssens@example.com");
-                var admin = await context.Users.FirstOrDefaultAsync(u => u.Email == "admin@bankapp.local");
-
-                // User1 (Klant) - Jan Peeters
-                if (user1 != null)
-                {
-                    context.Rekeningen.Add(
-                        new Rekening { Iban = "BE12345678901234", Saldo = 5000.00m, GebruikerId = user1.Id, Deleted = DateTime.MaxValue }
-                    );
-                    context.Kaarten.Add(
-                        new Kaart { KaartNummer = "1111-2222-3333-4444", Status = KaartStatus.Actief, GebruikerId = user1.Id, Deleted = DateTime.MaxValue }
-                    );
-
-                    // Transacties voor user1
-                    context.Transacties.Add(
-                        new Transactie
-                        {
-                            VanIban = "BE12345678901234",
-                            NaarIban = "BE11223344556677",
-                            NaamOntvanger = "Sarah Janssens",
-                            Bedrag = 50.00m,
-                            Omschrijving = "Cadeau",
-                            Datum = new DateTime(2024, 5, 10),
-                            Deleted = DateTime.MaxValue,
-                            GebruikerId = user1.Id
-                        }
-                    );
-                }
-
-                // User2 (Medewerker) - Sarah Janssens
-                if (user2 != null)
-                {
-                    context.Rekeningen.Add(
-                        new Rekening { Iban = "BE11223344556677", Saldo = 7500.00m, GebruikerId = user2.Id, Deleted = DateTime.MaxValue }
-                    );
-                    context.Kaarten.Add(
-                        new Kaart { KaartNummer = "5555-6666-7777-8888", Status = KaartStatus.Actief, GebruikerId = user2.Id, Deleted = DateTime.MaxValue }
-                    );
-                }
-
-                // Admin - Admin Beheerder
-                if (admin != null)
-                {
-                    context.Rekeningen.Add(
-                        new Rekening { Iban = "BE99887766554433", Saldo = 10000.00m, GebruikerId = admin.Id, Deleted = DateTime.MaxValue }
-                    );
-                    context.Kaarten.Add(
-                        new Kaart { KaartNummer = "9999-8888-7777-6666", Status = KaartStatus.Actief, GebruikerId = admin.Id, Deleted = DateTime.MaxValue }
-                    );
-                }
-
-                await context.SaveChangesAsync();
-            }
-            else
-            {
-                // Als rekeningen al bestaan, update saldo's voor test gebruikers
-                var user1 = await context.Users.FirstOrDefaultAsync(u => u.Email == "jan.peeters@example.com");
-                var user2 = await context.Users.FirstOrDefaultAsync(u => u.Email == "sarah.janssens@example.com");
-                var admin = await context.Users.FirstOrDefaultAsync(u => u.Email == "admin@bankapp.local");
-
-                // Update saldo's voor bestaande rekeningen
-                if (user1 != null)
-                {
-                    var rekening1 = await context.Rekeningen.FirstOrDefaultAsync(r => r.GebruikerId == user1.Id && r.Deleted == DateTime.MaxValue);
-                    if (rekening1 != null)
-                    {
-                        rekening1.Saldo = 5000.00m;
-                    }
-                    else
-                    {
-                        // Maak rekening aan als die nog niet bestaat
-                        context.Rekeningen.Add(
-                            new Rekening { Iban = "BE12345678901234", Saldo = 5000.00m, GebruikerId = user1.Id, Deleted = DateTime.MaxValue }
-                        );
-                        context.Kaarten.Add(
-                            new Kaart { KaartNummer = "1111-2222-3333-4444", Status = KaartStatus.Actief, GebruikerId = user1.Id, Deleted = DateTime.MaxValue }
-                        );
-                    }
-                }
-
-                if (user2 != null)
-                {
-                    var rekening2 = await context.Rekeningen.FirstOrDefaultAsync(r => r.GebruikerId == user2.Id && r.Deleted == DateTime.MaxValue);
-                    if (rekening2 != null)
-                    {
-                        rekening2.Saldo = 7500.00m;
-                    }
-                    else
-                    {
-                        // Maak rekening aan als die nog niet bestaat
-                        context.Rekeningen.Add(
-                            new Rekening { Iban = "BE11223344556677", Saldo = 7500.00m, GebruikerId = user2.Id, Deleted = DateTime.MaxValue }
-                        );
-                        context.Kaarten.Add(
-                            new Kaart { KaartNummer = "5555-6666-7777-8888", Status = KaartStatus.Actief, GebruikerId = user2.Id, Deleted = DateTime.MaxValue }
-                        );
-                    }
-                }
-
-                if (admin != null)
-                {
-                    var rekeningAdmin = await context.Rekeningen.FirstOrDefaultAsync(r => r.GebruikerId == admin.Id && r.Deleted == DateTime.MaxValue);
-                    if (rekeningAdmin != null)
-                    {
-                        rekeningAdmin.Saldo = 10000.00m;
-                    }
-                    else
-                    {
-                        // Maak rekening aan als die nog niet bestaat
-                        context.Rekeningen.Add(
-                            new Rekening { Iban = "BE99887766554433", Saldo = 10000.00m, GebruikerId = admin.Id, Deleted = DateTime.MaxValue }
-                        );
-                        context.Kaarten.Add(
-                            new Kaart { KaartNummer = "9999-8888-7777-6666", Status = KaartStatus.Actief, GebruikerId = admin.Id, Deleted = DateTime.MaxValue }
-                        );
-                    }
-                }
-
-                await context.SaveChangesAsync();
-            }
         }
     }
 }
-
-
