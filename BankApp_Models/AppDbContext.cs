@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -114,11 +115,230 @@ namespace BankApp_Models
         }
 
         // Seeder methode voor Identity Framework (zoals Agenda-master)
+        // Deze wordt gebruikt vanuit WPF
         public static async Task Seeder(AppDbContext context)
         {
             await BankUser.Seeder(context);
+        }
 
-            // Seed rekeningen en kaarten na users zijn aangemaakt
+        // Seeder methode met Dependency Injection (voor ASP.NET Core)
+        public static async Task SeederWithDI(
+            AppDbContext context,
+            Microsoft.AspNetCore.Identity.UserManager<BankUser> userManager,
+            Microsoft.AspNetCore.Identity.RoleManager<Microsoft.AspNetCore.Identity.IdentityRole> roleManager,
+            ILogger logger)
+        {
+            // Seed rollen
+            logger.LogInformation("Seeding rollen...");
+            foreach (var roleName in new[] { "Klant", "Medewerker", "Admin" })
+            {
+                if (!await roleManager.RoleExistsAsync(roleName))
+                {
+                    var result = await roleManager.CreateAsync(new Microsoft.AspNetCore.Identity.IdentityRole(roleName));
+                    if (result.Succeeded)
+                    {
+                        logger.LogInformation($"Rol '{roleName}' aangemaakt");
+                    }
+                    else
+                    {
+                        logger.LogError($"Fout bij aanmaken rol '{roleName}': {string.Join(", ", result.Errors.Select(e => e.Description))}");
+                    }
+                }
+            }
+
+            // Seed adressen als ze nog niet bestaan
+            if (!context.Adressen.Any())
+            {
+                logger.LogInformation("Seeding adressen...");
+                context.Adressen.AddRange(
+                    new Adres { Id = 1, Straat = "Kerkstraat", Huisnummer = "12", Bus = "A", Postcode = "2000", Gemeente = "Antwerpen", Land = "België", Deleted = DateTime.MaxValue },
+                    new Adres { Id = 2, Straat = "Stationslaan", Huisnummer = "45", Bus = null, Postcode = "3000", Gemeente = "Leuven", Land = "België", Deleted = DateTime.MaxValue },
+                    new Adres { Id = 3, Straat = "Marktplein", Huisnummer = "1", Bus = null, Postcode = "1000", Gemeente = "Brussel", Land = "België", Deleted = DateTime.MaxValue }
+                );
+                await context.SaveChangesAsync();
+                logger.LogInformation("Adressen aangemaakt");
+            }
+
+            // Seed test gebruikers
+            logger.LogInformation("Seeding test gebruikers...");
+            var testAdres1 = await context.Adressen.FindAsync(1);
+            var testAdres2 = await context.Adressen.FindAsync(2);
+            var testAdres3 = await context.Adressen.FindAsync(3);
+
+            // Test gebruiker 1: Jan Peeters (Klant)
+            var user1Email = "jan.peeters@example.com";
+            var testUser1 = await userManager.FindByEmailAsync(user1Email);
+            if (testUser1 == null)
+            {
+                testUser1 = new BankUser
+                {
+                    UserName = "jan.peeters",
+                    Email = user1Email,
+                    EmailConfirmed = true,
+                    Voornaam = "Jan",
+                    Achternaam = "Peeters",
+                    Telefoonnummer = "0478123456",
+                    Geboortedatum = new DateTime(1990, 4, 15),
+                    AdresId = 1,
+                    Adres = testAdres1
+                };
+
+                var result = await userManager.CreateAsync(testUser1, "Password123!");
+                if (result.Succeeded)
+                {
+                    await userManager.AddToRoleAsync(testUser1, "Klant");
+                    logger.LogInformation($"Gebruiker '{user1Email}' aangemaakt met rol Klant");
+                }
+                else
+                {
+                    logger.LogError($"Fout bij aanmaken '{user1Email}': {string.Join(", ", result.Errors.Select(e => e.Description))}");
+                }
+            }
+            else
+            {
+                // Reset wachtwoord
+                var token = await userManager.GeneratePasswordResetTokenAsync(testUser1);
+                var resetResult = await userManager.ResetPasswordAsync(testUser1, token, "Password123!");
+                if (resetResult.Succeeded)
+                {
+                    logger.LogInformation($"Wachtwoord gereset voor '{user1Email}'");
+                }
+            }
+
+            // Test gebruiker 2: Sarah Janssens (Medewerker)
+            var user2Email = "sarah.janssens@example.com";
+            var testUser2 = await userManager.FindByEmailAsync(user2Email);
+            if (testUser2 == null)
+            {
+                testUser2 = new BankUser
+                {
+                    UserName = "sarah.janssens",
+                    Email = user2Email,
+                    EmailConfirmed = true,
+                    Voornaam = "Sarah",
+                    Achternaam = "Janssens",
+                    Telefoonnummer = "0498765432",
+                    Geboortedatum = new DateTime(1985, 10, 2),
+                    AdresId = 2,
+                    Adres = testAdres2
+                };
+
+                var result = await userManager.CreateAsync(testUser2, "Password123!");
+                if (result.Succeeded)
+                {
+                    await userManager.AddToRoleAsync(testUser2, "Medewerker");
+                    logger.LogInformation($"Gebruiker '{user2Email}' aangemaakt met rol Medewerker");
+                }
+                else
+                {
+                    logger.LogError($"Fout bij aanmaken '{user2Email}': {string.Join(", ", result.Errors.Select(e => e.Description))}");
+                }
+            }
+            else
+            {
+                // Reset wachtwoord
+                var token = await userManager.GeneratePasswordResetTokenAsync(testUser2);
+                var resetResult = await userManager.ResetPasswordAsync(testUser2, token, "Password123!");
+                if (resetResult.Succeeded)
+                {
+                    logger.LogInformation($"Wachtwoord gereset voor '{user2Email}'");
+                }
+            }
+
+            // Test gebruiker 3: Admin
+            var adminEmail = "admin@bankapp.local";
+            var testAdmin = await userManager.FindByEmailAsync(adminEmail);
+            if (testAdmin == null)
+            {
+                testAdmin = new BankUser
+                {
+                    UserName = "admin",
+                    Email = adminEmail,
+                    EmailConfirmed = true,
+                    Voornaam = "Admin",
+                    Achternaam = "Beheerder",
+                    Telefoonnummer = "0412345678",
+                    Geboortedatum = new DateTime(1975, 6, 25),
+                    AdresId = 3,
+                    Adres = testAdres3
+                };
+
+                var result = await userManager.CreateAsync(testAdmin, "Admin123!");
+                if (result.Succeeded)
+                {
+                    await userManager.AddToRoleAsync(testAdmin, "Admin");
+                    logger.LogInformation($"Gebruiker '{adminEmail}' aangemaakt met rol Admin");
+                }
+                else
+                {
+                    logger.LogError($"Fout bij aanmaken '{adminEmail}': {string.Join(", ", result.Errors.Select(e => e.Description))}");
+                }
+            }
+            else
+            {
+                // Reset wachtwoord
+                var token = await userManager.GeneratePasswordResetTokenAsync(testAdmin);
+                var resetResult = await userManager.ResetPasswordAsync(testAdmin, token, "Admin123!");
+                if (resetResult.Succeeded)
+                {
+                    logger.LogInformation($"Wachtwoord gereset voor '{adminEmail}'");
+                }
+            }
+
+            await context.SaveChangesAsync();
+            logger.LogInformation("Test gebruikers seeding voltooid");
+
+            // Seed rekeningen en transacties alleen voor nieuwe gebruikers (vermijd duplicates)
+            if (!context.Rekeningen.Any())
+            {
+                logger.LogInformation("Seeding rekeningen en transacties...");
+
+                // Haal gebruikers opnieuw op voor rekeningen
+                var klant = await context.Users.FirstOrDefaultAsync(u => u.Email == "jan.peeters@example.com");
+                var medewerker = await context.Users.FirstOrDefaultAsync(u => u.Email == "sarah.janssens@example.com");
+                var adminUser = await context.Users.FirstOrDefaultAsync(u => u.Email == "admin@bankapp.local");
+
+                // Klant rekening
+                if (klant != null)
+                {
+                    context.Rekeningen.Add(
+                        new Rekening { Iban = "BE12345678901234", Saldo = 5000.00m, GebruikerId = klant.Id, Deleted = DateTime.MaxValue }
+                    );
+                    context.Kaarten.Add(
+                        new Kaart { KaartNummer = "1111-2222-3333-4444", Status = KaartStatus.Actief, GebruikerId = klant.Id, Deleted = DateTime.MaxValue }
+                    );
+                }
+
+                // Medewerker rekening
+                if (medewerker != null)
+                {
+                    context.Rekeningen.Add(
+                        new Rekening { Iban = "BE11223344556677", Saldo = 7500.00m, GebruikerId = medewerker.Id, Deleted = DateTime.MaxValue }
+                    );
+                    context.Kaarten.Add(
+                        new Kaart { KaartNummer = "5555-6666-7777-8888", Status = KaartStatus.Actief, GebruikerId = medewerker.Id, Deleted = DateTime.MaxValue }
+                    );
+                }
+
+                // Admin rekening
+                if (adminUser != null)
+                {
+                    context.Rekeningen.Add(
+                        new Rekening { Iban = "BE99887766554433", Saldo = 10000.00m, GebruikerId = adminUser.Id, Deleted = DateTime.MaxValue }
+                    );
+                    context.Kaarten.Add(
+                        new Kaart { KaartNummer = "9999-8888-7777-6666", Status = KaartStatus.Actief, GebruikerId = adminUser.Id, Deleted = DateTime.MaxValue }
+                    );
+                }
+
+                await context.SaveChangesAsync();
+                logger.LogInformation("Rekeningen en kaarten seeding voltooid");
+            }
+        }
+
+        // Seed rekeningen en kaarten na users zijn aangemaakt  
+        private static async Task SeedRekeningenEnKaarten(AppDbContext context)
+        {
             if (!context.Rekeningen.Any())
             {
                 var user1 = await context.Users.FirstOrDefaultAsync(u => u.Email == "jan.peeters@example.com");
