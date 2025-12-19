@@ -1,4 +1,3 @@
-using BankApp_MAUI.Services;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 
@@ -6,8 +5,7 @@ namespace BankApp_MAUI.ViewModels
 {
     public partial class LoginViewModel : BaseViewModel
     {
-        private readonly ApiService _apiService;
-        private readonly AuthService _authService;
+        private readonly Synchronizer _synchronizer;
         private readonly IServiceProvider _serviceProvider;
 
         [ObservableProperty]
@@ -19,10 +17,9 @@ namespace BankApp_MAUI.ViewModels
         [ObservableProperty]
         private string errorMessage = string.Empty;
 
-        public LoginViewModel(ApiService apiService, AuthService authService, IServiceProvider serviceProvider)
+        public LoginViewModel(Synchronizer synchronizer, IServiceProvider serviceProvider)
         {
-            _apiService = apiService;
-            _authService = authService;
+            _synchronizer = synchronizer;
             _serviceProvider = serviceProvider;
             Title = "Login";
         }
@@ -44,22 +41,20 @@ namespace BankApp_MAUI.ViewModels
 
             try
             {
-                var (success, token, message) = await _apiService.LoginAsync(Email, Password);
+                bool success = await _synchronizer.Login(Email, Password);
 
                 if (success)
                 {
-                    // Bewaar inlogtoken en gebruikersgegevens
-                    _authService.SaveToken(token);
-                    _authService.SaveUserInfo("user_id", Email);
-                    _apiService.SetAuthToken(token);
-
-                    // Ga naar hoofdpagina
-                    var appShell = _serviceProvider.GetRequiredService<AppShell>();
-                    Application.Current!.MainPage = appShell;
+                    // Ga naar hoofdpagina - nieuwe stijl voor .NET 9
+                    if (Application.Current?.Windows.Count > 0)
+                    {
+                        var appShell = _serviceProvider.GetRequiredService<AppShell>();
+                        Application.Current.Windows[0].Page = appShell;
+                    }
                 }
                 else
                 {
-                    ErrorMessage = message;
+                    ErrorMessage = "Ongeldige inloggegevens of geen verbinding";
                 }
             }
             catch (Exception ex)
