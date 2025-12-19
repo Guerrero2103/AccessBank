@@ -179,5 +179,32 @@ Het basisproject is af met:
 **Database setup:**
 De database wordt automatisch aangemaakt bij de eerste start. Er zijn standaard testgebruikers beschikbaar.
 
+## Test Gebruikers
+
+Je kan de app testen met deze gebruikers:
+
+**Klant Account:**
+- Email: jan.peeters@example.com
+- Wachtwoord: Password123!
+- Rol: Klant (normale gebruiker)
+
+**Medewerker Account:**
+- Email: sarah.janssens@example.com
+- Wachtwoord: Password123!
+- Rol: Medewerker (kan transacties goedkeuren)
+
+**Admin Account:**
+- Email: admin@bankapp.local
+- Wachtwoord: Password123!
+- Rol: Admin (volledige toegang)
+
+## Screenshots
+
+### Web Applicatie
+![Web Home](Foto's/Web%20Home.png)
+
+### Mobiele App (MAUI)
+![App Home](Foto's/App%20Home.png)
+
 
 
