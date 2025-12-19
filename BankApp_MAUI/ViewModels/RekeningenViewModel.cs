@@ -1,6 +1,5 @@
 using BankApp_MAUI.Data;
 using BankApp_MAUI.Models;
-using BankApp_MAUI.Services;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using System.Collections.ObjectModel;
@@ -10,15 +9,13 @@ namespace BankApp_MAUI.ViewModels
     public partial class RekeningenViewModel : BaseViewModel
     {
         private readonly LocalDbContext _localDb;
-        private readonly AuthService _authService;
 
         [ObservableProperty]
         private ObservableCollection<LocalRekening> rekeningen = new();
 
-        public RekeningenViewModel(LocalDbContext localDb, AuthService authService)
+        public RekeningenViewModel(LocalDbContext localDb)
         {
             _localDb = localDb;
-            _authService = authService;
             Title = "Mijn Rekeningen";
         }
 
@@ -36,8 +33,8 @@ namespace BankApp_MAUI.ViewModels
 
             try
             {
-                var (userId, _) = _authService.GetUserInfo();
-                var rekeningenList = await _localDb.GetRekeningenAsync(userId);
+                // Gebruik General.UserId - zoals Agenda-master
+                var rekeningenList = await _localDb.GetRekeningenAsync(General.UserId);
 
                 Rekeningen.Clear();
                 foreach (var rekening in rekeningenList)
