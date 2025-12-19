@@ -1,6 +1,5 @@
 using BankApp_MAUI.Data;
 using BankApp_MAUI.Models;
-using BankApp_MAUI.Services;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using System.Collections.ObjectModel;
@@ -10,7 +9,6 @@ namespace BankApp_MAUI.ViewModels
     public partial class TransactiesViewModel : BaseViewModel
     {
         private readonly LocalDbContext _localDb;
-        private readonly AuthService _authService;
 
         [ObservableProperty]
         private ObservableCollection<LocalTransactie> transacties = new();
@@ -18,10 +16,9 @@ namespace BankApp_MAUI.ViewModels
         [ObservableProperty]
         private string filterStatus = "Alle";
 
-        public TransactiesViewModel(LocalDbContext localDb, AuthService authService)
+        public TransactiesViewModel(LocalDbContext localDb)
         {
             _localDb = localDb;
-            _authService = authService;
             Title = "Transacties";
         }
 
@@ -39,8 +36,8 @@ namespace BankApp_MAUI.ViewModels
 
             try
             {
-                var (userId, _) = _authService.GetUserInfo();
-                var transactiesList = await _localDb.GetTransactiesAsync(userId);
+                // Gebruik General.UserId - zoals Agenda-master
+                var transactiesList = await _localDb.GetTransactiesAsync(General.UserId);
 
                 // Filter gebruiken
                 if (FilterStatus != "Alle")
