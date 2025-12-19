@@ -1,5 +1,4 @@
 using BankApp_MAUI.Data;
-using BankApp_MAUI.Services;
 using BankApp_MAUI.ViewModels;
 using BankApp_MAUI.Pages;
 using Microsoft.Extensions.Logging;
@@ -15,12 +14,10 @@ public static class MauiProgram
             .UseMauiApp<App>();
             // Geen custom fonts nodig
 
-        // Services registreren
+        // Services registreren 
         builder.Services.AddSingleton<LocalDbContext>();
-        builder.Services.AddSingleton<ApiService>();
-        builder.Services.AddSingleton<AuthService>();
-        builder.Services.AddSingleton<SyncService>();
-        builder.Services.AddSingleton<LocalStorageService>();
+        builder.Services.AddSingleton<Synchronizer>(); // Eén centrale synchronizer
+
 
         // ViewModels registreren
         builder.Services.AddTransient<LoginViewModel>();
