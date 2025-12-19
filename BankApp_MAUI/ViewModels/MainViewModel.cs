@@ -1,5 +1,4 @@
 using BankApp_MAUI.Data;
-using BankApp_MAUI.Services;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 
@@ -8,8 +7,7 @@ namespace BankApp_MAUI.ViewModels
     public partial class MainViewModel : BaseViewModel
     {
         private readonly LocalDbContext _localDb;
-        private readonly AuthService _authService;
-        private readonly SyncService _syncService;
+        private readonly Synchronizer _synchronizer;
 
         [ObservableProperty]
         private decimal totaalSaldo;
@@ -23,11 +21,10 @@ namespace BankApp_MAUI.ViewModels
         [ObservableProperty]
         private DateTime? laatsteSyncTijd;
 
-        public MainViewModel(LocalDbContext localDb, AuthService authService, SyncService syncService)
+        public MainViewModel(LocalDbContext localDb, Synchronizer synchronizer)
         {
             _localDb = localDb;
-            _authService = authService;
-            _syncService = syncService;
+            _synchronizer = synchronizer;
             Title = "Dashboard";
         }
 
@@ -63,11 +60,11 @@ namespace BankApp_MAUI.ViewModels
 
             try
             {
-                var (userId, email) = _authService.GetUserInfo();
-                GebruikerNaam = email;
+                // Gebruik General.UserId
+                GebruikerNaam = Preferences.Get("user_email", "Gebruiker");
 
                 // Haal rekeningen op en tel saldo bij elkaar
-                var rekeningen = await _localDb.GetRekeningenAsync(userId);
+                var rekeningen = await _localDb.GetRekeningenAsync(General.UserId);
                 TotaalSaldo = rekeningen.Sum(r => r.Saldo);
             }
             catch (Exception ex)
@@ -89,18 +86,12 @@ namespace BankApp_MAUI.ViewModels
 
             try
             {
-                bool success = await _syncService.SyncAllAsync();
+                // Gebruik Synchronizer
+                await _synchronizer.SynchronizeAll();
                 
-                if (success)
-                {
-                    IsOnline = true;
-                    LaatsteSyncTijd = DateTime.Now;
-                    await LoadDataAsync();
-                }
-                else
-                {
-                    IsOnline = false;
-                }
+                IsOnline = await _synchronizer.IsOnline();
+                LaatsteSyncTijd = DateTime.Now;
+                await LoadDataAsync();
             }
             catch (Exception ex)
             {
