@@ -30,30 +30,42 @@ namespace BankApp_Web.API_Controllers
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] LoginRequest request)
         {
-            if (!ModelState.IsValid)
+            if (!ModelState.IsValid || request == null)
             {
                 return BadRequest(new { message = "Ongeldige gegevens" });
             }
 
-            // Zoek gebruiker
+            // Zoek gebruiker - probeer eerst email, dan username
             var user = await _userManager.FindByEmailAsync(request.Email);
             if (user == null)
             {
-                return Unauthorized(new { message = "Ongeldige inloggegevens" });
+                user = await _userManager.FindByNameAsync(request.Email);
             }
 
-            // Controleer wachtwoord
+            if (user == null)
+            {
+                return Unauthorized(new { message = "Gebruiker niet gevonden" });
+            }
+
+            // Controleer wachtwoord via SignInManager
             var result = await _signInManager.CheckPasswordSignInAsync(user, request.Password, false);
+
+            // Als CheckPasswordSignInAsync faalt, probeer de meer directe methode
             if (!result.Succeeded)
             {
-                return Unauthorized(new { message = "Ongeldige inloggegevens" });
+                // Sommige configuraties van Identity vereisen dit
+                var passwordValid = await _userManager.CheckPasswordAsync(user, request.Password);
+                if (!passwordValid)
+                {
+                    return Unauthorized(new { message = "Wachtwoord onjuist" });
+                }
             }
 
             // Maak inlogtoken aan
             var token = await GenerateJwtToken(user);
 
-            return Ok(new 
-            { 
+            return Ok(new
+            {
                 token = token,
                 email = user.Email,
                 userName = user.UserName,
@@ -99,8 +111,8 @@ namespace BankApp_Web.API_Controllers
             // Maak inlogtoken aan
             var token = await GenerateJwtToken(user);
 
-            return Ok(new 
-            { 
+            return Ok(new
+            {
                 token = token,
                 email = user.Email,
                 userName = user.UserName,
