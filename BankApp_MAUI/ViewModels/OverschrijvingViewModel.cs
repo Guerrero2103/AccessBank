@@ -1,6 +1,5 @@
 using BankApp_MAUI.Data;
 using BankApp_MAUI.Models;
-using BankApp_MAUI.Services;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using System.Collections.ObjectModel;
@@ -10,8 +9,7 @@ namespace BankApp_MAUI.ViewModels
     public partial class OverschrijvingViewModel : BaseViewModel
     {
         private readonly LocalDbContext _localDb;
-        private readonly ApiService _apiService;
-        private readonly AuthService _authService;
+        private readonly Synchronizer _synchronizer;
 
         [ObservableProperty]
         private ObservableCollection<LocalRekening> eigenRekeningen = new();
@@ -34,11 +32,10 @@ namespace BankApp_MAUI.ViewModels
         [ObservableProperty]
         private string successMessage = string.Empty;
 
-        public OverschrijvingViewModel(LocalDbContext localDb, ApiService apiService, AuthService authService)
+        public OverschrijvingViewModel(LocalDbContext localDb, Synchronizer synchronizer)
         {
             _localDb = localDb;
-            _apiService = apiService;
-            _authService = authService;
+            _synchronizer = synchronizer;
             Title = "Overschrijving";
         }
 
@@ -49,8 +46,8 @@ namespace BankApp_MAUI.ViewModels
 
         private async Task LoadRekeningenAsync()
         {
-            var (userId, _) = _authService.GetUserInfo();
-            var rekeningen = await _localDb.GetRekeningenAsync(userId);
+            // Gebruik General.UserId - zoals Agenda-master
+            var rekeningen = await _localDb.GetRekeningenAsync(General.UserId);
 
             EigenRekeningen.Clear();
             foreach (var rekening in rekeningen)
@@ -100,7 +97,7 @@ namespace BankApp_MAUI.ViewModels
 
             try
             {
-                var (userId, _) = _authService.GetUserInfo();
+                string userId = General.UserId;
 
                 // Maak nieuwe transactie
                 var transactie = new LocalTransactie
@@ -119,7 +116,7 @@ namespace BankApp_MAUI.ViewModels
                 await _localDb.SaveTransactieAsync(transactie);
 
                 // Probeer direct te verzenden als er internet is
-                bool isOnline = await _apiService.IsOnlineAsync();
+                bool isOnline = await _synchronizer.IsOnline();
                 if (isOnline)
                 {
                     var apiTransactie = new BankApp_Models.Transactie
@@ -131,7 +128,7 @@ namespace BankApp_MAUI.ViewModels
                         GebruikerId = userId
                     };
 
-                    var (success, message) = await _apiService.MaakOverschrijvingAsync(apiTransactie);
+                    var (success, message) = await _synchronizer.MaakOverschrijving(apiTransactie);
                     
                     if (success)
                     {
