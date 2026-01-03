@@ -8,6 +8,7 @@ using System.Reflection;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
+using BankApp_BusinessLogic;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -31,6 +32,10 @@ builder.Services.AddDefaultIdentity<BankUser>(options =>
 })
     .AddRoles<IdentityRole>()
     .AddEntityFrameworkStores<AppDbContext>();
+
+builder.Services.AddScoped<IGebruikerService, GebruikerService>();
+builder.Services.AddScoped<IRekeningService, RekeningService>();
+builder.Services.AddScoped<ITransactieService, TransactieService>();
 
 // Inlogtoken instellingen voor MAUI app
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
