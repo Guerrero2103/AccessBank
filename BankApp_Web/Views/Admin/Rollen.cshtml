@@ -1,32 +1,57 @@
+﻿@using Microsoft.AspNetCore.Mvc.Localization
+@using Microsoft.Extensions.Localization
+@using BankApp_Web.Translations
+@inject IStringLocalizer<SharedResource> _localizer
+
 @{
-    ViewData["Title"] = "Rollen Beheren";
+    ViewData["Title"] = @_localizer["Rollen Beheren"];
 }
 
-<h1>Rollen Beheren voor @ViewBag.GebruikerNaam</h1>
+<h1>@_localizer["Rollen Beheren voor"] @ViewBag.GebruikerNaam</h1>
+
+<div class="alert alert-info">
+    <strong>@_localizer["Let op:"]</strong> @_localizer["Een gebruiker kan maar één rol hebben. Als je een nieuwe rol toevoegt, wordt de huidige rol automatisch verwijderd."]
+</div>
 
 <div class="row">
     <div class="col-md-6">
-        <h3>Huidige Rollen</h3>
+        <h3>@_localizer["Huidige Rol"]</h3>
         <ul class="list-group">
-            @foreach (var rol in ViewBag.GebruikerRoles as IEnumerable<string>)
+            @{
+                var gebruikerRoles = ViewBag.GebruikerRoles as IEnumerable<string> ?? new List<string>();
+            }
+            @if (gebruikerRoles.Any())
             {
-                <li class="list-group-item d-flex justify-content-between align-items-center">
-                    <span class="badge bg-primary">@rol</span>
-                    <form asp-action="VerwijderRol" method="post" class="d-inline">
-                        <input type="hidden" name="gebruikerId" value="@ViewBag.GebruikerId" />
-                        <input type="hidden" name="rolNaam" value="@rol" />
-                        <button type="submit" class="btn btn-sm btn-danger">Verwijderen</button>
-                    </form>
+                @foreach (var rol in gebruikerRoles)
+                {
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        <span class="badge bg-primary">@rol</span>
+                        <form asp-action="VerwijderRol" method="post" class="d-inline">
+                            <input type="hidden" name="gebruikerId" value="@ViewBag.GebruikerId" />
+                            <input type="hidden" name="rolNaam" value="@rol" />
+                            <button type="submit" class="btn btn-sm btn-danger">@_localizer["Verwijderen"]</button>
+                        </form>
+                    </li>
+                }
+            }
+            else
+            {
+                <li class="list-group-item">
+                    <span class="text-muted">@_localizer["Geen rol toegewezen. Gebruiker krijgt automatisch 'Klant' rol."]</span>
                 </li>
             }
         </ul>
     </div>
     <div class="col-md-6">
-        <h3>Beschikbare Rollen</h3>
+        <h3>@_localizer["Beschikbare Rollen"]</h3>
         <ul class="list-group">
-            @foreach (var rol in ViewBag.AlleRoles as IEnumerable<Microsoft.AspNetCore.Identity.IdentityRole>)
+            @{
+                var alleRoles = ViewBag.AlleRoles as IEnumerable<Microsoft.AspNetCore.Identity.IdentityRole> ?? new List<Microsoft.AspNetCore.Identity.IdentityRole>();
+                var gebruikerRolesList = ViewBag.GebruikerRoles as IEnumerable<string> ?? new List<string>();
+            }
+            @foreach (var rol in alleRoles)
             {
-                bool heeftRol = (ViewBag.GebruikerRoles as IEnumerable<string>).Contains(rol.Name);
+                bool heeftRol = gebruikerRolesList.Contains(rol.Name);
                 if (!heeftRol)
                 {
                     <li class="list-group-item d-flex justify-content-between align-items-center">
@@ -34,7 +59,7 @@
                         <form asp-action="VoegRolToe" method="post" class="d-inline">
                             <input type="hidden" name="gebruikerId" value="@ViewBag.GebruikerId" />
                             <input type="hidden" name="rolNaam" value="@rol.Name" />
-                            <button type="submit" class="btn btn-sm btn-success">Toevoegen</button>
+                            <button type="submit" class="btn btn-sm btn-success">@_localizer["Toevoegen"]</button>
                         </form>
                     </li>
                 }
@@ -44,5 +69,5 @@
 </div>
 
 <div class="mt-3">
-    <a asp-action="Index" class="btn btn-secondary">Terug naar Gebruikers</a>
+    <a asp-action="Index" class="btn btn-secondary">@_localizer["Terug naar Gebruikers"]</a>
 </div>

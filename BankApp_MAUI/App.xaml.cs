@@ -11,6 +11,31 @@ public partial class App : Application
         _serviceProvider = serviceProvider;
         
         InitializeComponent();
+        
+        // Synchroniseer automatisch als gebruiker is ingelogd
+        if (Preferences.ContainsKey("auth_token"))
+        {
+            General.UserId = Preferences.Get("user_id", "");
+            if (!string.IsNullOrEmpty(General.UserId))
+            {
+                // Start synchronisatie in achtergrond
+                _ = Task.Run(async () =>
+                {
+                    try
+                    {
+                        var synchronizer = serviceProvider.GetRequiredService<Synchronizer>();
+                        if (await synchronizer.IsOnline())
+                        {
+                            await synchronizer.SynchronizeAll();
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        System.Diagnostics.Debug.WriteLine($"Background sync error: {ex.Message}");
+                    }
+                });
+            }
+        }
     }
 
     protected override Window CreateWindow(IActivationState? activationState)
@@ -20,7 +45,20 @@ public partial class App : Application
 
         if (isLoggedIn)
         {
-            return new Window(new AppShell());
+            // Zet UserId in General
+            General.UserId = Preferences.Get("user_id", "");
+            
+            if (string.IsNullOrEmpty(General.UserId))
+            {
+                isLoggedIn = false;
+            }
+        }
+
+        if (isLoggedIn)
+        {
+            // Maak AppShell via DI
+            var appShell = _serviceProvider.GetRequiredService<AppShell>();
+            return new Window(appShell);
         }
         else
         {

@@ -5,6 +5,8 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
+using Microsoft.Extensions.Localization;
+using BankApp_Web.Translations;
 
 namespace BankApp_Web.API_Controllers
 {
@@ -15,38 +17,56 @@ namespace BankApp_Web.API_Controllers
         private readonly UserManager<BankUser> _userManager;
         private readonly SignInManager<BankUser> _signInManager;
         private readonly IConfiguration _configuration;
+        private readonly ILogger<AccountApiController> _logger;
+        private readonly IStringLocalizer<SharedResource> _localizer;
 
         public AccountApiController(
             UserManager<BankUser> userManager,
             SignInManager<BankUser> signInManager,
-            IConfiguration configuration)
+            IConfiguration configuration,
+            ILogger<AccountApiController> logger,
+            IStringLocalizer<SharedResource> localizer)
         {
             _userManager = userManager;
             _signInManager = signInManager;
             _configuration = configuration;
+            _logger = logger;
+            _localizer = localizer;
         }
 
         // Inloggen
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] LoginRequest request)
         {
-            if (!ModelState.IsValid)
+            if (!ModelState.IsValid || request == null)
             {
-                return BadRequest(new { message = "Ongeldige gegevens" });
+                return BadRequest(new { message = _localizer["Ongeldige gegevens"] });
             }
 
-            // Zoek gebruiker
+            // Zoek gebruiker - probeer eerst email, dan username
             var user = await _userManager.FindByEmailAsync(request.Email);
             if (user == null)
             {
-                return Unauthorized(new { message = "Ongeldige inloggegevens" });
+                user = await _userManager.FindByNameAsync(request.Email);
             }
 
-            // Controleer wachtwoord
+            if (user == null)
+            {
+                return Unauthorized(new { message = _localizer["Gebruiker niet gevonden"] });
+            }
+
+            // Controleer wachtwoord via SignInManager
             var result = await _signInManager.CheckPasswordSignInAsync(user, request.Password, false);
+            
+            // Als CheckPasswordSignInAsync faalt, probeer de meer directe methode
             if (!result.Succeeded)
             {
-                return Unauthorized(new { message = "Ongeldige inloggegevens" });
+                // Sommige configuraties van Identity vereisen dit
+                var passwordValid = await _userManager.CheckPasswordAsync(user, request.Password);
+                if (!passwordValid)
+                {
+                    return Unauthorized(new { message = _localizer["Wachtwoord onjuist"] });
+                }
             }
 
             // Maak inlogtoken aan
@@ -67,14 +87,14 @@ namespace BankApp_Web.API_Controllers
         {
             if (!ModelState.IsValid)
             {
-                return BadRequest(new { message = "Ongeldige gegevens" });
+                return BadRequest(new { message = _localizer["Ongeldige gegevens"] });
             }
 
             // Controleer of email al bestaat
             var existingUser = await _userManager.FindByEmailAsync(request.Email);
             if (existingUser != null)
             {
-                return BadRequest(new { message = "Email is al in gebruik" });
+                return BadRequest(new { message = _localizer["Email is al in gebruik"] });
             }
 
             var user = new BankUser
@@ -83,7 +103,7 @@ namespace BankApp_Web.API_Controllers
                 Email = request.Email,
                 Voornaam = request.Voornaam,
                 Achternaam = request.Achternaam,
-                EmailConfirmed = true
+                EmailConfirmed = true // E-mail verificatie niet vereist
             };
 
             var result = await _userManager.CreateAsync(user, request.Password);
@@ -101,6 +121,7 @@ namespace BankApp_Web.API_Controllers
 
             return Ok(new 
             { 
+                message = "Registratie succesvol!",
                 token = token,
                 email = user.Email,
                 userName = user.UserName,

@@ -1,25 +1,25 @@
-@model IEnumerable<BankApp_Models.Rekening>
+﻿@model IEnumerable<BankApp_Models.Rekening>
+@using Microsoft.AspNetCore.Mvc.Localization
+@using Microsoft.Extensions.Localization
+@using BankApp_Web.Translations
+@inject IStringLocalizer<SharedResource> _localizer
 
 @{
-    ViewData["Title"] = "Rekeningen";
+    ViewData["Title"] = @_localizer["Rekeningen"];
     var page = ViewBag.Page as int? ?? 1;
     var pageSize = ViewBag.PageSize as int? ?? 10;
     var totalCount = ViewBag.TotalCount as int? ?? Model.Count();
     int totalPages = (int)Math.Ceiling((double)totalCount / pageSize);
 }
 
-<h1>Mijn Rekeningen</h1>
-
-<p>
-    <a asp-action="Create" class="btn btn-primary">Nieuwe Rekening</a>
-</p>
+<h1>@_localizer["Mijn Rekeningen"]</h1>
 
 <table class="table table-striped">
     <thead>
         <tr>
-            <th>IBAN</th>
-            <th>Saldo</th>
-            <th>Acties</th>
+            <th>@_localizer["IBAN"]</th>
+            <th>@_localizer["Saldo"]</th>
+            <th>@_localizer["Acties"]</th>
         </tr>
     </thead>
     <tbody>
@@ -29,17 +29,17 @@
                 <td>@Html.DisplayFor(modelItem => item.Iban)</td>
                 <td>€@Html.DisplayFor(modelItem => item.Saldo)</td>
                 <td>
-                    <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-sm btn-info">Details</a>
+                    <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-sm btn-info">@_localizer["Details"]</a>
                 </td>
             </tr>
         }
     </tbody>
 </table>
 
-<nav aria-label="Pagina navigatie">
+<nav aria-label="@_localizer["Vorige"]">
     <ul class="pagination">
         <li class="page-item @(page <= 1 ? "disabled" : "")">
-            <a class="page-link" asp-action="Index" asp-route-page="@(page - 1)" asp-route-pageSize="@pageSize">Vorige</a>
+            <a class="page-link" asp-action="Index" asp-route-page="@(page - 1)" asp-route-pageSize="@pageSize">@_localizer["Vorige"]</a>
         </li>
 
         @for (int i = 1; i <= totalPages; i++)
@@ -50,7 +50,7 @@
         }
 
         <li class="page-item @(page >= totalPages ? "disabled" : "")">
-            <a class="page-link" asp-action="Index" asp-route-page="@(page + 1)" asp-route-pageSize="@pageSize">Volgende</a>
+            <a class="page-link" asp-action="Index" asp-route-page="@(page + 1)" asp-route-pageSize="@pageSize">@_localizer["Volgende"]</a>
         </li>
     </ul>
 </nav>

@@ -1,0 +1,124 @@
+﻿@model BankApp_Web.Models.RegisterViewModel
+@using Microsoft.AspNetCore.Mvc.Localization
+@using Microsoft.Extensions.Localization
+@using BankApp_Web.Translations
+@inject IStringLocalizer<SharedResource> _localizer
+
+@{
+    ViewData["Title"] = @_localizer["Nieuwe Gebruiker"];
+}
+
+<h1>@_localizer["Nieuwe Gebruiker"]</h1>
+
+@* Toon alleen success message als het specifiek voor deze actie is *@
+@if (TempData["UserCreated"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        @TempData["UserCreated"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+
+<div class="row">
+    <div class="col-md-8">
+        <form asp-action="NieuweGebruiker" method="post">
+            <div asp-validation-summary="All" class="text-danger mb-3"></div>
+
+            <h4 class="text-white mb-3">@_localizer["Persoonlijke Gegevens"]</h4>
+
+            <div class="mb-3">
+                <label asp-for="Voornaam" class="form-label">@_localizer["Voornaam"] *</label>
+                <input asp-for="Voornaam" class="form-control" />
+                <span asp-validation-for="Voornaam" class="text-danger"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="Achternaam" class="form-label">@_localizer["Achternaam"] *</label>
+                <input asp-for="Achternaam" class="form-control" />
+                <span asp-validation-for="Achternaam" class="text-danger"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="Email" class="form-label">@_localizer["E-mail"] *</label>
+                <input asp-for="Email" class="form-control" />
+                <span asp-validation-for="Email" class="text-danger"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="Wachtwoord" class="form-label">@_localizer["Wachtwoord"] *</label>
+                <input asp-for="Wachtwoord" class="form-control" type="password" />
+                <span asp-validation-for="Wachtwoord" class="text-danger"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="WachtwoordBevestigen" class="form-label">@_localizer["Wachtwoord Bevestigen"] *</label>
+                <input asp-for="WachtwoordBevestigen" class="form-control" type="password" />
+                <span asp-validation-for="WachtwoordBevestigen" class="text-danger"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="Telefoonnummer" class="form-label">@_localizer["Telefoonnummer"] *</label>
+                <input asp-for="Telefoonnummer" class="form-control" />
+                <span asp-validation-for="Telefoonnummer" class="text-danger"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="Geboortedatum" class="form-label">@_localizer["Geboortedatum"] *</label>
+                <input asp-for="Geboortedatum" type="date" class="form-control" />
+                <span asp-validation-for="Geboortedatum" class="text-danger"></span>
+            </div>
+
+            <h4 class="text-white mt-4 mb-3">@_localizer["Adres"]</h4>
+
+            <div class="mb-3">
+                <label asp-for="Straat" class="form-label">@_localizer["Straatnaam"] *</label>
+                <input asp-for="Straat" class="form-control" />
+                <span asp-validation-for="Straat" class="text-danger"></span>
+            </div>
+
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <label asp-for="Huisnummer" class="form-label">@_localizer["Huisnummer"] *</label>
+                    <input asp-for="Huisnummer" class="form-control" />
+                    <span asp-validation-for="Huisnummer" class="text-danger"></span>
+                </div>
+                <div class="col-md-6">
+                    <label asp-for="Bus" class="form-label">@_localizer["Bus (optioneel)"]</label>
+                    <input asp-for="Bus" class="form-control" />
+                    <span asp-validation-for="Bus" class="text-danger"></span>
+                </div>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="Postcode" class="form-label">@_localizer["Postcode"] *</label>
+                <input asp-for="Postcode" class="form-control" />
+                <span asp-validation-for="Postcode" class="text-danger"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="Gemeente" class="form-label">@_localizer["Gemeente"] *</label>
+                <input asp-for="Gemeente" class="form-control" />
+                <span asp-validation-for="Gemeente" class="text-danger"></span>
+            </div>
+
+            <div class="mb-4">
+                <label asp-for="Land" class="form-label">@_localizer["Land"] *</label>
+                <input asp-for="Land" class="form-control" value="België" />
+                <span asp-validation-for="Land" class="text-danger"></span>
+            </div>
+
+            <div class="alert alert-info">
+                <small>@_localizer["IBAN en kaartnummer worden automatisch toegewezen na succesvolle aanmaak"]</small>
+            </div>
+
+            <div class="mt-4">
+                <button type="submit" class="btn btn-success">@_localizer["Gebruiker Aanmaken"]</button>
+                <a asp-action="Index" class="btn btn-secondary">@_localizer["Annuleren"]</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

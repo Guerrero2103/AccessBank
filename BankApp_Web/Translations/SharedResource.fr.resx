@@ -88,4 +88,580 @@
   <data name="Inloggen" xml:space="preserve">
     <value>Connexion</value>
   </data>
+  <data name="Welkom bij BankApp" xml:space="preserve">
+    <value>Bienvenue chez BankApp</value>
+  </data>
+  <data name="Uw betrouwbare bankapplicatie" xml:space="preserve">
+    <value>Votre application bancaire fiable pour tous vos besoins financiers.</value>
+  </data>
+  <data name="Snelle toegang" xml:space="preserve">
+    <value>Accès rapide</value>
+  </data>
+  <data name="Mijn Rekeningen" xml:space="preserve">
+    <value>Mes Comptes</value>
+  </data>
+  <data name="Nieuwe Rekening" xml:space="preserve">
+    <value>Nouveau Compte</value>
+  </data>
+  <data name="IBAN" xml:space="preserve">
+    <value>IBAN</value>
+  </data>
+  <data name="Saldo" xml:space="preserve">
+    <value>Solde</value>
+  </data>
+  <data name="Acties" xml:space="preserve">
+    <value>Actions</value>
+  </data>
+  <data name="Details" xml:space="preserve">
+    <value>Détails</value>
+  </data>
+  <data name="Vorige" xml:space="preserve">
+    <value>Précédent</value>
+  </data>
+  <data name="Volgende" xml:space="preserve">
+    <value>Suivant</value>
+  </data>
+  <data name="Aanmaken" xml:space="preserve">
+    <value>Créer</value>
+  </data>
+  <data name="Annuleren" xml:space="preserve">
+    <value>Annuler</value>
+  </data>
+  <data name="Rekening Details" xml:space="preserve">
+    <value>Détails du compte</value>
+  </data>
+  <data name="Rekening" xml:space="preserve">
+    <value>Compte</value>
+  </data>
+  <data name="Gebruiker" xml:space="preserve">
+    <value>Utilisateur</value>
+  </data>
+  <data name="Terug naar overzicht" xml:space="preserve">
+    <value>Retour à l'aperçu</value>
+  </data>
+  <data name="Mijn Transacties" xml:space="preserve">
+    <value>Mes Transactions</value>
+  </data>
+  <data name="Nieuwe Overschrijving" xml:space="preserve">
+    <value>Nouveau Virement</value>
+  </data>
+  <data name="Status Filter" xml:space="preserve">
+    <value>Filtre de statut:</value>
+  </data>
+  <data name="Alle statussen" xml:space="preserve">
+    <value>Tous les statuts</value>
+  </data>
+  <data name="Sorteren op" xml:space="preserve">
+    <value>Trier par:</value>
+  </data>
+  <data name="Datum" xml:space="preserve">
+    <value>Date</value>
+  </data>
+  <data name="Bedrag" xml:space="preserve">
+    <value>Montant</value>
+  </data>
+  <data name="Status" xml:space="preserve">
+    <value>Statut</value>
+  </data>
+  <data name="Van IBAN" xml:space="preserve">
+    <value>De IBAN</value>
+  </data>
+  <data name="Naar IBAN" xml:space="preserve">
+    <value>Vers IBAN</value>
+  </data>
+  <data name="Omschrijving" xml:space="preserve">
+    <value>Description</value>
+  </data>
+  <data name="Recente Transacties" xml:space="preserve">
+    <value>Transactions récentes</value>
+  </data>
+  <data name="Voltooid" xml:space="preserve">
+    <value>Terminé</value>
+  </data>
+  <data name="Wachtend" xml:space="preserve">
+    <value>En attente</value>
+  </data>
+  <data name="Afgewezen" xml:space="preserve">
+    <value>Rejeté</value>
+  </data>
+  <data name="Selecteer rekening" xml:space="preserve">
+    <value>Sélectionner le compte</value>
+  </data>
+  <data name="Naam Ontvanger" xml:space="preserve">
+    <value>Nom du destinataire</value>
+  </data>
+  <data name="Bedragen vanaf 500 vereisen medewerker bevestiging" xml:space="preserve">
+    <value>Les montants à partir de 500€ nécessitent une confirmation d'employé</value>
+  </data>
+  <data name="Verzenden" xml:space="preserve">
+    <value>Envoyer</value>
+  </data>
+  <data name="Transactie Details" xml:space="preserve">
+    <value>Détails de la transaction</value>
+  </data>
+  <data name="Transactie" xml:space="preserve">
+    <value>Transaction</value>
+  </data>
+  <data name="Afwijzings Reden" xml:space="preserve">
+    <value>Raison du rejet</value>
+  </data>
+  <data name="Geen recente transacties" xml:space="preserve">
+    <value>Aucune transaction récente.</value>
+  </data>
+  <data name="Email" xml:space="preserve">
+    <value>Email</value>
+  </data>
+  <data name="Naam" xml:space="preserve">
+    <value>Nom</value>
+  </data>
+  <data name="Telefoon" xml:space="preserve">
+    <value>Téléphone</value>
+  </data>
+  <data name="Geblokkeerd" xml:space="preserve">
+    <value>Bloqué</value>
+  </data>
+  <data name="Actief" xml:space="preserve">
+    <value>Actif</value>
+  </data>
+  <data name="Deblokkeer" xml:space="preserve">
+    <value>Débloquer</value>
+  </data>
+  <data name="Blokkeer" xml:space="preserve">
+    <value>Bloquer</value>
+  </data>
+  <data name="Gebruiker Details" xml:space="preserve">
+    <value>Détails de l'utilisateur</value>
+  </data>
+  <data name="Rollen" xml:space="preserve">
+    <value>Rôles</value>
+  </data>
+  <data name="Rollen Beheren" xml:space="preserve">
+    <value>Gérer les rôles</value>
+  </data>
+  <data name="Terug" xml:space="preserve">
+    <value>Retour</value>
+  </data>
+  <data name="Rollen Beheren voor" xml:space="preserve">
+    <value>Gérer les rôles pour</value>
+  </data>
+  <data name="Huidige Rollen" xml:space="preserve">
+    <value>Rôles actuels</value>
+  </data>
+  <data name="Huidige Rol" xml:space="preserve">
+    <value>Rôle actuel</value>
+  </data>
+  <data name="Let op:" xml:space="preserve">
+    <value>Note:</value>
+  </data>
+  <data name="Een gebruiker kan maar één rol hebben. Als je een nieuwe rol toevoegt, wordt de huidige rol automatisch verwijderd." xml:space="preserve">
+    <value>Un utilisateur ne peut avoir qu'un seul rôle. Lorsque vous ajoutez un nouveau rôle, le rôle actuel sera automatiquement supprimé.</value>
+  </data>
+  <data name="Geen rol toegewezen. Gebruiker krijgt automatisch 'Klant' rol." xml:space="preserve">
+    <value>Aucun rôle attribué. L'utilisateur recevra automatiquement le rôle 'Klant'.</value>
+  </data>
+  <data name="Totaal Saldo Ophalen" xml:space="preserve">
+    <value>Obtenir le solde total</value>
+  </data>
+  <data name="Deze gebruiker heeft nog geen rekeningen." xml:space="preserve">
+    <value>Cet utilisateur n'a pas encore de comptes.</value>
+  </data>
+  <data name="Mijn Kaarten" xml:space="preserve">
+    <value>Mes Cartes</value>
+  </data>
+  <data name="Kaarten" xml:space="preserve">
+    <value>Cartes</value>
+  </data>
+  <data name="Bankkaart" xml:space="preserve">
+    <value>Carte Bancaire</value>
+  </data>
+  <data name="Kaartnummer:" xml:space="preserve">
+    <value>Numéro de carte:</value>
+  </data>
+  <data name="Kaartnummer" xml:space="preserve">
+    <value>Numéro de carte</value>
+  </data>
+  <data name="Kaart Details" xml:space="preserve">
+    <value>Détails de la carte</value>
+  </data>
+  <data name="Kaart" xml:space="preserve">
+    <value>Carte</value>
+  </data>
+  <data name="Bevroren" xml:space="preserve">
+    <value>Gelé</value>
+  </data>
+  <data name="Je hebt nog geen kaarten. Kaarten worden automatisch aangemaakt bij registratie." xml:space="preserve">
+    <value>Vous n'avez pas encore de cartes. Les cartes sont automatiquement créées lors de l'inscription.</value>
+  </data>
+  <data name="Verwijderen" xml:space="preserve">
+    <value>Supprimer</value>
+  </data>
+  <data name="Beschikbare Rollen" xml:space="preserve">
+    <value>Rôles disponibles</value>
+  </data>
+  <data name="Toevoegen" xml:space="preserve">
+    <value>Ajouter</value>
+  </data>
+  <data name="Terug naar Gebruikers" xml:space="preserve">
+    <value>Retour aux utilisateurs</value>
+  </data>
+  <data name="Geen wachtende transacties" xml:space="preserve">
+    <value>Aucune transaction en attente.</value>
+  </data>
+  <data name="Wachtende Transactie" xml:space="preserve">
+    <value>Transaction en attente</value>
+  </data>
+  <data name="Adres" xml:space="preserve">
+    <value>Adresse</value>
+  </data>
+  <data name="Bevestigen" xml:space="preserve">
+    <value>Confirmer</value>
+  </data>
+  <data name="Afwijzen" xml:space="preserve">
+    <value>Rejeter</value>
+  </data>
+  <data name="Transactie Afwijzen" xml:space="preserve">
+    <value>Rejeter la transaction</value>
+  </data>
+  <data name="Reden voor afwijzing" xml:space="preserve">
+    <value>Raison du rejet:</value>
+  </data>
+  <data name="Privacybeleid van BankApp" xml:space="preserve">
+    <value>Politique de confidentialité de BankApp.</value>
+  </data>
+  <data name="Fout" xml:space="preserve">
+    <value>Erreur</value>
+  </data>
+  <data name="Er is een fout opgetreden" xml:space="preserve">
+    <value>Une erreur s'est produite lors du traitement de votre demande.</value>
+  </data>
+  <data name="Ongeldige gegevens" xml:space="preserve">
+    <value>Données invalides</value>
+  </data>
+  <data name="Gebruiker niet gevonden" xml:space="preserve">
+    <value>Utilisateur non trouvé</value>
+  </data>
+  <data name="Wachtwoord onjuist" xml:space="preserve">
+    <value>Mot de passe incorrect</value>
+  </data>
+  <data name="Email is al in gebruik" xml:space="preserve">
+    <value>L'email est déjà utilisé</value>
+  </data>
+  <data name="E-mailadres is nog niet bevestigd. Controleer je e-mail." xml:space="preserve">
+    <value>L'adresse e-mail n'a pas encore été confirmée. Vérifiez votre e-mail.</value>
+  </data>
+  <data name="Er is een onbekende fout opgetreden." xml:space="preserve">
+    <value>Une erreur inconnue s'est produite.</value>
+  </data>
+  <data name="Optimistische concurrency fout, het object is gewijzigd." xml:space="preserve">
+    <value>Échec de concurrence optimiste, l'objet a été modifié.</value>
+  </data>
+  <data name="Wachtwoord is onjuist." xml:space="preserve">
+    <value>Le mot de passe est incorrect.</value>
+  </data>
+  <data name="Ongeldige token." xml:space="preserve">
+    <value>Jeton invalide.</value>
+  </data>
+  <data name="Een gebruiker met deze login bestaat al." xml:space="preserve">
+    <value>Un utilisateur avec cette connexion existe déjà.</value>
+  </data>
+  <data name="Gebruikersnaam '{0}' is ongeldig, kan alleen letters of cijfers bevatten." xml:space="preserve">
+    <value>Le nom d'utilisateur '{0}' est invalide, ne peut contenir que des lettres ou des chiffres.</value>
+  </data>
+  <data name="E-mailadres '{0}' is ongeldig." xml:space="preserve">
+    <value>L'adresse e-mail '{0}' est invalide.</value>
+  </data>
+  <data name="Gebruikersnaam '{0}' is al in gebruik." xml:space="preserve">
+    <value>Le nom d'utilisateur '{0}' est déjà utilisé.</value>
+  </data>
+  <data name="E-mailadres '{0}' is al in gebruik." xml:space="preserve">
+    <value>L'adresse e-mail '{0}' est déjà utilisée.</value>
+  </data>
+  <data name="Rolnaam '{0}' is ongeldig." xml:space="preserve">
+    <value>Le nom du rôle '{0}' est invalide.</value>
+  </data>
+  <data name="Rolnaam '{0}' is al in gebruik." xml:space="preserve">
+    <value>Le nom du rôle '{0}' est déjà utilisé.</value>
+  </data>
+  <data name="Gebruiker heeft al een wachtwoord ingesteld." xml:space="preserve">
+    <value>L'utilisateur a déjà un mot de passe défini.</value>
+  </data>
+  <data name="Lockout is niet ingeschakeld voor deze gebruiker." xml:space="preserve">
+    <value>Le verrouillage n'est pas activé pour cet utilisateur.</value>
+  </data>
+  <data name="Gebruiker heeft al de rol '{0}'." xml:space="preserve">
+    <value>L'utilisateur a déjà le rôle '{0}'.</value>
+  </data>
+  <data name="Gebruiker heeft niet de rol '{0}'." xml:space="preserve">
+    <value>L'utilisateur n'a pas le rôle '{0}'.</value>
+  </data>
+  <data name="Wachtwoord moet minimaal {0} tekens lang zijn." xml:space="preserve">
+    <value>Le mot de passe doit contenir au moins {0} caractères.</value>
+  </data>
+  <data name="Wachtwoord moet minimaal één niet-alfanumeriek teken bevatten." xml:space="preserve">
+    <value>Le mot de passe doit contenir au moins un caractère non alphanumérique.</value>
+  </data>
+  <data name="Wachtwoord moet minimaal één cijfer ('0'-'9') bevatten." xml:space="preserve">
+    <value>Le mot de passe doit contenir au moins un chiffre ('0'-'9').</value>
+  </data>
+  <data name="Wachtwoord moet minimaal één kleine letter ('a'-'z') bevatten." xml:space="preserve">
+    <value>Le mot de passe doit contenir au moins une lettre minuscule ('a'-'z').</value>
+  </data>
+  <data name="Wachtwoord moet minimaal één hoofdletter ('A'-'Z') bevatten." xml:space="preserve">
+    <value>Le mot de passe doit contenir au moins une lettre majuscule ('A'-'Z').</value>
+  </data>
+  <data name="Inloggen bij AccessBank" xml:space="preserve">
+    <value>Connexion à AccessBank</value>
+  </data>
+  <data name="E-mail:" xml:space="preserve">
+    <value>E-mail :</value>
+  </data>
+  <data name="Wachtwoord:" xml:space="preserve">
+    <value>Mot de passe :</value>
+  </data>
+  <data name="Onthoud mij" xml:space="preserve">
+    <value>Se souvenir de moi</value>
+  </data>
+  <data name="Wachtwoord vergeten?" xml:space="preserve">
+    <value>Mot de passe oublié ?</value>
+  </data>
+  <data name="Wachtwoord Reset: Stuur email naar support@accessbank.be" xml:space="preserve">
+    <value>Réinitialisation du mot de passe : Envoyer un e-mail à support@accessbank.be</value>
+  </data>
+  <data name="Account Aanmaken" xml:space="preserve">
+    <value>Créer un compte</value>
+  </data>
+  <data name="Voornaam" xml:space="preserve">
+    <value>Prénom</value>
+  </data>
+  <data name="Achternaam" xml:space="preserve">
+    <value>Nom de famille</value>
+  </data>
+  <data name="Wachtwoord Bevestigen" xml:space="preserve">
+    <value>Confirmer le mot de passe</value>
+  </data>
+  <data name="Geboortedatum" xml:space="preserve">
+    <value>Date de naissance</value>
+  </data>
+  <data name="Straatnaam" xml:space="preserve">
+    <value>Nom de la rue</value>
+  </data>
+  <data name="Huisnummer" xml:space="preserve">
+    <value>Numéro de maison</value>
+  </data>
+  <data name="Bus (optioneel)" xml:space="preserve">
+    <value>Boîte (optionnel)</value>
+  </data>
+  <data name="Postcode" xml:space="preserve">
+    <value>Code postal</value>
+  </data>
+  <data name="Gemeente" xml:space="preserve">
+    <value>Ville</value>
+  </data>
+  <data name="Land" xml:space="preserve">
+    <value>Pays</value>
+  </data>
+  <data name="Uw IBAN en kaartnummer worden automatisch toegewezen na succesvolle registratie" xml:space="preserve">
+    <value>Votre IBAN et numéro de carte seront automatiquement attribués après l'inscription réussie</value>
+  </data>
+  <data name="Druk op 'Z' om terug te gaan" xml:space="preserve">
+    <value>Appuyez sur 'Z' pour revenir en arrière</value>
+  </data>
+  <data name="Onjuiste email of wachtwoord." xml:space="preserve">
+    <value>E-mail ou mot de passe incorrect.</value>
+  </data>
+  <data name="Voornaam moet minimaal 2 tekens bevatten." xml:space="preserve">
+    <value>Le prénom doit contenir au moins 2 caractères.</value>
+  </data>
+  <data name="Achternaam moet minimaal 2 tekens bevatten." xml:space="preserve">
+    <value>Le nom de famille doit contenir au moins 2 caractères.</value>
+  </data>
+  <data name="Voer een geldig e-mailadres in." xml:space="preserve">
+    <value>Entrez une adresse e-mail valide.</value>
+  </data>
+  <data name="Wachtwoord moet minimaal 8 tekens bevatten." xml:space="preserve">
+    <value>Le mot de passe doit contenir au moins 8 caractères.</value>
+  </data>
+  <data name="Wachtwoord moet minimaal 1 hoofdletter en 1 cijfer bevatten." xml:space="preserve">
+    <value>Le mot de passe doit contenir au moins 1 lettre majuscule et 1 chiffre.</value>
+  </data>
+  <data name="Wachtwoorden komen niet overeen." xml:space="preserve">
+    <value>Les mots de passe ne correspondent pas.</value>
+  </data>
+  <data name="Telefoonnummer is verplicht." xml:space="preserve">
+    <value>Le numéro de téléphone est obligatoire.</value>
+  </data>
+  <data name="Telefoonnummer mag alleen cijfers bevatten." xml:space="preserve">
+    <value>Le numéro de téléphone ne peut contenir que des chiffres.</value>
+  </data>
+  <data name="Je moet minimaal 18 jaar oud zijn." xml:space="preserve">
+    <value>Vous devez avoir au moins 18 ans.</value>
+  </data>
+  <data name="Straatnaam is verplicht." xml:space="preserve">
+    <value>Le nom de la rue est obligatoire.</value>
+  </data>
+  <data name="Huisnummer is verplicht." xml:space="preserve">
+    <value>Le numéro de maison est obligatoire.</value>
+  </data>
+  <data name="Postcode moet 4 cijfers bevatten." xml:space="preserve">
+    <value>Le code postal doit contenir 4 chiffres.</value>
+  </data>
+  <data name="Gemeente is verplicht." xml:space="preserve">
+    <value>La ville est obligatoire.</value>
+  </data>
+  <data name="Er bestaat al een account met dit e-mailadres." xml:space="preserve">
+    <value>Un compte avec cette adresse e-mail existe déjà.</value>
+  </data>
+  <data name="Card Stop" xml:space="preserve">
+    <value>Blocage de Carte</value>
+  </data>
+  <data name="Bel onmiddellijk dit nummer om uw kaart te blokkeren:" xml:space="preserve">
+    <value>Appelez immédiatement ce numéro pour bloquer votre carte :</value>
+  </data>
+  <data name="24/7 bereikbaar in België en vanuit het buitenland." xml:space="preserve">
+    <value>Disponible 24/7 en Belgique et depuis l'étranger.</value>
+  </data>
+  <data name="Terug naar startpagina" xml:space="preserve">
+    <value>Retour à la page d'accueil</value>
+  </data>
+  <data name="Contacteer de Klantendienst" xml:space="preserve">
+    <value>Contacter le Service Client</value>
+  </data>
+  <data name="Naam:" xml:space="preserve">
+    <value>Nom :</value>
+  </data>
+  <data name="Onderwerp:" xml:space="preserve">
+    <value>Sujet :</value>
+  </data>
+  <data name="Bericht:" xml:space="preserve">
+    <value>Message :</value>
+  </data>
+  <data name="Versturen" xml:space="preserve">
+    <value>Envoyer</value>
+  </data>
+  <data name="Uw bericht is succesvol verzonden. We nemen zo spoedig mogelijk contact met u op." xml:space="preserve">
+    <value>Votre message a été envoyé avec succès. Nous vous contacterons dans les plus brefs délais.</value>
+  </data>
+  <data name="Huidig Saldo" xml:space="preserve">
+    <value>Solde Actuel</value>
+  </data>
+  <data name="Zichtrekening" xml:space="preserve">
+    <value>Compte Courant</value>
+  </data>
+  <data name="Saldo Raadplegen" xml:space="preserve">
+    <value>Consulter le Solde</value>
+  </data>
+  <data name="Overschrijven" xml:space="preserve">
+    <value>Virement</value>
+  </data>
+  <data name="Profiel raadplegen" xml:space="preserve">
+    <value>Consulter le Profil</value>
+  </data>
+  <data name="Contact" xml:space="preserve">
+    <value>Contact</value>
+  </data>
+  <data name="Mijn Gegevens" xml:space="preserve">
+    <value>Mes Données</value>
+  </data>
+  <data name="Nieuwe Wachtwoord" xml:space="preserve">
+    <value>Nouveau Mot de passe</value>
+  </data>
+  <data name="Laat leeg om wachtwoord niet te wijzigen" xml:space="preserve">
+    <value>Laissez vide pour conserver le mot de passe actuel</value>
+  </data>
+  <data name="Telefoonnr." xml:space="preserve">
+    <value>Tél.</value>
+  </data>
+  <data name="Alleen lezen" xml:space="preserve">
+    <value>Lecture seule</value>
+  </data>
+  <data name="Wijzigingen Opslaan" xml:space="preserve">
+    <value>Enregistrer les modifications</value>
+  </data>
+  <data name="Gebruiker Bewerken" xml:space="preserve">
+    <value>Modifier l'utilisateur</value>
+  </data>
+  <data name="Opslaan" xml:space="preserve">
+    <value>Enregistrer</value>
+  </data>
+  <data name="Profiel Verwijderen" xml:space="preserve">
+    <value>Supprimer le Profil</value>
+  </data>
+  <data name="LET OP" xml:space="preserve">
+    <value>ATTENTION</value>
+  </data>
+  <data name="Deze actie kan niet ongedaan gemaakt worden. Al uw gegevens worden permanent verwijderd." xml:space="preserve">
+    <value>Cette action ne peut pas être annulée. Toutes vos données seront définitivement supprimées.</value>
+  </data>
+  <data name="Weet u zeker dat u uw profiel wilt verwijderen? Deze actie kan niet ongedaan gemaakt worden." xml:space="preserve">
+    <value>Êtes-vous sûr de vouloir supprimer votre profil ? Cette action ne peut pas être annulée.</value>
+  </data>
+  <data name="Profiel succesvol bijgewerkt." xml:space="preserve">
+    <value>Profil mis à jour avec succès.</value>
+  </data>
+  <data name="Er is een fout opgetreden bij het bijwerken van uw profiel." xml:space="preserve">
+    <value>Une erreur s'est produite lors de la mise à jour de votre profil.</value>
+  </data>
+  <data name="Er is een fout opgetreden bij het verzenden van uw bericht." xml:space="preserve">
+    <value>Une erreur s'est produite lors de l'envoi de votre message.</value>
+  </data>
+  <data name="IBAN wordt automatisch gegenereerd als leeg gelaten" xml:space="preserve">
+    <value>L'IBAN sera automatiquement généré si laissé vide</value>
+  </data>
+  <data name="IBAN wordt automatisch gegenereerd" xml:space="preserve">
+    <value>L'IBAN sera automatiquement généré</value>
+  </data>
+  <data name="Klantenberichten" xml:space="preserve">
+    <value>Messages Clients</value>
+  </data>
+  <data name="In Behandeling" xml:space="preserve">
+    <value>En Cours</value>
+  </data>
+  <data name="Afgehandeld" xml:space="preserve">
+    <value>Résolu</value>
+  </data>
+  <data name="Markeer als Afgehandeld" xml:space="preserve">
+    <value>Marquer comme Résolu</value>
+  </data>
+  <data name="Terug naar Wachtende Transacties" xml:space="preserve">
+    <value>Retour aux Transactions en Attente</value>
+  </data>
+  <data name="Bericht Details" xml:space="preserve">
+    <value>Détails du Message</value>
+  </data>
+  <data name="Klant Bericht" xml:space="preserve">
+    <value>Message Client</value>
+  </data>
+  <data name="Behandeld Door" xml:space="preserve">
+    <value>Traîté Par</value>
+  </data>
+  <data name="Behandeld Op" xml:space="preserve">
+    <value>Traîté Le</value>
+  </data>
+  <data name="Geen klantenberichten" xml:space="preserve">
+    <value>Aucun message client</value>
+  </data>
+  <data name="Zoeken" xml:space="preserve">
+    <value>Rechercher</value>
+  </data>
+  <data name="Wissen" xml:space="preserve">
+    <value>Effacer</value>
+  </data>
+  <data name="Zoeken op email, naam of telefoon..." xml:space="preserve">
+    <value>Rechercher par e-mail, nom ou téléphone...</value>
+  </data>
+  <data name="Zoeken op IBAN of gebruiker..." xml:space="preserve">
+    <value>Rechercher par IBAN ou utilisateur...</value>
+  </data>
+  <data name="Nieuwe Gebruiker" xml:space="preserve">
+    <value>Nouvel Utilisateur</value>
+  </data>
+  <data name="Persoonlijke Gegevens" xml:space="preserve">
+    <value>Informations Personnelles</value>
+  </data>
+  <data name="Gebruiker Aanmaken" xml:space="preserve">
+    <value>Créer un Utilisateur</value>
+  </data>
+  <data name="IBAN en kaartnummer worden automatisch toegewezen na succesvolle aanmaak" xml:space="preserve">
+    <value>L'IBAN et le numéro de carte seront automatiquement attribués après une création réussie</value>
+  </data>
 </root>

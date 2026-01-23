@@ -1,16 +1,67 @@
+﻿@using Microsoft.AspNetCore.Mvc.Localization
+@using Microsoft.Extensions.Localization
+@using BankApp_Web.Translations
+@inject IStringLocalizer<SharedResource> _localizer
+
 @{
-    ViewData["Title"] = "Home";
+    ViewData["Title"] = @_localizer["Home"];
+    var totaalSaldo = ViewBag.TotaalSaldo as decimal? ?? 0.0m;
+    var eersteRekening = ViewBag.EersteRekening as BankApp_Models.Rekening;
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welkom bij BankApp</h1>
-    <p>Uw betrouwbare bankapplicatie voor al uw financiële behoeften.</p>
-    
-    @if (!User.Identity.IsAuthenticated)
-    {
+@if (!User.Identity.IsAuthenticated)
+{
+    <div class="text-center">
+        <h1 class="display-4">@_localizer["Welkom bij BankApp"]</h1>
+        <p>@_localizer["Uw betrouwbare bankapplicatie"]</p>
         <p>
-            <a class="btn btn-primary" asp-area="Identity" asp-page="/Account/Register">Registreren</a>
-            <a class="btn btn-secondary" asp-area="Identity" asp-page="/Account/Login">Inloggen</a>
+            <a class="btn btn-primary" asp-controller="Account" asp-action="Register">@_localizer["Registreren"]</a>
+            <a class="btn btn-secondary" asp-controller="Account" asp-action="Login">@_localizer["Inloggen"]</a>
         </p>
-    }
-</div>
+    </div>
+}
+else if (User.IsInRole("Klant"))
+{
+    <div class="container mt-4">
+        <!-- Saldo Card (gouden kaart zoals WPF) -->
+        <div class="saldo-card mb-4">
+            <h2>@_localizer["Huidig Saldo"]</h2>
+            <div class="saldo-amount">€@totaalSaldo.ToString("N2")</div>
+            @if (eersteRekening != null)
+            {
+                <div class="account-info">@_localizer["Zichtrekening"] @eersteRekening.Iban</div>
+            }
+            <a asp-controller="Rekeningen" asp-action="Index" class="btn btn-dark mt-3" style="background-color: #000000; color: #FFD700; font-weight: bold; padding: 15px 30px;">
+                @_localizer["Saldo Raadplegen"] →
+            </a>
+        </div>
+
+        <!-- Snelle Acties -->
+        <h3 class="text-white mb-4" style="font-size: 32px; font-weight: bold;">@_localizer["Snelle Acties"]</h3>
+        
+        <div class="row">
+            <div class="col-md-12 mb-3">
+                <a asp-controller="Transacties" asp-action="Create" class="btn action-button" style="background-color: #32CD32; color: white; width: 100%;">
+                    @_localizer["Overschrijven"]
+                </a>
+            </div>
+            <div class="col-md-12 mb-3">
+                <a asp-controller="Account" asp-action="Profile" class="btn action-button" style="background-color: #9370DB; color: white; width: 100%;">
+                    @_localizer["Profiel raadplegen"]
+                </a>
+            </div>
+            <div class="col-md-12 mb-3">
+                <a asp-controller="Klantendienst" asp-action="Index" class="btn action-button" style="background-color: #FF6347; color: white; width: 100%;">
+                    @_localizer["Contact"]
+                </a>
+            </div>
+        </div>
+    </div>
+}
+else
+{
+    <div class="text-center">
+        <h1 class="display-4">@_localizer["Welkom bij BankApp"]</h1>
+        <p>@_localizer["Uw betrouwbare bankapplicatie"]</p>
+    </div>
+}

@@ -1,35 +1,39 @@
-@model BankApp_Models.BankUser
+﻿@model BankApp_Models.BankUser
+@using Microsoft.AspNetCore.Mvc.Localization
+@using Microsoft.Extensions.Localization
+@using BankApp_Web.Translations
+@inject IStringLocalizer<SharedResource> _localizer
 
 @{
-    ViewData["Title"] = "Gebruiker Details";
+    ViewData["Title"] = @_localizer["Gebruiker Details"];
 }
 
-<h1>Gebruiker Details</h1>
+<h1>@_localizer["Gebruiker Details"]</h1>
 
 <div>
-    <h4>Gebruiker</h4>
+    <h4>@_localizer["Gebruiker"]</h4>
     <hr />
     <dl class="row">
         <dt class="col-sm-2">
-            Email
+            @_localizer["Email"]
         </dt>
         <dd class="col-sm-10">
             @Html.DisplayFor(model => model.Email)
         </dd>
         <dt class="col-sm-2">
-            Naam
+            @_localizer["Naam"]
         </dt>
         <dd class="col-sm-10">
             @Html.DisplayFor(model => model.Voornaam) @Html.DisplayFor(model => model.Achternaam)
         </dd>
         <dt class="col-sm-2">
-            Telefoon
+            @_localizer["Telefoon"]
         </dt>
         <dd class="col-sm-10">
             @Html.DisplayFor(model => model.Telefoonnummer)
         </dd>
         <dt class="col-sm-2">
-            Rollen
+            @_localizer["Rollen"]
         </dt>
         <dd class="col-sm-10">
             @foreach (var rol in ViewBag.Roles as IEnumerable<string>)
@@ -40,7 +44,39 @@
     </dl>
 </div>
 
-<div>
-    <a asp-action="Rollen" asp-route-id="@Model.Id" class="btn btn-primary">Rollen Beheren</a>
-    <a asp-action="Index" class="btn btn-secondary">Terug</a>
+@if (Model.Rekeningen != null && Model.Rekeningen.Any(r => r.Deleted == DateTime.MaxValue))
+{
+    <div class="mt-4">
+        <h4>@_localizer["Rekeningen"]</h4>
+        <hr />
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>@_localizer["IBAN"]</th>
+                    <th>@_localizer["Saldo"]</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var rekening in Model.Rekeningen.Where(r => r.Deleted == DateTime.MaxValue))
+                {
+                    <tr>
+                        <td>@Html.DisplayFor(modelItem => rekening.Iban)</td>
+                        <td>€@Html.DisplayFor(modelItem => rekening.Saldo)</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}
+else
+{
+    <div class="mt-4">
+        <p class="text-muted">@_localizer["Deze gebruiker heeft nog geen rekeningen."]</p>
+    </div>
+}
+
+<div class="mt-3">
+    <a asp-action="EditGebruiker" asp-route-id="@Model.Id" class="btn btn-warning">@_localizer["Gebruiker Bewerken"]</a>
+    <a asp-action="Rollen" asp-route-id="@Model.Id" class="btn btn-primary">@_localizer["Rollen Beheren"]</a>
+    <a asp-action="Index" class="btn btn-secondary">@_localizer["Terug"]</a>
 </div>

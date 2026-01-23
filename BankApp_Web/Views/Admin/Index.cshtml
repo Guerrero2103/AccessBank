@@ -1,19 +1,92 @@
-@model IEnumerable<BankApp_Models.BankUser>
+﻿@model IEnumerable<BankApp_Models.BankUser>
+@using Microsoft.AspNetCore.Mvc.Localization
+@using Microsoft.Extensions.Localization
+@using BankApp_Web.Translations
+@inject IStringLocalizer<SharedResource> _localizer
 
 @{
-    ViewData["Title"] = "Gebruikersbeheer";
+    ViewData["Title"] = @_localizer["Gebruikersbeheer"];
 }
 
-<h1>Gebruikersbeheer</h1>
+<h1>@_localizer["Gebruikersbeheer"]</h1>
+
+<div class="mb-3">
+    <a asp-action="NieuweGebruiker" class="btn btn-success">@_localizer["Nieuwe Gebruiker"]</a>
+</div>
+
+<!-- Zoekbalk -->
+<div class="row mb-3">
+    <div class="col-md-6">
+        <form asp-action="Index" method="get">
+            <div class="input-group">
+                <input type="text" name="searchString" class="form-control" placeholder="@_localizer["Zoeken op email, naam of telefoon..."]" value="@ViewData["CurrentFilter"]" />
+                <input type="hidden" name="sortOrder" value="@ViewData["CurrentSort"]" />
+                <button class="btn btn-outline-secondary" type="submit">@_localizer["Zoeken"]</button>
+                @if (!string.IsNullOrEmpty(ViewData["CurrentFilter"]?.ToString()))
+                {
+                    <a asp-action="Index" class="btn btn-outline-secondary">@_localizer["Wissen"]</a>
+                }
+            </div>
+        </form>
+    </div>
+</div>
 
 <table class="table table-striped">
     <thead>
         <tr>
-            <th>Email</th>
-            <th>Naam</th>
-            <th>Telefoon</th>
-            <th>Status</th>
-            <th>Acties</th>
+            <th>
+                <a asp-action="Index" asp-route-sortOrder="@ViewData["EmailSortParm"]" asp-route-searchString="@ViewData["CurrentFilter"]" style="text-decoration: none; color: inherit;">
+                    @_localizer["Email"]
+                    @if (ViewData["EmailSortParm"]?.ToString() == "email_desc")
+                    {
+                        <span>▼</span>
+                    }
+                    else
+                    {
+                        <span>▲</span>
+                    }
+                </a>
+            </th>
+            <th>
+                <a asp-action="Index" asp-route-sortOrder="@ViewData["NaamSortParm"]" asp-route-searchString="@ViewData["CurrentFilter"]" style="text-decoration: none; color: inherit;">
+                    @_localizer["Naam"]
+                    @if (ViewData["NaamSortParm"]?.ToString() == "naam_desc")
+                    {
+                        <span>▼</span>
+                    }
+                    else if (ViewData["NaamSortParm"]?.ToString() == "Naam")
+                    {
+                        <span>▲</span>
+                    }
+                </a>
+            </th>
+            <th>
+                <a asp-action="Index" asp-route-sortOrder="@ViewData["TelefoonSortParm"]" asp-route-searchString="@ViewData["CurrentFilter"]" style="text-decoration: none; color: inherit;">
+                    @_localizer["Telefoon"]
+                    @if (ViewData["TelefoonSortParm"]?.ToString() == "telefoon_desc")
+                    {
+                        <span>▼</span>
+                    }
+                    else if (ViewData["TelefoonSortParm"]?.ToString() == "Telefoon")
+                    {
+                        <span>▲</span>
+                    }
+                </a>
+            </th>
+            <th>
+                <a asp-action="Index" asp-route-sortOrder="@ViewData["StatusSortParm"]" asp-route-searchString="@ViewData["CurrentFilter"]" style="text-decoration: none; color: inherit;">
+                    @_localizer["Status"]
+                    @if (ViewData["StatusSortParm"]?.ToString() == "status_desc")
+                    {
+                        <span>▼</span>
+                    }
+                    else if (ViewData["StatusSortParm"]?.ToString() == "Status")
+                    {
+                        <span>▲</span>
+                    }
+                </a>
+            </th>
+            <th>@_localizer["Acties"]</th>
         </tr>
     </thead>
     <tbody>
@@ -26,22 +99,22 @@
                 <td>
                     @if (item.LockoutEnd.HasValue && item.LockoutEnd > DateTimeOffset.UtcNow)
                     {
-                        <span class="badge bg-danger">Geblokkeerd</span>
+                        <span class="badge bg-danger">@_localizer["Geblokkeerd"]</span>
                     }
                     else
                     {
-                        <span class="badge bg-success">Actief</span>
+                        <span class="badge bg-success">@_localizer["Actief"]</span>
                     }
                 </td>
                 <td>
-                    <a asp-action="GebruikerDetails" asp-route-id="@item.Id" class="btn btn-sm btn-info">Details</a>
+                    <a asp-action="GebruikerDetails" asp-route-id="@item.Id" class="btn btn-sm btn-info">@_localizer["Details"]</a>
                     @if (item.LockoutEnd.HasValue && item.LockoutEnd > DateTimeOffset.UtcNow)
                     {
-                        <a asp-action="DeBlokkeerGebruiker" asp-route-id="@item.Id" class="btn btn-sm btn-success">Deblokkeer</a>
+                        <a asp-action="DeBlokkeerGebruiker" asp-route-id="@item.Id" class="btn btn-sm btn-success">@_localizer["Deblokkeer"]</a>
                     }
                     else
                     {
-                        <a asp-action="BlokkeerGebruiker" asp-route-id="@item.Id" class="btn btn-sm btn-warning">Blokkeer</a>
+                        <a asp-action="BlokkeerGebruiker" asp-route-id="@item.Id" class="btn btn-sm btn-warning">@_localizer["Blokkeer"]</a>
                     }
                 </td>
             </tr>

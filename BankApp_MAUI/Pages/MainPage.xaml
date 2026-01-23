@@ -41,10 +41,29 @@
             </Frame>
 
             <!-- Sync status -->
-            <Label Text="{Binding LaatsteSyncTijd, StringFormat='Laatste sync: {0:HH:mm}'}"
-                   TextColor="White"
-                   FontSize="12"
-                   IsVisible="{Binding LaatsteSyncTijd, Converter={StaticResource IsNotNullConverter}}"/>
+            <VerticalStackLayout Spacing="5">
+                <Label Text="{Binding LaatsteSyncTijd, StringFormat='Laatste sync: {0:HH:mm}'}"
+                       TextColor="White"
+                       FontSize="12"
+                       IsVisible="{Binding LaatsteSyncTijd, Converter={StaticResource IsNotNullConverter}}"/>
+                
+                <!-- Online status -->
+                <Label Text="Status: Online"
+                       TextColor="Green"
+                       FontSize="12"
+                       IsVisible="{Binding IsOnline}"/>
+                <Label Text="Status: Offline"
+                       TextColor="Red"
+                       FontSize="12"
+                       IsVisible="{Binding IsOnline, Converter={StaticResource InvertedBoolConverter}}"/>
+                
+                <!-- Error message -->
+                <Label Text="{Binding SyncErrorMessage}"
+                       TextColor="Red"
+                       FontSize="12"
+                       IsVisible="{Binding SyncErrorMessage, Converter={StaticResource IsNotNullOrEmptyConverter}}"
+                       Margin="0,5,0,0"/>
+            </VerticalStackLayout>
 
             <!-- Snelle Acties -->
             <Label Text="Snelle Acties"

@@ -7,7 +7,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace BankApp_MAUI
 {
-    // Centrale klasse voor alle communicatie en synchronisatie - zoals in Agenda-master
+    // Centrale klasse voor alle communicatie en synchronisatie
     public class Synchronizer
     {
         private readonly HttpClient client;
@@ -29,9 +29,11 @@ namespace BankApp_MAUI
                 Timeout = TimeSpan.FromSeconds(30)
             };
 
+            // JSON serialization options - gebruik case-insensitive voor flexibiliteit
+            // ASP.NET Core gebruikt standaard PascalCase, maar we accepteren beide
             sOptions = new JsonSerializerOptions
             {
-                PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+                PropertyNameCaseInsensitive = true, // Accepteert zowel PascalCase als camelCase
                 WriteIndented = true
             };
         }
@@ -40,43 +42,63 @@ namespace BankApp_MAUI
 
         public async Task<bool> IsAuthorized()
         {
-            // Als we al een UserId hebben, zijn we geautoriseerd
-            if (!string.IsNullOrEmpty(General.UserId))
-                return true;
-
             // Kijk in de lokale voorkeuren (Preferences)
             string token = Preferences.Get("auth_token", "");
             if (string.IsNullOrEmpty(token))
+            {
+                System.Diagnostics.Debug.WriteLine("IsAuthorized: No auth token found");
                 return false;
+            }
 
-            // Voeg token toe aan headers
-            client.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
-            
             // Haal de UserId en Email op uit Preferences
             General.UserId = Preferences.Get("user_id", "");
             
-            return !string.IsNullOrEmpty(General.UserId);
+            if (string.IsNullOrEmpty(General.UserId))
+            {
+                System.Diagnostics.Debug.WriteLine("IsAuthorized: No user_id found");
+                return false;
+            }
+            
+            // Zet authorization header voor alle requests
+            client.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
+            
+            // Verifieer dat header correct is ingesteld
+            var authHeader = client.DefaultRequestHeaders.Authorization?.ToString();
+            System.Diagnostics.Debug.WriteLine($"IsAuthorized: UserId = {General.UserId}, Token length = {token.Length}, Auth header = {authHeader?.Substring(0, Math.Min(20, authHeader.Length))}...");
+            return true;
         }
 
         public async Task<bool> Login(string email, string password)
         {
             try
             {
+                System.Diagnostics.Debug.WriteLine($"Login: Attempting login for {email}");
                 var loginData = new { Email = email, Password = password };
+                
+                // Verwijder oude authorization header eerst
+                client.DefaultRequestHeaders.Authorization = null;
+                
                 var response = await client.PostAsJsonAsync("account/login", loginData);
+                System.Diagnostics.Debug.WriteLine($"Login: Response status = {response.StatusCode}");
 
                 if (response.IsSuccessStatusCode)
                 {
-                    var result = await response.Content.ReadFromJsonAsync<LoginResponse>();
+                    // Gebruik sOptions voor deserialisatie
+                    var result = await response.Content.ReadFromJsonAsync<LoginResponse>(sOptions);
                     if (result != null)
                     {
+                        System.Diagnostics.Debug.WriteLine($"Login: Success! UserId = {result.userId}, Email = {result.email}");
+                        
                         // Sla token en user info op in Preferences
                         Preferences.Set("auth_token", result.token);
                         Preferences.Set("user_id", result.userId);
                         Preferences.Set("user_email", result.email);
 
                         General.UserId = result.userId;
+                        
+                        // Zet authorization header voor alle volgende requests
                         client.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", result.token);
+                        System.Diagnostics.Debug.WriteLine($"Login: Authorization header set");
 
                         // Sla gebruiker ook op in lokale SQLite database
                         var lokaleGebruiker = new LocalUser 
@@ -90,10 +112,17 @@ namespace BankApp_MAUI
                         return true;
                     }
                 }
+                else
+                {
+                    var errorContent = await response.Content.ReadAsStringAsync();
+                    System.Diagnostics.Debug.WriteLine($"Login: Failed with status {response.StatusCode}, error: {errorContent}");
+                }
                 return false;
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                System.Diagnostics.Debug.WriteLine($"Login: Exception = {ex.Message}");
+                System.Diagnostics.Debug.WriteLine($"Login: Stack trace = {ex.StackTrace}");
                 return false;
             }
         }
@@ -110,10 +139,18 @@ namespace BankApp_MAUI
 
         public async Task SynchronizeAll()
         {
-            if (!await IsAuthorized()) return;
+            System.Diagnostics.Debug.WriteLine("SynchronizeAll: Starting synchronization");
+            
+            if (!await IsAuthorized())
+            {
+                System.Diagnostics.Debug.WriteLine("SynchronizeAll: Not authorized, skipping sync");
+                return;
+            }
 
             try
             {
+                System.Diagnostics.Debug.WriteLine("SynchronizeAll: Authorized, proceeding with sync");
+                
                 // 1. Upload ongesynchroniseerde transacties
                 await UploadUnsyncedTransacties();
 
@@ -122,90 +159,243 @@ namespace BankApp_MAUI
 
                 // 3. Download transacties
                 await DownloadTransacties();
+                
+                System.Diagnostics.Debug.WriteLine("SynchronizeAll: Synchronization completed successfully");
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                System.Diagnostics.Debug.WriteLine($"SynchronizeAll error: {ex.Message}");
+                System.Diagnostics.Debug.WriteLine($"Stack trace: {ex.StackTrace}");
                 // Sync mislukt, maar we kunnen offline verder
             }
         }
 
         private async Task UploadUnsyncedTransacties()
         {
-            var unsynced = await _context.GetUnsyncedTransactiesAsync();
-            foreach (var localT in unsynced)
+            try
             {
-                var t = new Transactie
+                System.Diagnostics.Debug.WriteLine("UploadUnsyncedTransacties: Starting upload");
+                var unsynced = await _context.GetUnsyncedTransactiesAsync();
+                System.Diagnostics.Debug.WriteLine($"UploadUnsyncedTransacties: Found {unsynced.Count} unsynced transactions");
+                
+                if (unsynced.Count == 0)
                 {
-                    VanIban = localT.VanIban,
-                    NaarIban = localT.NaarIban,
-                    NaamOntvanger = localT.NaamOntvanger,
-                    Bedrag = localT.Bedrag,
-                    Omschrijving = localT.Omschrijving,
-                    Datum = localT.Datum,
-                    GebruikerId = General.UserId
-                };
-
-                var response = await client.PostAsJsonAsync("Transacties", t);
-                if (response.IsSuccessStatusCode)
-                {
-                    localT.IsSynced = true;
-                    localT.LastSync = DateTime.Now;
-                    await _context.SaveTransactieAsync(localT);
+                    System.Diagnostics.Debug.WriteLine("UploadUnsyncedTransacties: No unsynced transactions to upload");
+                    return;
                 }
+                
+                foreach (var localT in unsynced)
+                {
+                    try
+                    {
+                        var t = new Transactie
+                        {
+                            VanIban = localT.VanIban,
+                            NaarIban = localT.NaarIban,
+                            NaamOntvanger = localT.NaamOntvanger,
+                            Bedrag = localT.Bedrag,
+                            Omschrijving = localT.Omschrijving,
+                            Datum = localT.Datum,
+                            GebruikerId = General.UserId
+                        };
+
+                        System.Diagnostics.Debug.WriteLine($"UploadUnsyncedTransacties: Uploading transaction ID={localT.Id}, Bedrag={localT.Bedrag}, VanIban={localT.VanIban}, NaarIban={localT.NaarIban}");
+                        var response = await client.PostAsJsonAsync("Transacties", t, sOptions);
+                        
+                        System.Diagnostics.Debug.WriteLine($"UploadUnsyncedTransacties: Response status = {response.StatusCode}");
+                        
+                        if (response.IsSuccessStatusCode)
+                        {
+                            localT.IsSynced = true;
+                            localT.LastSync = DateTime.Now;
+                            await _context.SaveTransactieAsync(localT);
+                            System.Diagnostics.Debug.WriteLine($"UploadUnsyncedTransacties: Transaction {localT.Id} successfully synced");
+                        }
+                        else
+                        {
+                            var errorContent = await response.Content.ReadAsStringAsync();
+                            System.Diagnostics.Debug.WriteLine($"UploadUnsyncedTransacties: Failed to sync transaction {localT.Id}: Status={response.StatusCode}, Error={errorContent}");
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        System.Diagnostics.Debug.WriteLine($"UploadUnsyncedTransacties: Error uploading transaction {localT.Id}: {ex.Message}");
+                        System.Diagnostics.Debug.WriteLine($"UploadUnsyncedTransacties: Stack trace: {ex.StackTrace}");
+                    }
+                }
+                
+                System.Diagnostics.Debug.WriteLine("UploadUnsyncedTransacties: Upload completed");
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"UploadUnsyncedTransacties: Critical error: {ex.Message}");
+                System.Diagnostics.Debug.WriteLine($"UploadUnsyncedTransacties: Stack trace: {ex.StackTrace}");
+                throw; // Gooi door voor betere error handling
             }
         }
 
         private async Task DownloadRekeningen()
         {
-            var response = await client.GetAsync("Rekeningen");
-            if (response.IsSuccessStatusCode)
+            try
             {
-                var rekeningen = await response.Content.ReadFromJsonAsync<List<Rekening>>();
-                if (rekeningen != null)
+                System.Diagnostics.Debug.WriteLine($"DownloadRekeningen: Starting download for user {General.UserId}");
+                System.Diagnostics.Debug.WriteLine($"DownloadRekeningen: API URL = {General.ApiUrl}Rekeningen");
+                
+                // Verifieer JWT token in header
+                var authHeader = client.DefaultRequestHeaders.Authorization?.ToString();
+                if (string.IsNullOrEmpty(authHeader))
                 {
-                    foreach (var r in rekeningen)
+                    System.Diagnostics.Debug.WriteLine("DownloadRekeningen: WARNING - Authorization header is NULL!");
+                }
+                else
+                {
+                    System.Diagnostics.Debug.WriteLine($"DownloadRekeningen: Auth header present (length = {authHeader.Length})");
+                }
+                
+                var response = await client.GetAsync("Rekeningen");
+                
+                System.Diagnostics.Debug.WriteLine($"DownloadRekeningen: Response status = {response.StatusCode}");
+                
+                if (!response.IsSuccessStatusCode)
+                {
+                    var errorContent = await response.Content.ReadAsStringAsync();
+                    System.Diagnostics.Debug.WriteLine($"DownloadRekeningen: Error response = {errorContent}");
+                }
+                
+                if (response.IsSuccessStatusCode)
+                {
+                    // Lees JSON string eenmalig
+                    var jsonString = await response.Content.ReadAsStringAsync();
+                    System.Diagnostics.Debug.WriteLine($"DownloadRekeningen: Raw JSON response = {jsonString}");
+                    
+                    // Deserialiseer direct van de string (niet van de stream)
+                    var rekeningen = System.Text.Json.JsonSerializer.Deserialize<List<Rekening>>(jsonString, sOptions);
+                    System.Diagnostics.Debug.WriteLine($"DownloadRekeningen: Received {rekeningen?.Count ?? 0} rekeningen");
+                    
+                    if (rekeningen != null && rekeningen.Count > 0)
                     {
-                        var localR = new LocalRekening
+                        foreach (var r in rekeningen)
                         {
-                            Id = r.Id,
-                            Iban = r.Iban,
-                            Saldo = r.Saldo,
-                            GebruikerId = General.UserId,
-                            LastSync = DateTime.Now
-                        };
-                        await _context.SaveRekeningAsync(localR);
+                            // Check of rekening al bestaat
+                            var existing = await _context.GetRekeningByIbanAsync(r.Iban);
+                            if (existing != null)
+                            {
+                                // Update bestaande rekening
+                                existing.Saldo = r.Saldo;
+                                existing.LastSync = DateTime.Now;
+                                await _context.SaveRekeningAsync(existing);
+                                System.Diagnostics.Debug.WriteLine($"DownloadRekeningen: Updated rekening {r.Iban} with saldo {r.Saldo}");
+                            }
+                            else
+                            {
+                                // Nieuwe rekening - Id wordt automatisch gegenereerd
+                                var localR = new LocalRekening
+                                {
+                                    Iban = r.Iban,
+                                    Saldo = r.Saldo,
+                                    GebruikerId = General.UserId,
+                                    LastSync = DateTime.Now
+                                };
+                                await _context.SaveRekeningAsync(localR);
+                                System.Diagnostics.Debug.WriteLine($"DownloadRekeningen: Created new rekening {r.Iban} with saldo {r.Saldo}");
+                            }
+                        }
+                    }
+                    else
+                    {
+                        System.Diagnostics.Debug.WriteLine("DownloadRekeningen: No rekeningen received or list is empty");
                     }
                 }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"DownloadRekeningen error: {ex.Message}");
+                System.Diagnostics.Debug.WriteLine($"DownloadRekeningen stack trace: {ex.StackTrace}");
+                throw;
             }
         }
 
         private async Task DownloadTransacties()
         {
-            var response = await client.GetAsync("Transacties");
-            if (response.IsSuccessStatusCode)
+            try
             {
-                var transacties = await response.Content.ReadFromJsonAsync<List<Transactie>>();
-                if (transacties != null)
+                System.Diagnostics.Debug.WriteLine($"DownloadTransacties: Starting download for user {General.UserId}");
+                var response = await client.GetAsync("Transacties");
+                
+                System.Diagnostics.Debug.WriteLine($"DownloadTransacties: Response status = {response.StatusCode}");
+                
+                if (!response.IsSuccessStatusCode)
                 {
-                    foreach (var t in transacties)
+                    var errorContent = await response.Content.ReadAsStringAsync();
+                    System.Diagnostics.Debug.WriteLine($"DownloadTransacties: Error response = {errorContent}");
+                }
+                
+                if (response.IsSuccessStatusCode)
+                {
+                    // Lees JSON string eenmalig
+                    var jsonString = await response.Content.ReadAsStringAsync();
+                    System.Diagnostics.Debug.WriteLine($"DownloadTransacties: Raw JSON response length = {jsonString.Length}");
+                    
+                    // Deserialiseer direct van de string (niet van de stream)
+                    var transacties = System.Text.Json.JsonSerializer.Deserialize<List<Transactie>>(jsonString, sOptions);
+                    System.Diagnostics.Debug.WriteLine($"DownloadTransacties: Received {transacties?.Count ?? 0} transacties");
+                    
+                    if (transacties != null && transacties.Count > 0)
                     {
-                        var localT = new LocalTransactie
+                        // Haal bestaande transacties op om duplicaten te voorkomen
+                        var existingTransacties = await _context.GetTransactiesAsync(General.UserId, 1000);
+                        
+                        foreach (var t in transacties)
                         {
-                            Id = t.Id,
-                            VanIban = t.VanIban,
-                            NaarIban = t.NaarIban,
-                            NaamOntvanger = t.NaamOntvanger,
-                            Bedrag = t.Bedrag,
-                            Omschrijving = t.Omschrijving,
-                            Datum = t.Datum,
-                            Status = t.Status.ToString(),
-                            GebruikerId = General.UserId,
-                            IsSynced = true,
-                            LastSync = DateTime.Now
-                        };
-                        await _context.SaveTransactieAsync(localT);
+                            // Check of transactie al bestaat op basis van IBANs, Bedrag en Datum
+                            var existing = existingTransacties.FirstOrDefault(et => 
+                                et.VanIban == t.VanIban && 
+                                et.NaarIban == t.NaarIban && 
+                                et.Bedrag == t.Bedrag && 
+                                et.Datum.Date == t.Datum.Date);
+
+                            if (existing == null)
+                            {
+                                // Nieuwe transactie - Id wordt automatisch gegenereerd
+                                var localT = new LocalTransactie
+                                {
+                                    VanIban = t.VanIban,
+                                    NaarIban = t.NaarIban,
+                                    NaamOntvanger = t.NaamOntvanger,
+                                    Bedrag = t.Bedrag,
+                                    Omschrijving = t.Omschrijving,
+                                    Datum = t.Datum,
+                                    Status = t.Status.ToString(),
+                                    GebruikerId = General.UserId,
+                                    IsSynced = true,
+                                    LastSync = DateTime.Now
+                                };
+                                await _context.SaveTransactieAsync(localT);
+                                System.Diagnostics.Debug.WriteLine($"DownloadTransacties: Created new transaction {localT.Id}");
+                            }
+                            else
+                            {
+                                // Update bestaande transactie (status kan veranderd zijn)
+                                existing.Status = t.Status.ToString();
+                                existing.LastSync = DateTime.Now;
+                                existing.IsSynced = true;
+                                await _context.SaveTransactieAsync(existing);
+                                System.Diagnostics.Debug.WriteLine($"DownloadTransacties: Updated existing transaction {existing.Id}");
+                            }
+                        }
+                    }
+                    else
+                    {
+                        System.Diagnostics.Debug.WriteLine("DownloadTransacties: No transacties received or list is empty");
                     }
                 }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"DownloadTransacties error: {ex.Message}");
+                System.Diagnostics.Debug.WriteLine($"DownloadTransacties stack trace: {ex.StackTrace}");
+                // Gooi exception door voor betere error handling
+                throw;
             }
         }
 
@@ -213,11 +403,34 @@ namespace BankApp_MAUI
         {
             try
             {
-                var response = await client.GetAsync("health");
-                return response.IsSuccessStatusCode;
+                System.Diagnostics.Debug.WriteLine($"IsOnline: Checking connectivity to {General.ApiUrl}");
+                
+                // Probeer een eenvoudige API call (Rekeningen endpoint)
+                // Als we geautoriseerd zijn, kunnen we dit gebruiken
+                if (await IsAuthorized())
+                {
+                    System.Diagnostics.Debug.WriteLine($"IsOnline: Authorized, checking API endpoint");
+                    var response = await client.GetAsync("Rekeningen");
+                    
+                    System.Diagnostics.Debug.WriteLine($"IsOnline: Response status = {response.StatusCode}");
+                    
+                    // 200 OK = online en geautoriseerd
+                    // 401 Unauthorized = online maar niet geautoriseerd (server is bereikbaar)
+                    // Andere status codes = mogelijk offline of server error
+                    bool isOnline = response.IsSuccessStatusCode || response.StatusCode == System.Net.HttpStatusCode.Unauthorized;
+                    System.Diagnostics.Debug.WriteLine($"IsOnline: Result = {isOnline}");
+                    return isOnline;
+                }
+                else
+                {
+                    System.Diagnostics.Debug.WriteLine("IsOnline: Not authorized, cannot check connectivity");
+                }
+                return false;
             }
-            catch
+            catch (Exception ex)
             {
+                System.Diagnostics.Debug.WriteLine($"IsOnline: Exception = {ex.Message}");
+                System.Diagnostics.Debug.WriteLine($"IsOnline: Stack trace = {ex.StackTrace}");
                 return false;
             }
         }
@@ -226,7 +439,7 @@ namespace BankApp_MAUI
         {
             try
             {
-                var response = await client.PostAsJsonAsync("Transacties", t);
+                var response = await client.PostAsJsonAsync("Transacties", t, sOptions);
                 if (response.IsSuccessStatusCode)
                 {
                     return (true, "Succes");

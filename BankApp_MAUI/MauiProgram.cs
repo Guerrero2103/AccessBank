@@ -16,8 +16,7 @@ public static class MauiProgram
 
         // Services registreren 
         builder.Services.AddSingleton<LocalDbContext>();
-        builder.Services.AddSingleton<Synchronizer>(); // Eén centrale synchronizer
-
+        builder.Services.AddSingleton<Synchronizer>();
 
         // ViewModels registreren
         builder.Services.AddTransient<LoginViewModel>();

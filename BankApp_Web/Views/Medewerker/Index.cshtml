@@ -1,10 +1,35 @@
-@model IEnumerable<BankApp_Models.Transactie>
+﻿@model IEnumerable<BankApp_Models.Transactie>
+@using Microsoft.AspNetCore.Mvc.Localization
+@using Microsoft.Extensions.Localization
+@using BankApp_Web.Translations
+@inject IStringLocalizer<SharedResource> _localizer
 
 @{
-    ViewData["Title"] = "Wachtende Transacties";
+    ViewData["Title"] = @_localizer["Wachtende Transacties"];
 }
 
-<h1>Wachtende Transacties</h1>
+<h1>@_localizer["Wachtende Transacties"]</h1>
+
+<div class="mb-3">
+    <a asp-action="Berichten" class="btn btn-primary">@_localizer["Klantenberichten"]</a>
+</div>
+
+<!-- Zoekbalk -->
+<div class="row mb-3">
+    <div class="col-md-6">
+        <form asp-action="Index" method="get">
+            <div class="input-group">
+                <input type="text" name="searchString" class="form-control" placeholder="@_localizer["Zoeken op IBAN of gebruiker..."]" value="@ViewData["CurrentFilter"]" />
+                <input type="hidden" name="sortOrder" value="@ViewData["CurrentSort"]" />
+                <button class="btn btn-outline-secondary" type="submit">@_localizer["Zoeken"]</button>
+                @if (!string.IsNullOrEmpty(ViewData["CurrentFilter"]?.ToString()))
+                {
+                    <a asp-action="Index" class="btn btn-outline-secondary">@_localizer["Wissen"]</a>
+                }
+            </div>
+        </form>
+    </div>
+</div>
 
 @if (TempData["Success"] != null)
 {
@@ -19,12 +44,76 @@
 <table class="table table-striped">
     <thead>
         <tr>
-            <th>Datum</th>
-            <th>Van IBAN</th>
-            <th>Naar IBAN</th>
-            <th>Bedrag</th>
-            <th>Gebruiker</th>
-            <th>Acties</th>
+            <th>
+                <a asp-action="Index" asp-route-sortOrder="@ViewData["DatumSortParm"]" asp-route-searchString="@ViewData["CurrentFilter"]" style="text-decoration: none; color: inherit;">
+                    @_localizer["Datum"]
+                    @if (ViewData["DatumSortParm"]?.ToString() == "datum_desc")
+                    {
+                        <span>▼</span>
+                    }
+                    else if (string.IsNullOrEmpty(ViewData["CurrentSort"]?.ToString()))
+                    {
+                        <span>▼</span>
+                    }
+                    else
+                    {
+                        <span>▲</span>
+                    }
+                </a>
+            </th>
+            <th>
+                <a asp-action="Index" asp-route-sortOrder="@ViewData["VanIbanSortParm"]" asp-route-searchString="@ViewData["CurrentFilter"]" style="text-decoration: none; color: inherit;">
+                    @_localizer["Van IBAN"]
+                    @if (ViewData["VanIbanSortParm"]?.ToString() == "vaniban_desc")
+                    {
+                        <span>▼</span>
+                    }
+                    else if (ViewData["VanIbanSortParm"]?.ToString() == "VanIban")
+                    {
+                        <span>▲</span>
+                    }
+                </a>
+            </th>
+            <th>
+                <a asp-action="Index" asp-route-sortOrder="@ViewData["NaarIbanSortParm"]" asp-route-searchString="@ViewData["CurrentFilter"]" style="text-decoration: none; color: inherit;">
+                    @_localizer["Naar IBAN"]
+                    @if (ViewData["NaarIbanSortParm"]?.ToString() == "naariban_desc")
+                    {
+                        <span>▼</span>
+                    }
+                    else if (ViewData["NaarIbanSortParm"]?.ToString() == "NaarIban")
+                    {
+                        <span>▲</span>
+                    }
+                </a>
+            </th>
+            <th>
+                <a asp-action="Index" asp-route-sortOrder="@ViewData["BedragSortParm"]" asp-route-searchString="@ViewData["CurrentFilter"]" style="text-decoration: none; color: inherit;">
+                    @_localizer["Bedrag"]
+                    @if (ViewData["BedragSortParm"]?.ToString() == "bedrag_desc")
+                    {
+                        <span>▼</span>
+                    }
+                    else if (ViewData["BedragSortParm"]?.ToString() == "Bedrag")
+                    {
+                        <span>▲</span>
+                    }
+                </a>
+            </th>
+            <th>
+                <a asp-action="Index" asp-route-sortOrder="@ViewData["GebruikerSortParm"]" asp-route-searchString="@ViewData["CurrentFilter"]" style="text-decoration: none; color: inherit;">
+                    @_localizer["Gebruiker"]
+                    @if (ViewData["GebruikerSortParm"]?.ToString() == "gebruiker_desc")
+                    {
+                        <span>▼</span>
+                    }
+                    else if (ViewData["GebruikerSortParm"]?.ToString() == "Gebruiker")
+                    {
+                        <span>▲</span>
+                    }
+                </a>
+            </th>
+            <th>@_localizer["Acties"]</th>
         </tr>
     </thead>
     <tbody>
@@ -37,7 +126,7 @@
                 <td>€@Html.DisplayFor(modelItem => item.Bedrag)</td>
                 <td>@Html.DisplayFor(modelItem => item.Gebruiker.Email)</td>
                 <td>
-                    <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-sm btn-info">Details</a>
+                    <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-sm btn-info">@_localizer["Details"]</a>
                 </td>
             </tr>
         }
@@ -46,5 +135,5 @@
 
 @if (!Model.Any())
 {
-    <p class="text-muted">Geen wachtende transacties.</p>
+    <p class="text-white">@_localizer["Geen wachtende transacties"]</p>
 }
