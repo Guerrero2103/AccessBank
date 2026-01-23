@@ -1,0 +1,166 @@
+﻿@model BankApp_Web.Controllers.KlantendienstViewModel
+@using Microsoft.AspNetCore.Mvc.Localization
+@using Microsoft.Extensions.Localization
+@using BankApp_Web.Translations
+@inject IStringLocalizer<SharedResource> _localizer
+
+@{
+    ViewData["Title"] = _localizer["Contacteer de Klantendienst"];
+}
+
+<style>
+    .klantendienst-container {
+        min-height: calc(100vh - 200px);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background-color: #000000;
+        padding: 40px 20px;
+    }
+
+    .klantendienst-card {
+        background-color: #1C1C1C;
+        border: 4px solid #374151;
+        border-radius: 12px;
+        padding: 40px;
+        width: 100%;
+        max-width: 500px;
+    }
+
+    .klantendienst-title {
+        font-size: 28px;
+        font-weight: bold;
+        color: #FFFFFF;
+        text-align: center;
+        margin-bottom: 40px;
+    }
+
+    .form-label {
+        color: #FFFFFF;
+        font-size: 16px;
+        margin-bottom: 8px;
+    }
+
+    .form-control {
+        background-color: #1F2937;
+        border: 4px solid #4B5563;
+        color: #FFFFFF;
+        height: 35px;
+        font-size: 16px;
+        padding: 0 15px;
+        margin-bottom: 15px;
+    }
+
+    .form-control:focus {
+        background-color: #1F2937;
+        border-color: #10B981;
+        color: #FFFFFF;
+        box-shadow: 0 0 0 0.2rem rgba(16, 185, 129, 0.25);
+    }
+
+    textarea.form-control {
+        height: 100px;
+        padding: 10px 15px;
+    }
+
+    .btn-verstuur {
+        background-color: #10B981;
+        color: #FFFFFF;
+        border: none;
+        width: 130px;
+        height: 40px;
+        font-size: 16px;
+        font-weight: bold;
+    }
+
+    .btn-back {
+        background-color: #1E88E5;
+        color: #FFFFFF;
+        border: none;
+        width: 100px;
+        height: 40px;
+        font-size: 16px;
+        font-weight: bold;
+        margin-left: 10px;
+    }
+
+    .btn-group {
+        display: flex;
+        justify-content: center;
+        margin-top: 10px;
+    }
+
+    .text-danger {
+        color: #FF0000;
+        font-size: 14px;
+        margin-bottom: 15px;
+    }
+
+    .alert-success {
+        background-color: #10B981;
+        color: white;
+        padding: 15px;
+        border-radius: 5px;
+        margin-bottom: 20px;
+    }
+</style>
+
+<div class="klantendienst-container">
+    <div class="klantendienst-card">
+        <h1 class="klantendienst-title">@_localizer["Contacteer de Klantendienst"]</h1>
+
+        @if (TempData["SuccessMessage"] != null)
+        {
+            <div class="alert-success">
+                @TempData["SuccessMessage"]
+            </div>
+        }
+
+        <form asp-action="Index" method="post">
+            @Html.AntiForgeryToken()
+
+            <div class="mb-3">
+                <label asp-for="Naam" class="form-label">@_localizer["Naam:"]</label>
+                <input asp-for="Naam" class="form-control" value="@ViewBag.UserName" />
+                <span asp-validation-for="Naam" class="text-danger"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="Email" class="form-label">@_localizer["E-mail:"]</label>
+                <input asp-for="Email" class="form-control" type="email" value="@ViewBag.UserEmail" />
+                <span asp-validation-for="Email" class="text-danger"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="Onderwerp" class="form-label">@_localizer["Onderwerp:"]</label>
+                <input asp-for="Onderwerp" class="form-control" />
+                <span asp-validation-for="Onderwerp" class="text-danger"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="Bericht" class="form-label">@_localizer["Bericht:"]</label>
+                <textarea asp-for="Bericht" class="form-control" rows="5"></textarea>
+                <span asp-validation-for="Bericht" class="text-danger"></span>
+            </div>
+
+            @if (!ViewData.ModelState.IsValid)
+            {
+                <div class="text-danger">
+                    @foreach (var error in ViewData.ModelState.Values.SelectMany(v => v.Errors))
+                    {
+                        <div>@error.ErrorMessage</div>
+                    }
+                </div>
+            }
+
+            <div class="btn-group">
+                <button type="submit" class="btn btn-verstuur">@_localizer["Versturen"]</button>
+                <a asp-controller="Home" asp-action="Index" class="btn btn-back">@_localizer["Terug"]</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

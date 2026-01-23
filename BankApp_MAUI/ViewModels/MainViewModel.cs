@@ -21,6 +21,9 @@ namespace BankApp_MAUI.ViewModels
         [ObservableProperty]
         private DateTime? laatsteSyncTijd;
 
+        [ObservableProperty]
+        private string syncErrorMessage = string.Empty;
+
         public MainViewModel(LocalDbContext localDb, Synchronizer synchronizer)
         {
             _localDb = localDb;
@@ -48,7 +51,85 @@ namespace BankApp_MAUI.ViewModels
 
         public async Task InitializeAsync()
         {
+            // Laad eerst lokale data
             await LoadDataAsync();
+            
+            // Synchroniseer automatisch als er internet is
+            _ = Task.Run(async () =>
+            {
+                try
+                {
+                    // Wacht even om UI te laten laden
+                    await Task.Delay(1000);
+                    
+                    // Zorg dat General.UserId is ingesteld
+                    if (string.IsNullOrEmpty(General.UserId))
+                    {
+                        General.UserId = Preferences.Get("user_id", "");
+                    }
+                    
+                    if (!string.IsNullOrEmpty(General.UserId))
+                    {
+                        bool isOnline = await _synchronizer.IsOnline();
+                        MainThread.BeginInvokeOnMainThread(() =>
+                        {
+                            IsOnline = isOnline;
+                        });
+                        
+                        if (isOnline)
+                        {
+                            System.Diagnostics.Debug.WriteLine("MainViewModel: Starting background sync");
+                            try
+                            {
+                                await _synchronizer.SynchronizeAll();
+                                
+                                MainThread.BeginInvokeOnMainThread(() =>
+                                {
+                                    LaatsteSyncTijd = DateTime.Now;
+                                    SyncErrorMessage = string.Empty; // Clear any previous errors
+                                });
+                                
+                                // Herlaad data na synchronisatie - op main thread
+                                MainThread.BeginInvokeOnMainThread(async () =>
+                                {
+                                    await LoadDataAsync();
+                                });
+                                
+                                System.Diagnostics.Debug.WriteLine("MainViewModel: Background sync completed successfully");
+                            }
+                            catch (Exception syncEx)
+                            {
+                                System.Diagnostics.Debug.WriteLine($"MainViewModel: Sync error: {syncEx.Message}");
+                                System.Diagnostics.Debug.WriteLine($"MainViewModel: Stack trace: {syncEx.StackTrace}");
+                                
+                                MainThread.BeginInvokeOnMainThread(() =>
+                                {
+                                    SyncErrorMessage = $"Sync fout: {syncEx.Message}";
+                                    LaatsteSyncTijd = DateTime.Now; // Update tijd ook bij fout
+                                });
+                            }
+                        }
+                        else
+                        {
+                            System.Diagnostics.Debug.WriteLine("MainViewModel: Offline, skipping sync");
+                            MainThread.BeginInvokeOnMainThread(() =>
+                            {
+                                SyncErrorMessage = "Offline - geen synchronisatie mogelijk";
+                            });
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    System.Diagnostics.Debug.WriteLine($"MainViewModel: Background sync error: {ex.Message}");
+                    System.Diagnostics.Debug.WriteLine($"MainViewModel: Stack trace: {ex.StackTrace}");
+                    
+                    MainThread.BeginInvokeOnMainThread(() =>
+                    {
+                        SyncErrorMessage = $"Fout: {ex.Message}";
+                    });
+                }
+            });
         }
 
         [RelayCommand]
@@ -60,15 +141,30 @@ namespace BankApp_MAUI.ViewModels
 
             try
             {
+                // Zorg dat General.UserId is ingesteld
+                if (string.IsNullOrEmpty(General.UserId))
+                {
+                    General.UserId = Preferences.Get("user_id", "");
+                }
+
                 // Gebruik General.UserId
                 GebruikerNaam = Preferences.Get("user_email", "Gebruiker");
 
                 // Haal rekeningen op en tel saldo bij elkaar
-                var rekeningen = await _localDb.GetRekeningenAsync(General.UserId);
-                TotaalSaldo = rekeningen.Sum(r => r.Saldo);
+                if (!string.IsNullOrEmpty(General.UserId))
+                {
+                    var rekeningen = await _localDb.GetRekeningenAsync(General.UserId);
+                    TotaalSaldo = rekeningen.Sum(r => r.Saldo);
+                    System.Diagnostics.Debug.WriteLine($"Loaded {rekeningen.Count} rekeningen, totaal saldo: {TotaalSaldo}");
+                }
+                else
+                {
+                    System.Diagnostics.Debug.WriteLine("Warning: General.UserId is leeg, kan geen rekeningen laden");
+                }
             }
             catch (Exception ex)
             {
+                System.Diagnostics.Debug.WriteLine($"Fout in LoadDataAsync: {ex.Message}");
                 Console.WriteLine($"Fout: {ex.Message}");
             }
             finally
@@ -83,19 +179,39 @@ namespace BankApp_MAUI.ViewModels
             if (IsBusy) return;
 
             IsBusy = true;
+            SyncErrorMessage = string.Empty;
 
             try
             {
+                System.Diagnostics.Debug.WriteLine("MainViewModel: Manual sync started");
+                
+                // Check online status eerst
+                IsOnline = await _synchronizer.IsOnline();
+                
+                if (!IsOnline)
+                {
+                    SyncErrorMessage = "Geen internetverbinding";
+                    System.Diagnostics.Debug.WriteLine("MainViewModel: Offline, cannot sync");
+                    return;
+                }
+                
                 // Gebruik Synchronizer
                 await _synchronizer.SynchronizeAll();
                 
-                IsOnline = await _synchronizer.IsOnline();
                 LaatsteSyncTijd = DateTime.Now;
+                SyncErrorMessage = string.Empty; // Clear any errors
+                
+                // Herlaad data na synchronisatie
                 await LoadDataAsync();
+                
+                System.Diagnostics.Debug.WriteLine("MainViewModel: Manual sync completed successfully");
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Sync fout: {ex.Message}");
+                System.Diagnostics.Debug.WriteLine($"MainViewModel: Sync fout: {ex.Message}");
+                System.Diagnostics.Debug.WriteLine($"MainViewModel: Stack trace: {ex.StackTrace}");
+                
+                SyncErrorMessage = $"Sync fout: {ex.Message}";
                 IsOnline = false;
             }
             finally

@@ -1,72 +1,76 @@
-@model BankApp_Models.Transactie
+﻿@model BankApp_Models.Transactie
+@using Microsoft.AspNetCore.Mvc.Localization
+@using Microsoft.Extensions.Localization
+@using BankApp_Web.Translations
+@inject IStringLocalizer<SharedResource> _localizer
 
 @{
-    ViewData["Title"] = "Transactie Details";
+    ViewData["Title"] = @_localizer["Transactie Details"];
 }
 
-<h1>Transactie Details</h1>
+<h1>@_localizer["Transactie Details"]</h1>
 
 <div>
-    <h4>Transactie</h4>
+    <h4>@_localizer["Transactie"]</h4>
     <hr />
     <dl class="row">
         <dt class="col-sm-2">
-            Van IBAN
+            @_localizer["Van IBAN"]
         </dt>
         <dd class="col-sm-10">
             @Html.DisplayFor(model => model.VanIban)
         </dd>
         <dt class="col-sm-2">
-            Naar IBAN
+            @_localizer["Naar IBAN"]
         </dt>
         <dd class="col-sm-10">
             @Html.DisplayFor(model => model.NaarIban)
         </dd>
         <dt class="col-sm-2">
-            Naam Ontvanger
+            @_localizer["Naam Ontvanger"]
         </dt>
         <dd class="col-sm-10">
             @Html.DisplayFor(model => model.NaamOntvanger)
         </dd>
         <dt class="col-sm-2">
-            Bedrag
+            @_localizer["Bedrag"]
         </dt>
         <dd class="col-sm-10">
             €@Html.DisplayFor(model => model.Bedrag)
         </dd>
         <dt class="col-sm-2">
-            Omschrijving
+            @_localizer["Omschrijving"]
         </dt>
         <dd class="col-sm-10">
             @Html.DisplayFor(model => model.Omschrijving)
         </dd>
         <dt class="col-sm-2">
-            Datum
+            @_localizer["Datum"]
         </dt>
         <dd class="col-sm-10">
             @Html.DisplayFor(model => model.Datum)
         </dd>
         <dt class="col-sm-2">
-            Status
+            @_localizer["Status"]
         </dt>
         <dd class="col-sm-10">
             @if (Model.Status == TransactieStatus.Voltooid)
             {
-                <span class="badge bg-success">Voltooid</span>
+                <span class="badge bg-success">@_localizer["Voltooid"]</span>
             }
             else if (Model.Status == TransactieStatus.Wachtend)
             {
-                <span class="badge bg-warning">Wachtend</span>
+                <span class="badge bg-warning">@_localizer["Wachtend"]</span>
             }
             else
             {
-                <span class="badge bg-danger">Afgewezen</span>
+                <span class="badge bg-danger">@_localizer["Afgewezen"]</span>
             }
         </dd>
         @if (!string.IsNullOrEmpty(Model.AfwijzingsReden))
         {
             <dt class="col-sm-2">
-                Afwijzings Reden
+                @_localizer["Afwijzings Reden"]
             </dt>
             <dd class="col-sm-10">
                 @Html.DisplayFor(model => model.AfwijzingsReden)
@@ -75,5 +79,5 @@
     </dl>
 </div>
 <div>
-    <a asp-action="Index" class="btn btn-secondary">Terug naar overzicht</a>
+    <a asp-action="Index" class="btn btn-secondary">@_localizer["Terug naar overzicht"]</a>
 </div>

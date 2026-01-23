@@ -1,35 +1,39 @@
-@model BankApp_Models.Transactie
+﻿@model BankApp_Models.Transactie
+@using Microsoft.AspNetCore.Mvc.Localization
+@using Microsoft.Extensions.Localization
+@using BankApp_Web.Translations
+@inject IStringLocalizer<SharedResource> _localizer
 
 @{
-    ViewData["Title"] = "Transactie Details";
+    ViewData["Title"] = @_localizer["Transactie Details"];
 }
 
-<h1>Transactie Details</h1>
+<h1>@_localizer["Transactie Details"]</h1>
 
 <div>
-    <h4>Wachtende Transactie</h4>
+    <h4>@_localizer["Wachtende Transactie"]</h4>
     <hr />
     <dl class="row">
         <dt class="col-sm-2">
-            Van IBAN
+            @_localizer["Van IBAN"]
         </dt>
         <dd class="col-sm-10">
             @Html.DisplayFor(model => model.VanIban)
         </dd>
         <dt class="col-sm-2">
-            Naar IBAN
+            @_localizer["Naar IBAN"]
         </dt>
         <dd class="col-sm-10">
             @Html.DisplayFor(model => model.NaarIban)
         </dd>
         <dt class="col-sm-2">
-            Bedrag
+            @_localizer["Bedrag"]
         </dt>
         <dd class="col-sm-10">
             €@Html.DisplayFor(model => model.Bedrag)
         </dd>
         <dt class="col-sm-2">
-            Gebruiker
+            @_localizer["Gebruiker"]
         </dt>
         <dd class="col-sm-10">
             @Html.DisplayFor(model => model.Gebruiker.Email)
@@ -37,7 +41,7 @@
         @if (Model.Gebruiker.Adres != null)
         {
             <dt class="col-sm-2">
-                Adres
+                @_localizer["Adres"]
             </dt>
             <dd class="col-sm-10">
                 @Model.Gebruiker.Adres.Straat @Model.Gebruiker.Adres.Huisnummer, @Model.Gebruiker.Adres.Postcode @Model.Gebruiker.Adres.Gemeente
@@ -49,12 +53,12 @@
 <div>
     <form asp-action="Bevestig" method="post" class="d-inline">
         <input type="hidden" name="id" value="@Model.Id" />
-        <button type="submit" class="btn btn-success">Bevestigen</button>
+        <button type="submit" class="btn btn-success">@_localizer["Bevestigen"]</button>
     </form>
     
-    <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#afwijsModal">Afwijzen</button>
+    <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#afwijsModal">@_localizer["Afwijzen"]</button>
     
-    <a asp-action="Index" class="btn btn-secondary">Terug</a>
+    <a asp-action="Index" class="btn btn-secondary">@_localizer["Terug"]</a>
 </div>
 
 <!-- Afwijs Modal -->
@@ -62,20 +66,20 @@
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title">Transactie Afwijzen</h5>
+                <h5 class="modal-title">@_localizer["Transactie Afwijzen"]</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <form asp-action="Afwijs" method="post">
                 <div class="modal-body">
                     <input type="hidden" name="id" value="@Model.Id" />
                     <div class="form-group">
-                        <label for="reden">Reden voor afwijzing:</label>
+                        <label for="reden">@_localizer["Reden voor afwijzing"]</label>
                         <textarea name="reden" class="form-control" rows="3" required></textarea>
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuleren</button>
-                    <button type="submit" class="btn btn-danger">Afwijzen</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">@_localizer["Annuleren"]</button>
+                    <button type="submit" class="btn btn-danger">@_localizer["Afwijzen"]</button>
                 </div>
             </form>
         </div>

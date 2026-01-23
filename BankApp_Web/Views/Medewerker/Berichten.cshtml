@@ -1,0 +1,71 @@
+﻿@model IEnumerable<BankApp_Models.KlantBericht>
+@using Microsoft.AspNetCore.Mvc.Localization
+@using Microsoft.Extensions.Localization
+@using BankApp_Web.Translations
+@inject IStringLocalizer<SharedResource> _localizer
+
+@{
+    ViewData["Title"] = @_localizer["Klantenberichten"];
+}
+
+<h1>@_localizer["Klantenberichten"]</h1>
+
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success">@TempData["Success"]</div>
+}
+
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger">@TempData["Error"]</div>
+}
+
+<div class="mb-3">
+    <a asp-action="Index" class="btn btn-secondary">@_localizer["Terug naar Wachtende Transacties"]</a>
+</div>
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>@_localizer["Datum"]</th>
+            <th>@_localizer["Naam"]</th>
+            <th>@_localizer["Email"]</th>
+            <th>@_localizer["Onderwerp"]</th>
+            <th>@_localizer["Status"]</th>
+            <th>@_localizer["Acties"]</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>@Html.DisplayFor(modelItem => item.Datum)</td>
+                <td>@Html.DisplayFor(modelItem => item.Naam)</td>
+                <td>@Html.DisplayFor(modelItem => item.Email)</td>
+                <td>@Html.DisplayFor(modelItem => item.Onderwerp)</td>
+                <td>
+                    @if (item.Status == "Nieuw")
+                    {
+                        <span class="badge bg-warning">@_localizer["Nieuw"]</span>
+                    }
+                    else if (item.Status == "InBehandeling")
+                    {
+                        <span class="badge bg-info">@_localizer["In Behandeling"]</span>
+                    }
+                    else
+                    {
+                        <span class="badge bg-success">@_localizer["Afgehandeld"]</span>
+                    }
+                </td>
+                <td>
+                    <a asp-action="BerichtDetails" asp-route-id="@item.Id" class="btn btn-sm btn-info">@_localizer["Details"]</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+@if (!Model.Any())
+{
+    <p class="text-muted">@_localizer["Geen klantenberichten"]</p>
+}

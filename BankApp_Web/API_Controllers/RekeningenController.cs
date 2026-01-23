@@ -1,5 +1,6 @@
 using BankApp_Models;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -11,7 +12,7 @@ namespace BankApp_Web.API_Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    [Authorize(Roles = "Klant,Admin")]
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "Klant,Admin")]
     public class RekeningenController : ControllerBase
     {
         private readonly AppDbContext _context;
@@ -25,11 +26,28 @@ namespace BankApp_Web.API_Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Rekening>>> GetRekeningen()
         {
-            string gebruikerId = _context.Users.First(u => u.UserName == User.Identity.Name).Id;
+            // Gebruik NameIdentifier claim (userId) of fallback naar Name (userName)
+            string? userName = User.Identity?.Name;
+            string? userIdClaim = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+            
+            string gebruikerId;
+            if (!string.IsNullOrEmpty(userIdClaim))
+            {
+                gebruikerId = userIdClaim;
+            }
+            else if (!string.IsNullOrEmpty(userName))
+            {
+                var user = await _context.Users.FirstOrDefaultAsync(u => u.UserName == userName);
+                gebruikerId = user?.Id ?? "";
+            }
+            else
+            {
+                return Unauthorized();
+            }
             
             var rekeningen = await _context.Rekeningen
                 .Where(r => r.Deleted == DateTime.MaxValue && r.GebruikerId == gebruikerId)
-                .Include(r => r.Gebruiker)
+                // .Include(r => r.Gebruiker)  // ← Verwijderd: MAUI app heeft Gebruiker niet nodig
                 .ToListAsync();
 
             return rekeningen;
@@ -42,7 +60,7 @@ namespace BankApp_Web.API_Controllers
             string gebruikerId = _context.Users.First(u => u.UserName == User.Identity.Name).Id;
 
             var rekening = await _context.Rekeningen
-                .Include(r => r.Gebruiker)
+                // .Include(r => r.Gebruiker)  // ← Verwijderd: MAUI app heeft Gebruiker niet nodig
                 .FirstOrDefaultAsync(r => r.Id == id && r.GebruikerId == gebruikerId && r.Deleted == DateTime.MaxValue);
 
             if (rekening == null)

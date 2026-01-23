@@ -1,0 +1,55 @@
+﻿@model IEnumerable<BankApp_Models.Kaart>
+@using Microsoft.AspNetCore.Mvc.Localization
+@using Microsoft.Extensions.Localization
+@using BankApp_Web.Translations
+@inject IStringLocalizer<SharedResource> _localizer
+
+@{
+    ViewData["Title"] = @_localizer["Mijn Kaarten"];
+}
+
+<h1>@_localizer["Mijn Kaarten"]</h1>
+
+@if (Model.Any())
+{
+    <div class="row">
+        @foreach (var kaart in Model)
+        {
+            <div class="col-md-4 mb-3">
+                <div class="card border-primary">
+                    <div class="card-header bg-primary text-white">
+                        <h5 class="mb-0">💳 @_localizer["Bankkaart"]</h5>
+                    </div>
+                    <div class="card-body">
+                        <p class="card-text">
+                            <strong>@_localizer["Kaartnummer:"]</strong><br />
+                            <span class="font-monospace">@kaart.KaartNummer</span>
+                        </p>
+                        <p class="card-text">
+                            <strong>@_localizer["Status:"]</strong>
+                            @if (kaart.Status == KaartStatus.Actief)
+                            {
+                                <span class="badge bg-success">@_localizer["Actief"]</span>
+                            }
+                            else if (kaart.Status == KaartStatus.Bevroren)
+                            {
+                                <span class="badge bg-warning">@_localizer["Bevroren"]</span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-danger">@_localizer["Geblokkeerd"]</span>
+                            }
+                        </p>
+                        <a asp-action="Details" asp-route-id="@kaart.Id" class="btn btn-sm btn-info">@_localizer["Details"]</a>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+}
+else
+{
+    <div class="alert alert-info">
+        <p>@_localizer["Je hebt nog geen kaarten. Kaarten worden automatisch aangemaakt bij registratie."]</p>
+    </div>
+}

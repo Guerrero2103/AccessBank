@@ -8,16 +8,27 @@ using System.Reflection;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
+using Microsoft.AspNetCore.DataProtection;
+using Microsoft.AspNetCore.Localization;
+using System.Security.Claims;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Database verbindingsstring instellen
+// Database verbindingsstring instellen (SQLite)
 var connectionString = builder.Configuration.GetConnectionString("AppDbContextConnection")
-    ?? throw new InvalidOperationException("Connection string 'AppDbContextConnection' not found.");
+    ?? "Data Source=bankapp.db";
 
-// Database context toevoegen
+// Database pad bepalen (in de Models folder)
+var dbPath = Path.Combine(builder.Environment.ContentRootPath, "..", "BankApp_Models", "bankapp.db");
+var dbDirectory = Path.GetDirectoryName(dbPath);
+if (!string.IsNullOrEmpty(dbDirectory) && !Directory.Exists(dbDirectory))
+{
+    Directory.CreateDirectory(dbDirectory);
+}
+
+// Database context toevoegen (SQLite)
 builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseSqlite(connectionString));
+    options.UseSqlite($"Data Source={dbPath}"));
 
 // Gebruikersbeheer instellen
 builder.Services.AddIdentity<BankUser, IdentityRole>(options =>
@@ -32,13 +43,15 @@ builder.Services.AddIdentity<BankUser, IdentityRole>(options =>
     // Email-based login toestaan
     options.User.RequireUniqueEmail = true;
 
-    // Email als username
+    // Email verificatie niet vereist
     options.SignIn.RequireConfirmedEmail = false;
 })
     .AddEntityFrameworkStores<AppDbContext>()
     .AddDefaultTokenProviders()
     .AddDefaultUI();
-    // Voeg default UI toe
+
+// Custom IdentityErrorDescriber voor meertalige foutmeldingen
+builder.Services.AddScoped<IdentityErrorDescriber, LocalizedIdentityErrorDescriber>();
 
 // Configureer SignInManager om email te accepteren
 builder.Services.Configure<IdentityOptions>(options =>
@@ -52,10 +65,16 @@ builder.Services.AddScoped<SignInManager<BankUser>, BankApp_Web.Services.CustomS
 // Configureer redirect na login/registratie
 builder.Services.ConfigureApplicationCookie(options =>
 {
-    // Standaard paden
-    options.LoginPath = "/Identity/Account/Login";
-    options.LogoutPath = "/Identity/Account/Logout";
-    options.AccessDeniedPath = "/Identity/Account/AccessDenied";
+    // Standaard paden - gebruik custom Account controller
+    options.LoginPath = "/Account/Login";
+    options.LogoutPath = "/Account/Logout";
+    options.AccessDeniedPath = "/Home/Error";
+
+    // Cookie instellingen voor development (HTTP) en production (HTTPS)
+    options.Cookie.SameSite = SameSiteMode.Lax;
+    options.Cookie.HttpOnly = true;
+    // Secure wordt automatisch ingesteld op basis van IsHttps in de request
+    // In development (HTTP) is Secure = false, in production (HTTPS) is Secure = true
 
     // Na succesvolle login/registratie: altijd naar Home/Index (niet naar returnUrl)
     // HomeController zal dan de juiste redirect doen op basis van rol
@@ -69,8 +88,11 @@ builder.Services.ConfigureApplicationCookie(options =>
 });
 
 // Inlogtoken instellingen voor MAUI app
-builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-    .AddJwtBearer(options =>
+// JWT authentication toevoegen ZONDER default scheme te overschrijven
+// AddIdentity heeft al cookie authentication als default geconfigureerd
+// We voegen JWT toe als extra scheme zonder de defaults te overschrijven
+builder.Services.AddAuthentication()
+    .AddJwtBearer(JwtBearerDefaults.AuthenticationScheme, options =>
     {
         options.TokenValidationParameters = new TokenValidationParameters
         {
@@ -81,12 +103,14 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             ValidIssuer = builder.Configuration["Jwt:Issuer"],
             ValidAudience = builder.Configuration["Jwt:Audience"],
             IssuerSigningKey = new SymmetricSecurityKey(
-                Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"] ?? "BankApp_SecretKey_MinimumLength32Characters_2025"))
+                Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"] ?? "BankApp_SecretKey_MinimumLength32Characters_2025")),
+            // Map claims correct
+            NameClaimType = ClaimTypes.Name,
+            RoleClaimType = ClaimTypes.Role
         };
     });
 
-// Webpagina's toevoegen
-builder.Services.AddControllersWithViews();
+// Webpagina's toevoegen (wordt later geconfigureerd met localization)
 
 // Toestemming geven voor MAUI app om te verbinden
 builder.Services.AddCors(options =>
@@ -100,7 +124,32 @@ builder.Services.AddCors(options =>
 });
 
 // API endpoints toevoegen
-builder.Services.AddControllers();
+// Configureer JSON serialization voor API controllers
+builder.Services.AddControllers()
+    .AddJsonOptions(options =>
+    {
+        // Handle circular references (Rekening.Gebruiker → BankUser.Rekeningen)
+        options.JsonSerializerOptions.ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.IgnoreCycles;
+        // Gebruik PascalCase (standaard ASP.NET Core)
+        options.JsonSerializerOptions.PropertyNamingPolicy = null;
+    });
+
+// Data Protection configureren (voor cookies en temp data)
+// In development: sla keys op in een lokale folder
+if (builder.Environment.IsDevelopment())
+{
+    var keysPath = Path.Combine(builder.Environment.ContentRootPath, "DataProtection-Keys");
+    Directory.CreateDirectory(keysPath);
+    builder.Services.AddDataProtection()
+        .PersistKeysToFileSystem(new DirectoryInfo(keysPath))
+        .SetApplicationName("BankApp");
+}
+else
+{
+    // In production: gebruik een gedeelde key store (bijv. Azure Key Vault of database)
+    builder.Services.AddDataProtection()
+        .SetApplicationName("BankApp");
+}
 
 // API documentatie instellen
 builder.Services.AddSwaggerGen(c =>
@@ -121,9 +170,19 @@ builder.Logging.AddDbLogger(options =>
 
 // Meertaligheid instellen
 builder.Services.AddLocalization(options => options.ResourcesPath = "Translations");
-builder.Services.AddMvc()
+builder.Services.AddControllersWithViews()
     .AddViewLocalization(LanguageViewLocationExpanderFormat.Suffix)
-    .AddDataAnnotationsLocalization();
+    .AddDataAnnotationsLocalization(options =>
+    {
+        // Configureer DataAnnotations localization om SharedResource te gebruiken
+        options.DataAnnotationLocalizerProvider = (type, factory) =>
+            factory.Create(typeof(BankApp_Web.Translations.SharedResource));
+    });
+
+// IViewLocalizer gebruikt standaard view-specifieke resources
+// Om SharedResource te gebruiken, moeten we de views aanpassen om IStringLocalizer<SharedResource> te gebruiken
+// OF we kunnen een custom ViewLocalizerFactory maken (complex)
+// Voor nu: gebruik de standaard IViewLocalizer en zorg dat SharedResource beschikbaar is via IStringLocalizer
 
 var app = builder.Build();
 
@@ -139,9 +198,46 @@ using (var scope = app.Services.CreateScope())
         var userManager = services.GetRequiredService<UserManager<BankUser>>();
         var roleManager = services.GetRequiredService<RoleManager<IdentityRole>>();
 
-        // Maak database aan als die nog niet bestaat
-        context.Database.EnsureCreated();
-        logger.LogInformation("Database gecontroleerd/aangemaakt");
+        // Controleer of database bestaat en voer migrations uit
+        try
+        {
+            // Check of database bereikbaar is
+            var canConnect = await context.Database.CanConnectAsync();
+            if (!canConnect)
+            {
+                logger.LogWarning("⚠️ Database is niet bereikbaar!");
+                logger.LogWarning("Mogelijke oorzaken:");
+                logger.LogWarning("1. Database bestand bestaat niet of pad is onjuist");
+                logger.LogWarning("2. Geen schrijfrechten op database locatie");
+                logger.LogWarning("3. Database is gelocked door andere proces");
+                logger.LogWarning("");
+                logger.LogWarning("Database wordt automatisch aangemaakt bij eerste gebruik.");
+            }
+
+            // Check of er migrations zijn om uit te voeren
+            var pendingMigrations = await context.Database.GetPendingMigrationsAsync();
+            if (pendingMigrations.Any())
+            {
+                logger.LogInformation($"Uitvoeren van {pendingMigrations.Count()} pending migrations...");
+                await context.Database.MigrateAsync();
+                logger.LogInformation("✅ Database migrations uitgevoerd");
+            }
+            else
+            {
+                logger.LogInformation("✅ Database is up-to-date, geen migrations nodig");
+            }
+        }
+        catch (Microsoft.Data.Sqlite.SqliteException sqliteEx)
+        {
+            // SQLite specifieke errors
+            logger.LogError(sqliteEx, "❌ SQLite database fout: {Message}", sqliteEx.Message);
+            logger.LogWarning("App start wel, maar database functionaliteit werkt mogelijk niet.");
+        }
+        catch (Exception migrationEx)
+        {
+            logger.LogWarning(migrationEx, "⚠️ Fout bij migrations: {Message}", migrationEx.Message);
+            logger.LogWarning("App start wel, maar database seeding is overgeslagen.");
+        }
 
         // Vul database met testgegevens - gebruik DI UserManager
         await AppDbContext.SeederWithDI(context, userManager, roleManager, logger);
@@ -171,14 +267,6 @@ else
     // Production: geen development tools
 }
 
-// Taalinstellingen
-var supportedCultures = new[] { "nl", "en", "fr" };
-var localizationOptions = new RequestLocalizationOptions()
-    .SetDefaultCulture(supportedCultures[0])
-    .AddSupportedCultures(supportedCultures)
-    .AddSupportedUICultures(supportedCultures);
-app.UseRequestLocalization(localizationOptions);
-
 // Foutafhandeling instellen
 if (!app.Environment.IsDevelopment())
 {
@@ -188,7 +276,26 @@ if (!app.Environment.IsDevelopment())
     app.UseHttpsRedirection();
 }
 
+// Taalinstellingen - MOET voor UseStaticFiles() en UseRouting() komen
+var supportedCultures = new[] { "nl", "en", "fr" };
+var localizationOptions = new RequestLocalizationOptions
+{
+    DefaultRequestCulture = new RequestCulture("nl"),
+    SupportedCultures = supportedCultures.Select(c => new System.Globalization.CultureInfo(c)).ToList(),
+    SupportedUICultures = supportedCultures.Select(c => new System.Globalization.CultureInfo(c)).ToList()
+};
+
+// Gebruik cookie provider voor taal opslag (als primair)
+localizationOptions.RequestCultureProviders.Clear();
+localizationOptions.RequestCultureProviders.Add(new CookieRequestCultureProvider
+{
+    CookieName = CookieRequestCultureProvider.DefaultCookieName
+});
+
+app.UseRequestLocalization(localizationOptions);
+
 app.UseStaticFiles();
+
 app.UseRouting();
 
 // Toestemming geven voor MAUI app

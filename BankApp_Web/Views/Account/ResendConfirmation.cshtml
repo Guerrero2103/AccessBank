@@ -1,0 +1,43 @@
+﻿@{
+    ViewData["Title"] = "Verificatie E-mail Opnieuw Versturen";
+}
+
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-body">
+                    <h2 class="card-title">Verificatie E-mail Opnieuw Versturen</h2>
+                    
+                    @if (ViewBag.SuccessMessage != null)
+                    {
+                        <div class="alert alert-success" role="alert">
+                            @ViewBag.SuccessMessage
+                        </div>
+                    }
+                    @if (ViewBag.ErrorMessage != null)
+                    {
+                        <div class="alert alert-danger" role="alert">
+                            @ViewBag.ErrorMessage
+                        </div>
+                    }
+                    @if (ViewBag.InfoMessage != null)
+                    {
+                        <div class="alert alert-info" role="alert">
+                            @ViewBag.InfoMessage
+                        </div>
+                    }
+
+                    <form asp-action="ResendConfirmation" method="post">
+                        <div class="mb-3">
+                            <label for="email" class="form-label">E-mailadres</label>
+                            <input type="email" class="form-control" id="email" name="email" required />
+                        </div>
+                        <button type="submit" class="btn btn-primary">Verstuur Verificatie E-mail</button>
+                        <a asp-controller="Home" asp-action="Index" class="btn btn-secondary">Annuleren</a>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

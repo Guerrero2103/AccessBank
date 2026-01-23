@@ -1,34 +1,73 @@
-@model IEnumerable<BankApp_Models.Transactie>
+﻿@model IEnumerable<BankApp_Models.Transactie>
+@using Microsoft.AspNetCore.Mvc.Localization
+@using Microsoft.Extensions.Localization
+@using BankApp_Web.Translations
+@inject IStringLocalizer<SharedResource> _localizer
+@inject IStringLocalizer<SharedResource> _stringLocalizer
 
 @{
-    ViewData["Title"] = "Transacties";
+    ViewData["Title"] = @_localizer["Transacties"];
     var page = ViewBag.Page as int? ??1;
     var pageSize = ViewBag.PageSize as int? ??10;
     var totalCount = ViewBag.TotalCount as int? ?? Model.Count();
     int totalPages = (int)Math.Ceiling((double)totalCount / pageSize);
 }
 
-<h1>Mijn Transacties</h1>
+<h1>@_localizer["Mijn Transacties"]</h1>
 
 <p>
-    <a asp-action="Create" class="btn btn-primary">Nieuwe Overschrijving</a>
+    <a asp-action="Create" class="btn btn-primary">@_localizer["Nieuwe Overschrijving"]</a>
 </p>
 
 <div class="row mb-3">
-    <div class="col-md-8">
-        <!-- Filter en Sortering -->
+    <div class="col-md-12">
         <form asp-action="Index" method="get" class="mb-3">
             <div class="row">
-                <div class="col-md-4">
-                    <label>Status Filter:</label>
-                    @Html.DropDownList("filterStatus", ViewBag.StatusFilter as SelectList, "Alle statussen", new { @class = "form-control", onchange = "this.form.submit();" })
+                <div class="col-md-3">
+                    <label>@_localizer["Status Filter"]</label>
+                    @{
+                        var currentFilter = ViewData["CurrentFilter"] as string ?? "";
+                        
+                        // Gebruik IStringLocalizer voor betere string conversie
+                        var defaultText = _stringLocalizer["Alle statussen"].Value;
+                        var voltooidText = _stringLocalizer["Voltooid"].Value;
+                        var wachtendText = _stringLocalizer["Wachtend"].Value;
+                        var afgewezenText = _stringLocalizer["Afgewezen"].Value;
+                    }
+                    <select name="filterStatus" id="filterStatus" class="form-control" onchange="this.form.submit();">
+                        <option value="">@defaultText</option>
+                        @if (currentFilter == "Voltooid")
+                        {
+                            <option value="Voltooid" selected>@voltooidText</option>
+                        }
+                        else
+                        {
+                            <option value="Voltooid">@voltooidText</option>
+                        }
+                        @if (currentFilter == "Wachtend")
+                        {
+                            <option value="Wachtend" selected>@wachtendText</option>
+                        }
+                        else
+                        {
+                            <option value="Wachtend">@wachtendText</option>
+                        }
+                        @if (currentFilter == "Afgewezen")
+                        {
+                            <option value="Afgewezen" selected>@afgewezenText</option>
+                        }
+                        else
+                        {
+                            <option value="Afgewezen">@afgewezenText</option>
+                        }
+                    </select>
                 </div>
-                <div class="col-md-8">
-                    <label>Sorteren op:</label>
+                <div class="col-md-9">
+                    <label>@_localizer["Sorteren op"]</label>
                     <div class="btn-group" role="group">
-                        <a asp-action="Index" asp-route-sortOrder="@ViewData["DatumSortParm"]" asp-route-filterStatus="@ViewData["CurrentFilter"]" class="btn btn-outline-secondary">Datum</a>
-                        <a asp-action="Index" asp-route-sortOrder="@ViewData["BedragSortParm"]" asp-route-filterStatus="@ViewData["CurrentFilter"]" class="btn btn-outline-secondary">Bedrag</a>
-                        <a asp-action="Index" asp-route-sortOrder="@ViewData["StatusSortParm"]" asp-route-filterStatus="@ViewData["CurrentFilter"]" class="btn btn-outline-secondary">Status</a>
+                        <a asp-action="Index" asp-route-sortOrder="@ViewData["DatumSortParm"]" asp-route-filterStatus="@ViewData["CurrentFilter"]" class="btn btn-outline-secondary">@_localizer["Datum"]</a>
+                        <a asp-action="Index" asp-route-sortOrder="@ViewData["BedragSortParm"]" asp-route-filterStatus="@ViewData["CurrentFilter"]" class="btn btn-outline-secondary">@_localizer["Bedrag"]</a>
+                        <a asp-action="Index" asp-route-sortOrder="@ViewData["StatusSortParm"]" asp-route-filterStatus="@ViewData["CurrentFilter"]" class="btn btn-outline-secondary">@_localizer["Status"]</a>
                     </div>
                 </div>
             </div>
@@ -36,24 +75,31 @@
             <input type="hidden" name="pageSize" value="@(pageSize)" />
         </form>
     </div>
-    <div class="col-md-4">
-        <h5>Recente Transacties</h5>
-        <div id="recentTransactionsContainer">
-            <!-- Partial loaded via fetch in wwwroot/js/site.js -->
+</div>
+
+@* Toon "Recente Transacties" alleen als er meer transacties zijn dan op de huidige pagina *@
+@if (totalCount > pageSize || page > 1)
+{
+    <div class="row mb-3">
+        <div class="col-md-12">
+            <h5>@_localizer["Recente Transacties"]</h5>
+            <div id="recentTransactionsContainer">
+                <!-- Partial loaded via fetch in wwwroot/js/site.js -->
+            </div>
         </div>
     </div>
-</div>
+}
 
 <table class="table table-striped">
     <thead>
         <tr>
-            <th>Datum</th>
-            <th>Van IBAN</th>
-            <th>Naar IBAN</th>
-            <th>Bedrag</th>
-            <th>Omschrijving</th>
-            <th>Status</th>
-            <th>Acties</th>
+            <th>@_localizer["Datum"]</th>
+            <th>@_localizer["Van IBAN"]</th>
+            <th>@_localizer["Naar IBAN"]</th>
+            <th>@_localizer["Bedrag"]</th>
+            <th>@_localizer["Omschrijving"]</th>
+            <th>@_localizer["Status"]</th>
+            <th>@_localizer["Acties"]</th>
         </tr>
     </thead>
     <tbody>
@@ -68,29 +114,29 @@
                 <td>
                     @if (item.Status == TransactieStatus.Voltooid)
                     {
-                        <span class="badge bg-success">Voltooid</span>
+                        <span class="badge bg-success">@_localizer["Voltooid"]</span>
                     }
                     else if (item.Status == TransactieStatus.Wachtend)
                     {
-                        <span class="badge bg-warning">Wachtend</span>
+                        <span class="badge bg-warning">@_localizer["Wachtend"]</span>
                     }
                     else
                     {
-                        <span class="badge bg-danger">Afgewezen</span>
+                        <span class="badge bg-danger">@_localizer["Afgewezen"]</span>
                     }
                 </td>
                 <td>
-                    <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-sm btn-info">Details</a>
+                    <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-sm btn-info">@_localizer["Details"]</a>
                 </td>
             </tr>
         }
     </tbody>
 </table>
 
-<nav aria-label="Pagina navigatie">
+<nav aria-label="@_localizer["Vorige"]">
     <ul class="pagination">
         <li class="page-item @(page <=1 ? "disabled" : "")">
-            <a class="page-link" asp-action="Index" asp-route-page="@(page-1)" asp-route-pageSize="@pageSize" asp-route-sortOrder="@ViewContext.HttpContext.Request.Query["sortOrder"]" asp-route-filterStatus="@ViewContext.HttpContext.Request.Query["filterStatus"]">Vorige</a>
+            <a class="page-link" asp-action="Index" asp-route-page="@(page-1)" asp-route-pageSize="@pageSize" asp-route-sortOrder="@ViewContext.HttpContext.Request.Query["sortOrder"]" asp-route-filterStatus="@ViewContext.HttpContext.Request.Query["filterStatus"]">@_localizer["Vorige"]</a>
         </li>
 
         @for (int i =1; i <= totalPages; i++)
@@ -101,14 +147,13 @@
         }
 
         <li class="page-item @(page >= totalPages ? "disabled" : "")">
-            <a class="page-link" asp-action="Index" asp-route-page="@(page+1)" asp-route-pageSize="@pageSize" asp-route-sortOrder="@ViewContext.HttpContext.Request.Query["sortOrder"]" asp-route-filterStatus="@ViewContext.HttpContext.Request.Query["filterStatus"]">Volgende</a>
+            <a class="page-link" asp-action="Index" asp-route-page="@(page+1)" asp-route-pageSize="@pageSize" asp-route-sortOrder="@ViewContext.HttpContext.Request.Query["sortOrder"]" asp-route-filterStatus="@ViewContext.HttpContext.Request.Query["filterStatus"]">@_localizer["Volgende"]</a>
         </li>
     </ul>
 </nav>
 
-<!-- Ajax voor saldo refresh -->
 <div id="saldoContainer" class="mt-3">
-    <button onclick="refreshSaldo()" class="btn btn-secondary">Saldo Vernieuwen</button>
+    <button onclick="refreshSaldo()" class="btn btn-secondary">@_localizer["Totaal Saldo Ophalen"]</button>
     <div id="saldoResult" class="mt-2"></div>
 </div>
 
@@ -119,13 +164,12 @@
                 const res = await fetch('@Url.Action("GetSaldo", "Rekeningen")');
                 if (!res.ok) throw new Error('Netwerkfout');
                 const data = await res.text();
-                document.getElementById('saldoResult').innerHTML = `<div class="alert alert-info">Totaal Saldo: €${data}</div>`;
+                document.getElementById('saldoResult').innerHTML = `<div class="alert alert-info">Totaal @_localizer["Saldo"]: €${data}</div>`;
             } catch (e) {
-                document.getElementById('saldoResult').innerHTML = `<div class="alert alert-danger">Fout bij ophalen saldo</div>`;
+                document.getElementById('saldoResult').innerHTML = `<div class="alert alert-danger">Fout bij ophalen @(_localizer["Saldo"].ToString().ToLower())</div>`;
             }
         }
 
-        // Laad recent transactions on page load
         document.addEventListener('DOMContentLoaded', function() {
             if (typeof loadRecentTransactions === 'function') loadRecentTransactions('recentTransactionsContainer',5);
         });

@@ -1,0 +1,105 @@
+﻿@model BankApp_Models.KlantBericht
+@using Microsoft.AspNetCore.Mvc.Localization
+@using Microsoft.Extensions.Localization
+@using BankApp_Web.Translations
+@inject IStringLocalizer<SharedResource> _localizer
+
+@{
+    ViewData["Title"] = @_localizer["Bericht Details"];
+}
+
+<h1>@_localizer["Bericht Details"]</h1>
+
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success">@TempData["Success"]</div>
+}
+
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger">@TempData["Error"]</div>
+}
+
+<div>
+    <h4>@_localizer["Klant Bericht"]</h4>
+    <hr />
+    <dl class="row">
+        <dt class="col-sm-2">
+            @_localizer["Datum"]
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Datum)
+        </dd>
+        <dt class="col-sm-2">
+            @_localizer["Naam"]
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Naam)
+        </dd>
+        <dt class="col-sm-2">
+            @_localizer["Email"]
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Email)
+        </dd>
+        <dt class="col-sm-2">
+            @_localizer["Onderwerp"]
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Onderwerp)
+        </dd>
+        <dt class="col-sm-2">
+            @_localizer["Bericht"]
+        </dt>
+        <dd class="col-sm-10">
+            <div class="border p-3" style="white-space: pre-wrap;">@Html.DisplayFor(model => model.Bericht)</div>
+        </dd>
+        <dt class="col-sm-2">
+            @_localizer["Status"]
+        </dt>
+        <dd class="col-sm-10">
+            @if (Model.Status == "Nieuw")
+            {
+                <span class="badge bg-warning">@_localizer["Nieuw"]</span>
+            }
+            else if (Model.Status == "InBehandeling")
+            {
+                <span class="badge bg-info">@_localizer["In Behandeling"]</span>
+            }
+            else
+            {
+                <span class="badge bg-success">@_localizer["Afgehandeld"]</span>
+            }
+        </dd>
+        @if (!string.IsNullOrEmpty(Model.BehandeldDoor))
+        {
+            <dt class="col-sm-2">
+                @_localizer["Behandeld Door"]
+            </dt>
+            <dd class="col-sm-10">
+                @Html.DisplayFor(model => model.BehandeldDoor)
+            </dd>
+            @if (Model.BehandeldOp.HasValue)
+            {
+                <dt class="col-sm-2">
+                    @_localizer["Behandeld Op"]
+                </dt>
+                <dd class="col-sm-10">
+                    @Html.DisplayFor(model => model.BehandeldOp)
+                </dd>
+            }
+        }
+    </dl>
+</div>
+
+<div>
+    @if (Model.Status != "Afgehandeld")
+    {
+        <form asp-action="MarkeerAlsBehandeld" method="post" class="d-inline">
+            <input type="hidden" name="id" value="@Model.Id" />
+            @Html.AntiForgeryToken()
+            <button type="submit" class="btn btn-success">@_localizer["Markeer als Afgehandeld"]</button>
+        </form>
+    }
+    <a asp-action="Berichten" class="btn btn-secondary">@_localizer["Terug"]</a>
+</div>

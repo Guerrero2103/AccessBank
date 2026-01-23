@@ -41,11 +41,25 @@ namespace BankApp_MAUI.Data
         }
 
         // Rekeningen ophalen
-        public Task<List<LocalRekening>> GetRekeningenAsync(string gebruikerId)
+        public async Task<List<LocalRekening>> GetRekeningenAsync(string gebruikerId)
         {
-            return _database.Table<LocalRekening>()
+            if (string.IsNullOrEmpty(gebruikerId))
+            {
+                System.Diagnostics.Debug.WriteLine("GetRekeningenAsync: WARNING - gebruikerId is empty!");
+                return new List<LocalRekening>();
+            }
+            
+            var rekeningen = await _database.Table<LocalRekening>()
                 .Where(r => r.GebruikerId == gebruikerId)
                 .ToListAsync();
+            
+            System.Diagnostics.Debug.WriteLine($"GetRekeningenAsync: Found {rekeningen.Count} rekeningen for gebruikerId={gebruikerId}");
+            foreach (var r in rekeningen)
+            {
+                System.Diagnostics.Debug.WriteLine($"GetRekeningenAsync: Rekening IBAN={r.Iban}, Saldo={r.Saldo}, Id={r.Id}");
+            }
+            
+            return rekeningen;
         }
 
         public Task<LocalRekening> GetRekeningByIbanAsync(string iban)
@@ -55,16 +69,35 @@ namespace BankApp_MAUI.Data
                 .FirstOrDefaultAsync();
         }
 
-        public Task<int> SaveRekeningAsync(LocalRekening rekening)
+        public async Task<int> SaveRekeningAsync(LocalRekening rekening)
         {
+            // Valideer data voor opslag
+            if (string.IsNullOrEmpty(rekening.Iban))
+            {
+                System.Diagnostics.Debug.WriteLine("SaveRekeningAsync: WARNING - IBAN is empty!");
+                throw new ArgumentException("IBAN cannot be empty");
+            }
+            
+            if (string.IsNullOrEmpty(rekening.GebruikerId))
+            {
+                System.Diagnostics.Debug.WriteLine("SaveRekeningAsync: WARNING - GebruikerId is empty!");
+                throw new ArgumentException("GebruikerId cannot be empty");
+            }
+            
+            int result;
             if (rekening.Id != 0)
             {
-                return _database.UpdateAsync(rekening);
+                System.Diagnostics.Debug.WriteLine($"SaveRekeningAsync: Updating rekening ID={rekening.Id}, IBAN={rekening.Iban}, Saldo={rekening.Saldo}, GebruikerId={rekening.GebruikerId}");
+                result = await _database.UpdateAsync(rekening);
             }
             else
             {
-                return _database.InsertAsync(rekening);
+                System.Diagnostics.Debug.WriteLine($"SaveRekeningAsync: Inserting new rekening IBAN={rekening.Iban}, Saldo={rekening.Saldo}, GebruikerId={rekening.GebruikerId}");
+                result = await _database.InsertAsync(rekening);
             }
+            
+            System.Diagnostics.Debug.WriteLine($"SaveRekeningAsync: Result = {result} rows affected");
+            return result;
         }
 
         public Task<int> SaveRekeningenAsync(List<LocalRekening> rekeningen)

@@ -1,0 +1,94 @@
+﻿@using Microsoft.AspNetCore.Mvc.Localization
+@using Microsoft.Extensions.Localization
+@using BankApp_Web.Translations
+@inject IStringLocalizer<SharedResource> _localizer
+
+@{
+    ViewData["Title"] = _localizer["Card Stop"];
+}
+
+<style>
+    .cardstop-container {
+        min-height: calc(100vh - 200px);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background-color: #000000;
+        padding: 40px 20px;
+    }
+
+    .cardstop-card {
+        background-color: #0A1128;
+        border-radius: 20px;
+        padding: 60px;
+        max-width: 1000px;
+        text-align: center;
+    }
+
+    .cardstop-title {
+        font-size: 40px;
+        font-weight: bold;
+        color: #FFD700;
+        margin-bottom: 30px;
+    }
+
+    .cardstop-text {
+        font-size: 22px;
+        color: #FFFFFF;
+        margin-bottom: 20px;
+    }
+
+    .phone-number-box {
+        background-color: #FFD700;
+        border-radius: 15px;
+        padding: 30px 20px;
+        margin: 20px 0;
+        display: inline-block;
+    }
+
+    .phone-number {
+        font-size: 36px;
+        font-weight: bold;
+        color: #000000;
+    }
+
+    .info-text {
+        font-size: 18px;
+        color: #8EA9FF;
+        margin-top: 10px;
+    }
+
+    .btn-back {
+        background-color: #1E90FF;
+        color: #FFFFFF;
+        font-weight: bold;
+        font-size: 18px;
+        padding: 15px 30px;
+        border: none;
+        border-radius: 10px;
+        margin-top: 20px;
+        width: 300px;
+    }
+</style>
+
+<div class="cardstop-container">
+    <div class="cardstop-card">
+        <h1 class="cardstop-title">@_localizer["Card Stop"]</h1>
+        
+        <p class="cardstop-text">
+            @_localizer["Bel onmiddellijk dit nummer om uw kaart te blokkeren:"]
+        </p>
+
+        <div class="phone-number-box">
+            <div class="phone-number">+32 70 344 344</div>
+        </div>
+
+        <p class="info-text">
+            @_localizer["24/7 bereikbaar in België en vanuit het buitenland."]
+        </p>
+
+        <a asp-controller="Home" asp-action="Index" class="btn btn-back">
+            @_localizer["Terug naar startpagina"]
+        </a>
+    </div>
+</div>

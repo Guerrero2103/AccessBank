@@ -36,7 +36,7 @@ namespace BankApp_MAUI.ViewModels
 
             try
             {
-                // Gebruik General.UserId - zoals Agenda-master
+                // Gebruik General.UserId
                 var transactiesList = await _localDb.GetTransactiesAsync(General.UserId);
 
                 // Filter gebruiken

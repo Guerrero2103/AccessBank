@@ -1,0 +1,312 @@
+﻿@model BankApp_Web.Models.RegisterViewModel
+@using Microsoft.AspNetCore.Mvc.Localization
+@using Microsoft.Extensions.Localization
+@using BankApp_Web.Translations
+@inject IStringLocalizer<SharedResource> _localizer
+
+@{
+    ViewData["Title"] = _localizer["Registreren"];
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<style>
+    .register-container {
+        background-color: #000000;
+        min-height: calc(100vh - 200px);
+        padding: 30px 20px;
+    }
+
+    .register-header {
+        display: flex;
+        align-items: center;
+        margin-bottom: 30px;
+    }
+
+    .btn-back-header {
+        height: 60px;
+        width: 180px;
+        font-size: 20px;
+        font-weight: bold;
+        background-color: #FFFFFF;
+        color: #000000;
+        border: 4px solid #FFFFFF;
+        border-radius: 8px;
+        cursor: pointer;
+        text-decoration: none;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-right: 20px;
+    }
+
+    .btn-back-header:hover {
+        background-color: #F0F0F0;
+    }
+
+    .register-title {
+        font-size: 36px;
+        font-weight: bold;
+        color: #FFFFFF;
+        flex: 1;
+        text-align: center;
+    }
+
+    .register-card {
+        background-color: #1C1C1C;
+        border: 4px solid #374151;
+        border-radius: 12px;
+        padding: 40px;
+        max-width: 800px;
+        margin: 0 auto;
+    }
+
+    .card-header-section {
+        display: flex;
+        align-items: center;
+        margin-bottom: 30px;
+    }
+
+    .card-icon {
+        background-color: #9333EA;
+        width: 50px;
+        height: 50px;
+        border-radius: 25px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 28px;
+        margin-right: 15px;
+    }
+
+    .card-title {
+        font-size: 32px;
+        font-weight: bold;
+        color: #FFFFFF;
+    }
+
+    .form-label {
+        color: #FFFFFF;
+        font-size: 20px;
+        font-weight: 600;
+        margin-bottom: 8px;
+    }
+
+    .form-control {
+        background-color: #1F2937;
+        border: 4px solid #4B5563;
+        color: #FFFFFF;
+        height: 60px;
+        font-size: 18px;
+        padding: 0 15px;
+        margin-bottom: 20px;
+    }
+
+    .form-control:focus {
+        background-color: #1F2937;
+        border-color: #9333EA;
+        color: #FFFFFF;
+        box-shadow: 0 0 0 0.2rem rgba(147, 51, 234, 0.25);
+    }
+
+    .form-control::placeholder {
+        color: #9CA3AF;
+    }
+
+    .row-fields {
+        display: grid;
+        grid-template-columns: 1fr 20px 1fr;
+        gap: 20px;
+        margin-bottom: 20px;
+    }
+
+    .info-text {
+        color: #9CA3AF;
+        font-size: 16px;
+        text-align: center;
+        margin: 0 0 30px 0;
+    }
+
+    .btn-register {
+        height: 80px;
+        font-size: 24px;
+        font-weight: bold;
+        background-color: #9333EA;
+        color: #FFFFFF;
+        border: 4px solid #A855F7;
+        border-radius: 8px;
+        cursor: pointer;
+        width: 100%;
+    }
+
+    .btn-register:hover {
+        background-color: #A855F7;
+    }
+
+    .text-danger {
+        color: #FF0000;
+        font-size: 14px;
+    }
+
+    .keyboard-hint {
+        background-color: #1F2937;
+        border: 2px solid #374151;
+        border-radius: 8px;
+        padding: 15px;
+        margin-top: 20px;
+        text-align: center;
+        max-width: 800px;
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+    .keyboard-hint-key {
+        background-color: #4B5563;
+        border-radius: 6px;
+        padding: 10px 5px;
+        margin-right: 10px;
+        display: inline-block;
+    }
+
+    .keyboard-hint-text {
+        color: #D1D5DB;
+        font-size: 16px;
+    }
+</style>
+
+<div class="register-container">
+    <div class="register-header">
+        <a asp-controller="Home" asp-action="Index" class="btn-back-header">
+            <span style="font-size: 24px; margin-right: 10px;">←</span>
+            <span>@_localizer["Terug"]</span>
+        </a>
+        <h1 class="register-title">@_localizer["Registreren"]</h1>
+    </div>
+
+    <div class="register-card">
+        <div class="card-header-section">
+            <div class="card-icon">📝</div>
+            <h2 class="card-title">@_localizer["Account Aanmaken"]</h2>
+        </div>
+
+        <form asp-action="Register" method="post">
+            @Html.AntiForgeryToken()
+
+            <div class="mb-3">
+                <label asp-for="Voornaam" class="form-label">@_localizer["Voornaam"] *</label>
+                <input asp-for="Voornaam" class="form-control" />
+                <span asp-validation-for="Voornaam" class="text-danger"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="Achternaam" class="form-label">@_localizer["Achternaam"] *</label>
+                <input asp-for="Achternaam" class="form-control" />
+                <span asp-validation-for="Achternaam" class="text-danger"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="Email" class="form-label">@_localizer["Email"] *</label>
+                <input asp-for="Email" class="form-control" type="email" />
+                <span asp-validation-for="Email" class="text-danger"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="Wachtwoord" class="form-label">@_localizer["Wachtwoord"] *</label>
+                <input asp-for="Wachtwoord" class="form-control" type="password" />
+                <span asp-validation-for="Wachtwoord" class="text-danger"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="WachtwoordBevestigen" class="form-label">@_localizer["Wachtwoord Bevestigen"] *</label>
+                <input asp-for="WachtwoordBevestigen" class="form-control" type="password" />
+                <span asp-validation-for="WachtwoordBevestigen" class="text-danger"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="Telefoonnummer" class="form-label">@_localizer["Telefoonnummer"] *</label>
+                <input asp-for="Telefoonnummer" class="form-control" />
+                <span asp-validation-for="Telefoonnummer" class="text-danger"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="Geboortedatum" class="form-label">@_localizer["Geboortedatum"] *</label>
+                <input asp-for="Geboortedatum" class="form-control" type="date" />
+                <span asp-validation-for="Geboortedatum" class="text-danger"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="Straat" class="form-label">@_localizer["Straatnaam"] *</label>
+                <input asp-for="Straat" class="form-control" />
+                <span asp-validation-for="Straat" class="text-danger"></span>
+            </div>
+
+            <div class="row-fields">
+                <div>
+                    <label asp-for="Huisnummer" class="form-label">@_localizer["Huisnummer"] *</label>
+                    <input asp-for="Huisnummer" class="form-control" />
+                    <span asp-validation-for="Huisnummer" class="text-danger"></span>
+                </div>
+                <div></div>
+                <div>
+                    <label asp-for="Bus" class="form-label">@_localizer["Bus (optioneel)"]</label>
+                    <input asp-for="Bus" class="form-control" />
+                    <span asp-validation-for="Bus" class="text-danger"></span>
+                </div>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="Postcode" class="form-label">@_localizer["Postcode"] *</label>
+                <input asp-for="Postcode" class="form-control" />
+                <span asp-validation-for="Postcode" class="text-danger"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="Gemeente" class="form-label">@_localizer["Gemeente"] *</label>
+                <input asp-for="Gemeente" class="form-control" />
+                <span asp-validation-for="Gemeente" class="text-danger"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="Land" class="form-label">@_localizer["Land"] *</label>
+                <input asp-for="Land" class="form-control" value="België" />
+                <span asp-validation-for="Land" class="text-danger"></span>
+            </div>
+
+            <p class="info-text">
+                @_localizer["Uw IBAN en kaartnummer worden automatisch toegewezen na succesvolle registratie"]
+            </p>
+
+            @if (!ViewData.ModelState.IsValid)
+            {
+                <div class="text-danger mb-3">
+                    @foreach (var error in ViewData.ModelState.Values.SelectMany(v => v.Errors))
+                    {
+                        <div>@error.ErrorMessage</div>
+                    }
+                </div>
+            }
+
+            <button type="submit" class="btn btn-register">@_localizer["Account Aanmaken"]</button>
+        </form>
+    </div>
+
+    <div class="keyboard-hint">
+        <div style="display: flex; align-items: center; justify-content: center;">
+            <div class="keyboard-hint-key">
+                <span style="font-size: 16px; font-weight: bold; color: #FFFFFF;">Z</span>
+            </div>
+            <span class="keyboard-hint-text">@_localizer["Druk op 'Z' om terug te gaan"]</span>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    
+    <script>
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'z' || e.key === 'Z') {
+                window.location.href = '@Url.Action("Index", "Home")';
+            }
+        });
+    </script>
+}

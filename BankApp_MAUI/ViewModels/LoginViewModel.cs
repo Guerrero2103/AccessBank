@@ -45,10 +45,25 @@ namespace BankApp_MAUI.ViewModels
 
                 if (success)
                 {
-                    // Ga naar hoofdpagina - nieuwe stijl voor .NET 9
+
+                    // Synchroniseer direct na login
+                    try
+                    {
+                        if (await _synchronizer.IsOnline())
+                        {
+                            await _synchronizer.SynchronizeAll();
+                        }
+                    }
+                    catch (Exception syncEx)
+                    {
+                        System.Diagnostics.Debug.WriteLine($"Sync error after login: {syncEx.Message}");
+                    }
+                    
+                    // Ga naar hoofdpagina
+                    var appShell = _serviceProvider.GetRequiredService<AppShell>();
                     if (Application.Current?.Windows.Count > 0)
                     {
-                        var appShell = _serviceProvider.GetRequiredService<AppShell>();
+
                         Application.Current.Windows[0].Page = appShell;
                     }
                 }

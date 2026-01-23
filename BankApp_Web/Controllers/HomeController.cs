@@ -1,19 +1,24 @@
+using BankApp_Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Localization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using System.Linq;
 
 namespace BankApp_Web.Controllers
 {
     public class HomeController : Controller
     {
         private readonly ILogger<HomeController> _logger;
+        private readonly AppDbContext _context;
 
-        public HomeController(ILogger<HomeController> logger)
+        public HomeController(ILogger<HomeController> logger, AppDbContext context)
         {
             _logger = logger;
+            _context = context;
         }
 
-        public IActionResult Index()
+        public async Task<IActionResult> Index()
         {
             // Als gebruiker niet is ingelogd, toon welcome pagina
             if (!User.Identity?.IsAuthenticated ?? true)
@@ -21,10 +26,34 @@ namespace BankApp_Web.Controllers
                 return View();
             }
 
-            // Redirect op basis van rol
+            // Als gebruiker is ingelogd, laad saldo data voor klanten
             if (User.IsInRole("Klant"))
             {
-                return RedirectToAction("Index", "Rekeningen");
+                try
+                {
+                    string gebruikerId = _context.Users.First(u => u.UserName == User.Identity.Name).Id;
+                    
+                    // Haal totaal saldo op
+                    var totaalSaldo = await _context.Rekeningen
+                        .Where(r => r.GebruikerId == gebruikerId && r.Deleted == DateTime.MaxValue)
+                        .SumAsync(r => r.Saldo);
+
+                    // Haal eerste rekening op voor IBAN display
+                    var eersteRekening = await _context.Rekeningen
+                        .Where(r => r.GebruikerId == gebruikerId && r.Deleted == DateTime.MaxValue)
+                        .FirstOrDefaultAsync();
+
+                    ViewBag.TotaalSaldo = totaalSaldo;
+                    ViewBag.EersteRekening = eersteRekening;
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "Fout bij ophalen saldo voor homepage");
+                    ViewBag.TotaalSaldo = 0.0m;
+                    ViewBag.EersteRekening = null;
+                }
+                
+                return View();
             }
             else if (User.IsInRole("Medewerker"))
             {

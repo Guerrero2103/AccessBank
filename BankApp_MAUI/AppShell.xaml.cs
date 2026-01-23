@@ -29,19 +29,37 @@ public partial class AppShell : Shell
         
         if (confirm)
         {
-            // Clear token en preferences
-            Preferences.Remove("auth_token");
-            Preferences.Remove("user_email");
-            
-            // Herstart app (navigeer terug naar login)
-            if (_serviceProvider != null)
+            try
             {
-                var loginPage = _serviceProvider.GetRequiredService<LoginPage>();
-                var window = Application.Current?.Windows.FirstOrDefault();
-                if (window != null)
+                // Clear token en preferences via Synchronizer
+                if (_serviceProvider != null)
                 {
-                    window.Page = new NavigationPage(loginPage);
+                    var synchronizer = _serviceProvider.GetRequiredService<Synchronizer>();
+                    synchronizer.Logout();
                 }
+                else
+                {
+                    Preferences.Remove("auth_token");
+                    Preferences.Remove("user_id");
+                    Preferences.Remove("user_email");
+                    General.UserId = "";
+                }
+                
+                // Herstart app (navigeer terug naar login)
+                if (_serviceProvider != null)
+                {
+                    var loginPage = _serviceProvider.GetRequiredService<LoginPage>();
+                    var window = Application.Current?.Windows.FirstOrDefault();
+                    if (window != null)
+                    {
+                        window.Page = new NavigationPage(loginPage);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Error in OnLogoutClicked: {ex.Message}");
+                await DisplayAlert("Fout", "Er is een fout opgetreden bij uitloggen", "OK");
             }
         }
     }

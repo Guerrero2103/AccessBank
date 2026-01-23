@@ -19,13 +19,67 @@ namespace BankApp_Web.Controllers
         }
 
         // GET: Medewerker - Overzicht wachtende transacties
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(string searchString, string sortOrder)
         {
             var wachtendeTransacties = _context.Transacties
                 .Where(t => t.Deleted == DateTime.MaxValue && t.Status == TransactieStatus.Wachtend)
                 .Include(t => t.Gebruiker)
                 .ThenInclude(g => g.Adres)
-                .OrderByDescending(t => t.Datum);
+                .AsQueryable();
+
+            // Zoek functionaliteit
+            ViewData["CurrentFilter"] = searchString;
+            if (!string.IsNullOrEmpty(searchString))
+            {
+                wachtendeTransacties = wachtendeTransacties.Where(t => 
+                    t.VanIban.Contains(searchString) ||
+                    t.NaarIban.Contains(searchString) ||
+                    t.Gebruiker.Email.Contains(searchString) ||
+                    t.Gebruiker.Voornaam.Contains(searchString) ||
+                    t.Gebruiker.Achternaam.Contains(searchString));
+            }
+
+            // Sortering
+            ViewData["CurrentSort"] = sortOrder;
+            ViewData["DatumSortParm"] = string.IsNullOrEmpty(sortOrder) ? "datum_desc" : "";
+            ViewData["VanIbanSortParm"] = sortOrder == "VanIban" ? "vaniban_desc" : "VanIban";
+            ViewData["NaarIbanSortParm"] = sortOrder == "NaarIban" ? "naariban_desc" : "NaarIban";
+            ViewData["BedragSortParm"] = sortOrder == "Bedrag" ? "bedrag_desc" : "Bedrag";
+            ViewData["GebruikerSortParm"] = sortOrder == "Gebruiker" ? "gebruiker_desc" : "Gebruiker";
+
+            switch (sortOrder)
+            {
+                case "datum_desc":
+                    wachtendeTransacties = wachtendeTransacties.OrderByDescending(t => t.Datum);
+                    break;
+                case "VanIban":
+                    wachtendeTransacties = wachtendeTransacties.OrderBy(t => t.VanIban);
+                    break;
+                case "vaniban_desc":
+                    wachtendeTransacties = wachtendeTransacties.OrderByDescending(t => t.VanIban);
+                    break;
+                case "NaarIban":
+                    wachtendeTransacties = wachtendeTransacties.OrderBy(t => t.NaarIban);
+                    break;
+                case "naariban_desc":
+                    wachtendeTransacties = wachtendeTransacties.OrderByDescending(t => t.NaarIban);
+                    break;
+                case "Bedrag":
+                    wachtendeTransacties = wachtendeTransacties.OrderBy(t => t.Bedrag);
+                    break;
+                case "bedrag_desc":
+                    wachtendeTransacties = wachtendeTransacties.OrderByDescending(t => t.Bedrag);
+                    break;
+                case "Gebruiker":
+                    wachtendeTransacties = wachtendeTransacties.OrderBy(t => t.Gebruiker.Email);
+                    break;
+                case "gebruiker_desc":
+                    wachtendeTransacties = wachtendeTransacties.OrderByDescending(t => t.Gebruiker.Email);
+                    break;
+                default:
+                    wachtendeTransacties = wachtendeTransacties.OrderByDescending(t => t.Datum);
+                    break;
+            }
 
             return View(await wachtendeTransacties.ToListAsync());
         }
@@ -130,6 +184,63 @@ namespace BankApp_Web.Controllers
 
             TempData["Success"] = "Transactie afgewezen";
             return RedirectToAction(nameof(Index));
+        }
+
+        // GET: Medewerker/Berichten - Overzicht klantenberichten
+        public async Task<IActionResult> Berichten()
+        {
+            var berichten = await _context.KlantBerichten
+                .Where(b => b.Deleted == DateTime.MaxValue)
+                .Include(b => b.Gebruiker)
+                .OrderByDescending(b => b.Datum)
+                .ToListAsync();
+
+            return View(berichten);
+        }
+
+        // GET: Medewerker/BerichtDetails/5
+        public async Task<IActionResult> BerichtDetails(int? id)
+        {
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            var bericht = await _context.KlantBerichten
+                .Include(b => b.Gebruiker)
+                .FirstOrDefaultAsync(m => m.Id == id && m.Deleted == DateTime.MaxValue);
+
+            if (bericht == null)
+            {
+                return NotFound();
+            }
+
+            return View(bericht);
+        }
+
+        // POST: Medewerker/MarkeerAlsBehandeld/5
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> MarkeerAlsBehandeld(int id)
+        {
+            var bericht = await _context.KlantBerichten
+                .FirstOrDefaultAsync(b => b.Id == id && b.Deleted == DateTime.MaxValue);
+
+            if (bericht == null)
+            {
+                return NotFound();
+            }
+
+            string medewerkerId = _context.Users.First(u => u.UserName == User.Identity.Name).Id;
+
+            bericht.Status = "Afgehandeld";
+            bericht.BehandeldDoor = medewerkerId;
+            bericht.BehandeldOp = DateTime.Now;
+
+            await _context.SaveChangesAsync();
+
+            TempData["Success"] = "Bericht gemarkeerd als afgehandeld";
+            return RedirectToAction(nameof(Berichten));
         }
     }
 }

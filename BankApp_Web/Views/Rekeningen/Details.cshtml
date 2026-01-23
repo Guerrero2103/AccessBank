@@ -1,29 +1,33 @@
-@model BankApp_Models.Rekening
+﻿@model BankApp_Models.Rekening
+@using Microsoft.AspNetCore.Mvc.Localization
+@using Microsoft.Extensions.Localization
+@using BankApp_Web.Translations
+@inject IStringLocalizer<SharedResource> _localizer
 
 @{
-    ViewData["Title"] = "Rekening Details";
+    ViewData["Title"] = @_localizer["Rekening Details"];
 }
 
-<h1>Rekening Details</h1>
+<h1>@_localizer["Rekening Details"]</h1>
 
 <div>
-    <h4>Rekening</h4>
+    <h4>@_localizer["Rekening"]</h4>
     <hr />
     <dl class="row">
         <dt class="col-sm-2">
-            IBAN
+            @_localizer["IBAN"]
         </dt>
         <dd class="col-sm-10">
             @Html.DisplayFor(model => model.Iban)
         </dd>
         <dt class="col-sm-2">
-            Saldo
+            @_localizer["Saldo"]
         </dt>
         <dd class="col-sm-10">
             €@Html.DisplayFor(model => model.Saldo)
         </dd>
         <dt class="col-sm-2">
-            Gebruiker
+            @_localizer["Gebruiker"]
         </dt>
         <dd class="col-sm-10">
             @Html.DisplayFor(model => model.Gebruiker.Email)
@@ -31,5 +35,5 @@
     </dl>
 </div>
 <div>
-    <a asp-action="Index" class="btn btn-secondary">Terug naar overzicht</a>
+    <a asp-action="Index" class="btn btn-secondary">@_localizer["Terug naar overzicht"]</a>
 </div>

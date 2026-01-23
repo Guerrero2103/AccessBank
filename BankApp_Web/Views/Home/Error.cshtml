@@ -1,10 +1,15 @@
-@model ErrorViewModel
+﻿@model ErrorViewModel
+@using Microsoft.AspNetCore.Mvc.Localization
+@using Microsoft.Extensions.Localization
+@using BankApp_Web.Translations
+@inject IStringLocalizer<SharedResource> _localizer
+
 @{
-    ViewData["Title"] = "Fout";
+    ViewData["Title"] = @_localizer["Fout"];
 }
 
-<h1 class="text-danger">Fout.</h1>
-<h2 class="text-danger">Er is een fout opgetreden bij het verwerken van uw verzoek.</h2>
+<h1 class="text-danger">@_localizer["Fout"].</h1>
+<h2 class="text-danger">@_localizer["Er is een fout opgetreden"]</h2>
 
 @if (Model.ShowRequestId)
 {

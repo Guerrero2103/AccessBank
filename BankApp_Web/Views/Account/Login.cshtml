@@ -1,0 +1,164 @@
+﻿@model BankApp_Web.Models.LoginViewModel
+@using Microsoft.AspNetCore.Mvc.Localization
+@using Microsoft.Extensions.Localization
+@using BankApp_Web.Translations
+@inject IStringLocalizer<SharedResource> _localizer
+
+@{
+    ViewData["Title"] = _localizer["Inloggen"];
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<style>
+    .login-container {
+        min-height: calc(100vh - 200px);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background-color: #000000;
+        padding: 40px 20px;
+    }
+
+    .login-card {
+        background-color: #1C1C1C;
+        border: 4px solid #374151;
+        border-radius: 12px;
+        padding: 40px;
+        width: 100%;
+        max-width: 400px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+    }
+
+    .login-title {
+        font-size: 28px;
+        font-weight: bold;
+        color: #FFFFFF;
+        text-align: center;
+        margin-bottom: 40px;
+    }
+
+    .form-label {
+        color: #FFFFFF;
+        font-size: 16px;
+        margin-bottom: 8px;
+    }
+
+    .form-control {
+        background-color: #1F2937;
+        border: 4px solid #4B5563;
+        color: #FFFFFF;
+        height: 35px;
+        font-size: 16px;
+        padding: 0 15px;
+        margin-bottom: 15px;
+    }
+
+    .form-control:focus {
+        background-color: #1F2937;
+        border-color: #10B981;
+        color: #FFFFFF;
+        box-shadow: 0 0 0 0.2rem rgba(16, 185, 129, 0.25);
+    }
+
+    .btn-login {
+        background-color: #10B981;
+        color: #FFFFFF;
+        border: none;
+        width: 120px;
+        height: 40px;
+        font-size: 16px;
+        font-weight: bold;
+        margin-right: 10px;
+    }
+
+    .btn-back {
+        background-color: #1E88E5;
+        color: #FFFFFF;
+        border: none;
+        width: 100px;
+        height: 40px;
+        font-size: 16px;
+        font-weight: bold;
+        margin-right: 10px;
+    }
+
+    .btn-group {
+        display: flex;
+        justify-content: center;
+        margin-top: 10px;
+    }
+
+    .forgot-password {
+        color: #87CEEB;
+        font-size: 14px;
+        text-align: center;
+        margin-top: 25px;
+        cursor: pointer;
+        text-decoration: none;
+    }
+
+    .forgot-password:hover {
+        color: #4682B4;
+        text-decoration: underline;
+    }
+
+    .text-danger {
+        color: #FF0000;
+        font-size: 14px;
+        margin-bottom: 15px;
+    }
+
+    .form-check-label {
+        color: #FFFFFF;
+    }
+</style>
+
+<div class="login-container">
+    <div class="login-card">
+        <h1 class="login-title">@_localizer["Inloggen bij AccessBank"]</h1>
+
+        <form asp-action="Login" method="post">
+            @Html.AntiForgeryToken()
+
+            <div class="mb-3">
+                <label asp-for="Email" class="form-label">@_localizer["E-mail:"]</label>
+                <input asp-for="Email" class="form-control" autofocus />
+                <span asp-validation-for="Email" class="text-danger"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="Password" class="form-label">@_localizer["Wachtwoord:"]</label>
+                <input asp-for="Password" class="form-control" type="password" />
+                <span asp-validation-for="Password" class="text-danger"></span>
+            </div>
+
+            <div class="mb-3 form-check">
+                <input asp-for="RememberMe" class="form-check-input" type="checkbox" />
+                <label asp-for="RememberMe" class="form-check-label">@_localizer["Onthoud mij"]</label>
+            </div>
+
+            @if (!ViewData.ModelState.IsValid)
+            {
+                <div class="text-danger">
+                    @foreach (var error in ViewData.ModelState.Values.SelectMany(v => v.Errors))
+                    {
+                        <div>@error.ErrorMessage</div>
+                    }
+                </div>
+            }
+
+            <div class="btn-group">
+                <button type="submit" class="btn btn-login">@_localizer["Inloggen"]</button>
+                <a asp-controller="Home" asp-action="Index" class="btn btn-back">@_localizer["Terug"]</a>
+            </div>
+
+            <a href="#" class="forgot-password" onclick="alert('@_localizer["Wachtwoord Reset: Stuur email naar support@accessbank.be"]'); return false;">
+                @_localizer["Wachtwoord vergeten?"]
+            </a>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

@@ -1,0 +1,45 @@
+﻿@model BankApp_Models.Kaart
+@using Microsoft.AspNetCore.Mvc.Localization
+@using Microsoft.Extensions.Localization
+@using BankApp_Web.Translations
+@inject IStringLocalizer<SharedResource> _localizer
+
+@{
+    ViewData["Title"] = @_localizer["Kaart Details"];
+}
+
+<h1>@_localizer["Kaart Details"]</h1>
+
+<div>
+    <h4>@_localizer["Kaart"]</h4>
+    <hr />
+    <dl class="row">
+        <dt class="col-sm-2">
+            @_localizer["Kaartnummer"]
+        </dt>
+        <dd class="col-sm-10">
+            <span class="font-monospace">@Html.DisplayFor(model => model.KaartNummer)</span>
+        </dd>
+        <dt class="col-sm-2">
+            @_localizer["Status"]
+        </dt>
+        <dd class="col-sm-10">
+            @if (Model.Status == KaartStatus.Actief)
+            {
+                <span class="badge bg-success">@_localizer["Actief"]</span>
+            }
+            else if (Model.Status == KaartStatus.Bevroren)
+            {
+                <span class="badge bg-warning">@_localizer["Bevroren"]</span>
+            }
+            else
+            {
+                <span class="badge bg-danger">@_localizer["Geblokkeerd"]</span>
+            }
+        </dd>
+    </dl>
+</div>
+
+<div>
+    <a asp-action="Index" class="btn btn-secondary">@_localizer["Terug naar overzicht"]</a>
+</div>

@@ -114,7 +114,7 @@ namespace BankApp_Models
             );
         }
 
-        // Seeder methode voor Identity Framework (zoals Agenda-master)
+        // Seeder methode voor Identity Framework
         // Deze wordt gebruikt vanuit WPF
         public static async Task Seeder(AppDbContext context)
         {

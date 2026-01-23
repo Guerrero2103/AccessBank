@@ -3,7 +3,9 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -13,79 +15,105 @@ namespace BankApp_Web.Controllers
     public class TransactiesController : Controller
     {
         private readonly AppDbContext _context;
+        private readonly ILogger<TransactiesController> _logger;
 
-        public TransactiesController(AppDbContext context)
+        public TransactiesController(AppDbContext context, ILogger<TransactiesController> logger)
         {
             _context = context;
+            _logger = logger;
         }
 
         // GET: Transacties
         public async Task<IActionResult> Index(string sortOrder, string filterStatus, int page = 1, int pageSize = 10)
         {
-            string gebruikerId = _context.Users.First(u => u.UserName == User.Identity.Name).Id;
-
-            // Haal IBANs op van gebruiker
-            var gebruikerIbans = await _context.Rekeningen
-                .Where(r => r.GebruikerId == gebruikerId && r.Deleted == DateTime.MaxValue)
-                .Select(r => r.Iban)
-                .ToListAsync();
-
-            var transacties = _context.Transacties
-                .Where(t => t.Deleted == DateTime.MaxValue &&
-                           (gebruikerIbans.Contains(t.VanIban) || gebruikerIbans.Contains(t.NaarIban)))
-                .Include(t => t.Gebruiker)
-                .AsQueryable();
-
-            // Filter op status
-            ViewData["CurrentFilter"] = filterStatus;
-            if (!string.IsNullOrEmpty(filterStatus))
+            try
             {
-                if (Enum.TryParse<TransactieStatus>(filterStatus, out var status))
+                string gebruikerId = _context.Users.First(u => u.UserName == User.Identity.Name).Id;
+
+                // Haal IBANs op van gebruiker
+                var gebruikerIbans = await _context.Rekeningen
+                    .Where(r => r.GebruikerId == gebruikerId && r.Deleted == DateTime.MaxValue)
+                    .Select(r => r.Iban)
+                    .ToListAsync();
+
+                var transacties = _context.Transacties
+                    .Where(t => t.Deleted == DateTime.MaxValue &&
+                               (gebruikerIbans.Contains(t.VanIban) || gebruikerIbans.Contains(t.NaarIban)))
+                    .Include(t => t.Gebruiker)
+                    .AsQueryable();
+
+                // Filter op status
+                ViewData["CurrentFilter"] = filterStatus ?? "";
+                if (!string.IsNullOrEmpty(filterStatus))
                 {
-                    transacties = transacties.Where(t => t.Status == status);
+                    if (Enum.TryParse<TransactieStatus>(filterStatus, out var status))
+                    {
+                        transacties = transacties.Where(t => t.Status == status);
+                    }
                 }
+
+                // Sortering - standaard op datum als sortOrder leeg is
+                if (string.IsNullOrEmpty(sortOrder))
+                {
+                    sortOrder = "datum_desc";
+                }
+
+                ViewData["DatumSortParm"] = sortOrder == "Datum" ? "datum_desc" : "Datum";
+                ViewData["BedragSortParm"] = sortOrder == "Bedrag" ? "bedrag_desc" : "Bedrag";
+                ViewData["StatusSortParm"] = sortOrder == "Status" ? "status_desc" : "Status";
+
+                switch (sortOrder)
+                {
+                    case "Datum":
+                        transacties = transacties.OrderBy(t => t.Datum);
+                        break;
+                    case "datum_desc":
+                        transacties = transacties.OrderByDescending(t => t.Datum);
+                        break;
+                    case "Bedrag":
+                        transacties = transacties.OrderBy(t => t.Bedrag);
+                        break;
+                    case "bedrag_desc":
+                        transacties = transacties.OrderByDescending(t => t.Bedrag);
+                        break;
+                    case "Status":
+                        transacties = transacties.OrderBy(t => t.Status);
+                        break;
+                    case "status_desc":
+                        transacties = transacties.OrderByDescending(t => t.Status);
+                        break;
+                    default:
+                        transacties = transacties.OrderByDescending(t => t.Datum);
+                        break;
+                }
+
+                // Status filter wordt nu handmatig in de view gemaakt
+
+                int totalCount = await transacties.CountAsync();
+                var results = await transacties.Skip((page - 1) * pageSize).Take(pageSize).ToListAsync();
+                ViewBag.Page = page;
+                ViewBag.PageSize = pageSize;
+                ViewBag.TotalCount = totalCount;
+
+                return View(results);
             }
-
-            // Sortering
-            ViewData["DatumSortParm"] = sortOrder == "Datum" ? "datum_desc" : "Datum";
-            ViewData["BedragSortParm"] = sortOrder == "Bedrag" ? "bedrag_desc" : "Bedrag";
-            ViewData["StatusSortParm"] = sortOrder == "Status" ? "status_desc" : "Status";
-
-            switch (sortOrder)
+            catch (Exception ex)
             {
-                case "datum_desc":
-                    transacties = transacties.OrderByDescending(t => t.Datum);
-                    break;
-                case "Bedrag":
-                    transacties = transacties.OrderBy(t => t.Bedrag);
-                    break;
-                case "bedrag_desc":
-                    transacties = transacties.OrderByDescending(t => t.Bedrag);
-                    break;
-                case "Status":
-                    transacties = transacties.OrderBy(t => t.Status);
-                    break;
-                case "status_desc":
-                    transacties = transacties.OrderByDescending(t => t.Status);
-                    break;
-                default:
-                    transacties = transacties.OrderByDescending(t => t.Datum);
-                    break;
+                // Log de fout met volledige details
+                _logger.LogError(ex, "Fout bij ophalen transacties. SortOrder: {SortOrder}, FilterStatus: {FilterStatus}, Error: {Error}", 
+                    sortOrder, filterStatus, ex.Message);
+                
+                // Toon een lege lijst in plaats van een error pagina
+                ViewBag.Page = 1;
+                ViewBag.PageSize = pageSize;
+                ViewBag.TotalCount = 0;
+                ViewData["DatumSortParm"] = "datum_desc";
+                ViewData["BedragSortParm"] = "Bedrag";
+                ViewData["StatusSortParm"] = "Status";
+                ViewData["CurrentFilter"] = filterStatus ?? "";
+                
+                return View(new List<Transactie>());
             }
-
-            // Status filter dropdown
-            ViewBag.StatusFilter = new SelectList(
-                Enum.GetValues(typeof(TransactieStatus)).Cast<TransactieStatus>(),
-                filterStatus
-            );
-
-            int totalCount = await transacties.CountAsync();
-            var results = await transacties.Skip((page - 1) * pageSize).Take(pageSize).ToListAsync();
-            ViewBag.Page = page;
-            ViewBag.PageSize = pageSize;
-            ViewBag.TotalCount = totalCount;
-
-            return View(results);
         }
 
         // Partial view: recent transactions (used by AJAX)
@@ -144,12 +172,14 @@ namespace BankApp_Web.Controllers
         {
             string gebruikerId = _context.Users.First(u => u.UserName == User.Identity.Name).Id;
             
-            // Haal rekeningen op van gebruiker voor dropdown
-            var rekeningen = _context.Rekeningen
+            // Haal rekeningen op van gebruiker voor dropdown - gebruik direct string lijst
+            var ibanLijst = _context.Rekeningen
                 .Where(r => r.GebruikerId == gebruikerId && r.Deleted == DateTime.MaxValue)
+                .Select(r => r.Iban)
                 .ToList();
 
-            ViewData["VanIban"] = new SelectList(rekeningen, "Iban", "Iban");
+            // Gebruik direct de IBAN lijst in plaats van SelectList
+            ViewBag.VanIbanLijst = ibanLijst;
             ViewData["GebruikerId"] = gebruikerId;
 
             return View();
@@ -158,8 +188,12 @@ namespace BankApp_Web.Controllers
         // POST: Transacties/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("VanIban,NaarIban,NaamOntvanger,Bedrag,Omschrijving,GebruikerId")] Transactie transactie)
+        public async Task<IActionResult> Create([Bind("VanIban,NaarIban,NaamOntvanger,Bedrag,Omschrijving")] Transactie transactie)
         {
+            // Haal gebruiker ID op
+            string gebruikerId = _context.Users.First(u => u.UserName == User.Identity.Name).Id;
+            transactie.GebruikerId = gebruikerId;
+
             if (ModelState.IsValid)
             {
                 transactie.Datum = DateTime.Now;
@@ -174,14 +208,35 @@ namespace BankApp_Web.Controllers
                     var naarRekening = await _context.Rekeningen
                         .FirstOrDefaultAsync(r => r.Iban == transactie.NaarIban && r.Deleted == DateTime.MaxValue);
 
-                    if (vanRekening != null && naarRekening != null && vanRekening.Saldo >= transactie.Bedrag)
+                    if (vanRekening == null)
                     {
-                        vanRekening.Saldo -= transactie.Bedrag;
-                        naarRekening.Saldo += transactie.Bedrag;
+                        ModelState.AddModelError("VanIban", "Bronrekening niet gevonden");
+                    }
+                    else if (naarRekening == null)
+                    {
+                        ModelState.AddModelError("NaarIban", "Doelrekening niet gevonden");
+                    }
+                    else if (vanRekening.Saldo < transactie.Bedrag)
+                    {
+                        ModelState.AddModelError("Bedrag", "Onvoldoende saldo op rekening");
                     }
                     else
                     {
-                        ModelState.AddModelError("", "Onvoldoende saldo of rekening niet gevonden");
+                        // Geld overmaken
+                        vanRekening.Saldo -= transactie.Bedrag;
+                        naarRekening.Saldo += transactie.Bedrag;
+                        _context.Rekeningen.Update(vanRekening);
+                        _context.Rekeningen.Update(naarRekening);
+                    }
+
+                    // Als er fouten zijn, toon view met fouten
+                    if (!ModelState.IsValid)
+                    {
+                        var ibanLijst = _context.Rekeningen
+                            .Where(r => r.GebruikerId == gebruikerId && r.Deleted == DateTime.MaxValue)
+                            .Select(r => r.Iban)
+                            .ToList();
+                        ViewBag.VanIbanLijst = ibanLijst;
                         return View(transactie);
                     }
                 }
@@ -191,11 +246,13 @@ namespace BankApp_Web.Controllers
                 return RedirectToAction(nameof(Index));
             }
 
-            string gebruikerId = _context.Users.First(u => u.UserName == User.Identity.Name).Id;
-            var rekeningen = _context.Rekeningen
+            // Herlaad IBAN lijst bij fout
+            var ibanLijstError = _context.Rekeningen
                 .Where(r => r.GebruikerId == gebruikerId && r.Deleted == DateTime.MaxValue)
+                .Select(r => r.Iban)
                 .ToList();
-            ViewData["VanIban"] = new SelectList(rekeningen, "Iban", "Iban", transactie.VanIban);
+
+            ViewBag.VanIbanLijst = ibanLijstError;
 
             return View(transactie);
         }

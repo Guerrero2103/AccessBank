@@ -116,7 +116,7 @@ namespace BankApp_Models
             }
         }
 
-        // Seeder methode voor Identity Framework (zoals Agenda-master)
+        // Seeder methode voor Identity Framework
         public static async Task Seeder(AppDbContext context)
         {
             // Gebruik dezelfde PasswordHasher configuratie als de applicatie

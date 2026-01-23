@@ -24,6 +24,26 @@ namespace BankApp_Web.Controllers
         {
             string gebruikerId = _context.Users.First(u => u.UserName == User.Identity.Name).Id;
 
+            // Controleer of gebruiker rekeningen heeft
+            var bestaandeRekeningen = await _context.Rekeningen
+                .Where(r => r.Deleted == DateTime.MaxValue && r.GebruikerId == gebruikerId)
+                .ToListAsync();
+
+            // Maak nieuwe rekening aan als gebruiker er nog geen heeft
+            if (bestaandeRekeningen.Count == 0)
+            {
+                var nieuweRekening = new Rekening
+                {
+                    Iban = "BE" + DateTime.Now.Ticks.ToString().Substring(0, 10),
+                    Saldo = 0.0m,
+                    GebruikerId = gebruikerId,
+                    Deleted = DateTime.MaxValue
+                };
+
+                _context.Rekeningen.Add(nieuweRekening);
+                await _context.SaveChangesAsync();
+            }
+
             var query = _context.Rekeningen
                 .Where(r => r.Deleted == DateTime.MaxValue && r.GebruikerId == gebruikerId)
                 .Include(r => r.Gebruiker)
@@ -70,6 +90,15 @@ namespace BankApp_Web.Controllers
         {
             string gebruikerId = _context.Users.First(u => u.UserName == User.Identity.Name).Id;
             ViewData["GebruikerId"] = gebruikerId;
+            
+            // Genereer automatisch IBAN
+            string nieuweIban = "BE" + DateTime.Now.Ticks.ToString().Substring(0, 10);
+            while (_context.Rekeningen.Any(r => r.Iban == nieuweIban && r.Deleted == DateTime.MaxValue))
+            {
+                nieuweIban = "BE" + DateTime.Now.Ticks.ToString().Substring(0, 10);
+            }
+            ViewBag.GeneratedIban = nieuweIban;
+            
             return View();
         }
 
@@ -78,13 +107,37 @@ namespace BankApp_Web.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("Iban,Saldo,GebruikerId")] Rekening rekening)
         {
+            string gebruikerId = _context.Users.First(u => u.UserName == User.Identity.Name).Id;
+            
+            // Controleer of IBAN al bestaat
+            if (await _context.Rekeningen.AnyAsync(r => r.Iban == rekening.Iban && r.Deleted == DateTime.MaxValue))
+            {
+                ModelState.AddModelError("Iban", "Dit IBAN bestaat al. Er wordt automatisch een nieuw IBAN gegenereerd.");
+                // Genereer nieuw IBAN
+                string nieuweIban = "BE" + DateTime.Now.Ticks.ToString().Substring(0, 10);
+                rekening.Iban = nieuweIban;
+                ViewBag.SuggestedIban = nieuweIban;
+            }
+
             if (ModelState.IsValid)
             {
+                rekening.GebruikerId = gebruikerId; // Zorg dat gebruikerId correct is
+                rekening.Saldo = rekening.Saldo; // Behoud saldo als ingevuld, anders 0
                 rekening.Deleted = DateTime.MaxValue;
+                
+                // Als IBAN leeg is, genereer automatisch
+                if (string.IsNullOrWhiteSpace(rekening.Iban))
+                {
+                    string nieuweIban = "BE" + DateTime.Now.Ticks.ToString().Substring(0, 10);
+                    rekening.Iban = nieuweIban;
+                }
+                
                 _context.Add(rekening);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
+            
+            ViewData["GebruikerId"] = gebruikerId;
             return View(rekening);
         }
 

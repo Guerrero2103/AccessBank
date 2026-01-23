@@ -1,4 +1,4 @@
-@model BankApp_Models.BankUser
+﻿@model BankApp_Models.BankUser
 
 @{
     ViewData["Title"] = "Gebruiker Blokkeren";
@@ -25,7 +25,8 @@
         </dd>
     </dl>
 
-    <form asp-action="BlokkeerGebruikerConfirmed" method="post">
+    <form asp-action="BlokkeerGebruiker" method="post">
+        @Html.AntiForgeryToken()
         <input type="hidden" asp-for="Id" />
         <input type="submit" value="Blokkeer" class="btn btn-danger" />
         <a asp-action="Index" class="btn btn-secondary">Annuleren</a>

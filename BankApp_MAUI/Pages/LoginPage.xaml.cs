@@ -4,7 +4,7 @@ namespace BankApp_MAUI.Pages;
 
 public partial class LoginPage : ContentPage
 {
-    // Constructor met DI - zoals Agenda-master
+    // Constructor met DI
     public LoginPage(LoginViewModel viewModel)
     {
         InitializeComponent();

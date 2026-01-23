@@ -1,0 +1,29 @@
+﻿@{
+    ViewData["Title"] = "E-mail Bevestigd";
+}
+
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-body text-center">
+                    <h2 class="card-title">E-mail Bevestigd</h2>
+                    @if (ViewBag.SuccessMessage != null)
+                    {
+                        <div class="alert alert-success" role="alert">
+                            @ViewBag.SuccessMessage
+                        </div>
+                        <a asp-controller="Home" asp-action="Index" class="btn btn-primary">Ga naar Login</a>
+                    }
+                    else if (ViewBag.ErrorMessage != null)
+                    {
+                        <div class="alert alert-danger" role="alert">
+                            @ViewBag.ErrorMessage
+                        </div>
+                        <a asp-controller="Account" asp-action="ResendConfirmation" class="btn btn-secondary">Verstuur nieuwe verificatie e-mail</a>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

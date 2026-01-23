@@ -1,11 +1,13 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
-		<!-- Target Frameworks - Agenda-master structuur -->
+		<!-- Target Frameworks -->
 		<TargetFrameworks>net9.0-android</TargetFrameworks>
-		<!-- iOS en MacCatalyst zijn uitgeschakeld (Apple niet nodig) -->
-		<!-- <TargetFrameworks>net9.0-android;net9.0-ios;net9.0-maccatalyst</TargetFrameworks> -->
 		<TargetFrameworks Condition="$([MSBuild]::IsOSPlatform('windows'))">$(TargetFrameworks);net9.0-windows10.0.19041.0</TargetFrameworks>
+		
+		<!-- Android Build Settings -->
+		<AndroidUseSharedRuntime>false</AndroidUseSharedRuntime>
+		<AndroidCreatePackagePerAbi>false</AndroidCreatePackagePerAbi>
 
 		<OutputType>Exe</OutputType>
 		<RootNamespace>BankApp_MAUI</RootNamespace>

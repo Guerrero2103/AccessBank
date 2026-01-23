@@ -1,7 +1,12 @@
+﻿@using Microsoft.AspNetCore.Mvc.Localization
+@using Microsoft.Extensions.Localization
+@using BankApp_Web.Translations
+@inject IStringLocalizer<SharedResource> _localizer
+
 @{
-    ViewData["Title"] = "Privacy";
+    ViewData["Title"] = @_localizer["Privacy"];
 }
 
 <h1>@ViewData["Title"]</h1>
 
-<p>Privacybeleid van BankApp.</p>
+<p>@_localizer["Privacybeleid van BankApp"]</p>

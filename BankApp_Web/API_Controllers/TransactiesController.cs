@@ -1,5 +1,6 @@
 using BankApp_Models;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -11,7 +12,7 @@ namespace BankApp_Web.API_Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    [Authorize]
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     public class TransactiesController : ControllerBase
     {
         private readonly AppDbContext _context;
@@ -25,7 +26,24 @@ namespace BankApp_Web.API_Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Transactie>>> GetTransacties()
         {
-            string gebruikerId = _context.Users.First(u => u.UserName == User.Identity.Name).Id;
+            // Gebruik NameIdentifier claim (userId) of fallback naar Name (userName)
+            string? userName = User.Identity?.Name;
+            string? userIdClaim = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+            
+            string gebruikerId;
+            if (!string.IsNullOrEmpty(userIdClaim))
+            {
+                gebruikerId = userIdClaim;
+            }
+            else if (!string.IsNullOrEmpty(userName))
+            {
+                var user = await _context.Users.FirstOrDefaultAsync(u => u.UserName == userName);
+                gebruikerId = user?.Id ?? "";
+            }
+            else
+            {
+                return Unauthorized();
+            }
 
             var gebruikerIbans = await _context.Rekeningen
                 .Where(r => r.GebruikerId == gebruikerId && r.Deleted == DateTime.MaxValue)
@@ -35,7 +53,7 @@ namespace BankApp_Web.API_Controllers
             var transacties = await _context.Transacties
                 .Where(t => t.Deleted == DateTime.MaxValue &&
                            (gebruikerIbans.Contains(t.VanIban) || gebruikerIbans.Contains(t.NaarIban)))
-                .Include(t => t.Gebruiker)
+                // .Include(t => t.Gebruiker)  // ← Verwijderd: MAUI app heeft Gebruiker niet nodig
                 .OrderByDescending(t => t.Datum)
                 .ToListAsync();
 
@@ -53,7 +71,7 @@ namespace BankApp_Web.API_Controllers
                 .ToListAsync();
 
             var transactie = await _context.Transacties
-                .Include(t => t.Gebruiker)
+                // .Include(t => t.Gebruiker)  // ← Verwijderd: MAUI app heeft Gebruiker niet nodig
                 .FirstOrDefaultAsync(t => t.Id == id && 
                     t.Deleted == DateTime.MaxValue &&
                     (gebruikerIbans.Contains(t.VanIban) || gebruikerIbans.Contains(t.NaarIban)));
@@ -108,8 +126,8 @@ namespace BankApp_Web.API_Controllers
         {
             var transacties = await _context.Transacties
                 .Where(t => t.Deleted == DateTime.MaxValue && t.Status == TransactieStatus.Wachtend)
-                .Include(t => t.Gebruiker)
-                .ThenInclude(g => g.Adres)
+                // .Include(t => t.Gebruiker)  // ← Verwijderd: MAUI app heeft Gebruiker niet nodig
+                // .ThenInclude(g => g.Adres)  // ← Verwijderd: MAUI app heeft Adres niet nodig
                 .OrderByDescending(t => t.Datum)
                 .ToListAsync();
 

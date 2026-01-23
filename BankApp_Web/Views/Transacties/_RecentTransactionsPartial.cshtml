@@ -1,8 +1,12 @@
-@model IEnumerable<BankApp_Models.Transactie>
+﻿@model IEnumerable<BankApp_Models.Transactie>
+@using Microsoft.AspNetCore.Mvc.Localization
+@using Microsoft.Extensions.Localization
+@using BankApp_Web.Translations
+@inject IStringLocalizer<SharedResource> _localizer
 
 @if (!Model.Any())
 {
- <div class="alert alert-info">Geen recente transacties.</div>
+ <div class="alert alert-info">@_localizer["Geen recente transacties"]</div>
 }
 else
 {
@@ -11,10 +15,10 @@ else
  {
  <li class="list-group-item d-flex justify-content-between align-items-center">
  <div>
- <strong>@t.Datum.ToString("g")</strong> &nbsp; - &nbsp; @t.NaarIban ?? t.VanIban
+ <strong>@t.Datum.ToString("g")</strong> &nbsp; - &nbsp; @(t.NaarIban ?? t.VanIban)
  <div class="small text-muted">@t.Omschrijving</div>
  </div>
- <span class="badge @(t.Status == BankApp_Models.TransactieStatus.Voltooid ? "bg-success" : (t.Status == BankApp_Models.TransactieStatus.Wachtend ? "bg-warning" : "bg-danger"))">@t.Bedrag.ToString("C")</span>
+ <span class="badge @(t.Status == BankApp_Models.TransactieStatus.Voltooid ? "bg-success" : (t.Status == BankApp_Models.TransactieStatus.Wachtend ? "bg-warning" : "bg-danger"))">€@t.Bedrag.ToString("N2")</span>
  </li>
  }
  </ul>

@@ -46,7 +46,7 @@ namespace BankApp_MAUI.ViewModels
 
         private async Task LoadRekeningenAsync()
         {
-            // Gebruik General.UserId - zoals Agenda-master
+            // Gebruik General.UserId
             var rekeningen = await _localDb.GetRekeningenAsync(General.UserId);
 
             EigenRekeningen.Clear();
@@ -98,8 +98,13 @@ namespace BankApp_MAUI.ViewModels
             try
             {
                 string userId = General.UserId;
+                if (string.IsNullOrEmpty(userId))
+                {
+                    ErrorMessage = "Gebruiker niet ingelogd";
+                    return;
+                }
 
-                // Maak nieuwe transactie
+                // Maak nieuwe transactie (altijd eerst lokaal opslaan)
                 var transactie = new LocalTransactie
                 {
                     VanIban = GeselecteerdeRekening.Iban,
@@ -112,13 +117,27 @@ namespace BankApp_MAUI.ViewModels
                     Status = Bedrag >= 500 ? "Wachtend" : "Voltooid"
                 };
 
-                // Bewaar in lokale database
+                // Bewaar in lokale database (offline-first)
                 await _localDb.SaveTransactieAsync(transactie);
+                System.Diagnostics.Debug.WriteLine($"Overschrijving opgeslagen lokaal: {transactie.Id}, IsSynced: {transactie.IsSynced}");
+
+                // Update lokaal saldo (als status Voltooid is)
+                if (transactie.Status == "Voltooid")
+                {
+                    var rekening = await _localDb.GetRekeningByIbanAsync(GeselecteerdeRekening.Iban);
+                    if (rekening != null)
+                    {
+                        rekening.Saldo -= Bedrag;
+                        await _localDb.SaveRekeningAsync(rekening);
+                        System.Diagnostics.Debug.WriteLine($"Lokaal saldo aangepast: {rekening.Saldo}");
+                    }
+                }
 
                 // Probeer direct te verzenden als er internet is
                 bool isOnline = await _synchronizer.IsOnline();
                 if (isOnline)
                 {
+                    System.Diagnostics.Debug.WriteLine("Online - probeer direct te synchroniseren");
                     var apiTransactie = new BankApp_Models.Transactie
                     {
                         VanIban = transactie.VanIban,
@@ -133,7 +152,12 @@ namespace BankApp_MAUI.ViewModels
                     if (success)
                     {
                         transactie.IsSynced = true;
+                        transactie.LastSync = DateTime.Now;
                         await _localDb.SaveTransactieAsync(transactie);
+                        System.Diagnostics.Debug.WriteLine("Overschrijving succesvol gesynchroniseerd");
+                        
+                        // Synchroniseer rekeningen om saldo bij te werken
+                        await _synchronizer.SynchronizeAll();
                         
                         SuccessMessage = Bedrag >= 500 
                             ? "Overschrijving in behandeling (€500+)" 
@@ -141,13 +165,18 @@ namespace BankApp_MAUI.ViewModels
                     }
                     else
                     {
-                        ErrorMessage = message;
+                        System.Diagnostics.Debug.WriteLine($"Synchronisatie mislukt: {message}");
+                        ErrorMessage = $"Overschrijving opgeslagen maar niet verzonden: {message}";
                     }
                 }
                 else
                 {
+                    System.Diagnostics.Debug.WriteLine("Offline - overschrijving wordt later gesynchroniseerd");
                     SuccessMessage = "Overschrijving opgeslagen (offline). Wordt verzonden bij synchronisatie.";
                 }
+
+                // Herlaad rekeningen om saldo te updaten
+                await LoadRekeningenAsync();
 
                 // Maak velden leeg
                 NaarIban = string.Empty;
