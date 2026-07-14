@@ -27,6 +27,44 @@ De app werkt zowel online als offline en synchroniseert automatisch de gegevens 
 - Identity Framework voor gebruikersbeheer
 - JWT (Json Web Token) tokens voor authenticatie
 
+## Licenties van gebruikte libraries
+
+Alle NuGet-packages die in dit project gebruikt worden zijn **MIT-gelicentieerd** — dat betekent dat ze vrij gebruikt, aangepast en herverdeeld mogen worden (ook commercieel), zolang de copyright-vermelding van de oorspronkelijke auteur behouden blijft.
+
+| Package | Versie | Licentie | Gebruikt in |
+|---|---|---|---|
+| Microsoft.EntityFrameworkCore | 9.0.0 | MIT | Models, Web, MAUI |
+| Microsoft.EntityFrameworkCore.Sqlite | 9.0.0 | MIT | Models, Web, MAUI |
+| Microsoft.EntityFrameworkCore.SqlServer | 9.0.0 | MIT | Models, Web |
+| Microsoft.EntityFrameworkCore.Design | 9.0.0 / 9.0.10 | MIT | Models, Web, WPF, Cons |
+| Microsoft.EntityFrameworkCore.Tools | 9.0.0 | MIT | Models, Web |
+| Microsoft.AspNetCore.Identity.EntityFrameworkCore | 9.0.0 / 9.0.10 | MIT | Models, WPF |
+| Microsoft.AspNetCore.Identity.UI | 9.0.0 | MIT | Web |
+| Microsoft.AspNetCore.Authentication.JwtBearer | 9.0.0 | MIT | Web |
+| Microsoft.AspNetCore.OpenApi | 9.0.11 | MIT | Web |
+| Microsoft.Extensions.Configuration.Abstractions | 9.0.10 | MIT | WPF |
+| Microsoft.Extensions.Logging.Debug | 9.0.8 | MIT | MAUI |
+| Microsoft.VisualStudio.Web.CodeGeneration.Design | 9.0.0 | MIT | Web |
+| Swashbuckle.AspNetCore.Swagger / SwaggerGen / SwaggerUI | 9.0.6 | MIT | Web |
+| System.IdentityModel.Tokens.Jwt | 8.2.1 | MIT | Web |
+| CommunityToolkit.Mvvm | 8.4.0 | MIT | MAUI |
+| Microsoft.Maui.Controls | (MauiVersion) | MIT | MAUI |
+| Newtonsoft.Json | 13.0.3 | MIT | MAUI |
+| sqlite-net-pcl | 1.8.116 | MIT | MAUI |
+
+## AI-ondersteuning bij de ontwikkeling
+
+Een deel van de code in dit project is tot stand gekomen met hulp van **Claude Code** (Anthropic), een AI-coding-assistent, onder begeleiding en met review van het team. Dit betreft specifiek:
+
+- De autorisatiecontrole in `TransactiesController.PostTransactie` (controle of `VanIban` toebehoort aan de ingelogde gebruiker) en het bijhorende testscenario in `docs/test-transactie-autorisatie.md`
+- De centrale `RegistratieService` in `BankApp_BusinessLogic`, die de drie registratiepaden (Identity Pages, `AccountController`, `AccountApiController`) samenvoegt en de ontbrekende rekening/kaart-aanmaak bij API-registratie herstelt
+- Soft-delete op `LogEntry` (property + query filter + EF Core-migratie) en de `Dummy`-objecten op de modellen
+- Rollenbeheer (blokkeren/deblokkeren) in `BankApp_WPF/AdminPagina`, het daadwerkelijk gebruiken van `SaldoCardControl` in `HoofdPagina`, en de rekening-`ComboBox` in `OverschrijvingenPagina`
+- Het consistent maken van de XAML-styling (gedeelde `Style`-resources) in `LoginPagina` en `RegistratiePagina`
+- Deze README-secties (licenties en AI-vermelding)
+
+De oorspronkelijke basisapplicatie (zie "Verdeling van het werk" hieronder) is door de drie teamleden zelf gebouwd, zonder AI-ondersteuning.
+
 ## Verdeling van het werk
 
 ### Tyvian: Gebruikersbeheer en Authenticatie
