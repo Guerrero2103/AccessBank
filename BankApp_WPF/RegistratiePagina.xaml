@@ -8,6 +8,55 @@
         WindowState="Maximized"
         Background="#000000"
         KeyDown="Window_KeyDown">
+
+    <Window.Resources>
+        <!-- Formulierlabel (boven elk invoerveld) -->
+        <Style x:Key="FormFieldLabel" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="20"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="Margin" Value="0,0,0,8"/>
+        </Style>
+
+        <!-- Invoerveld (TextBox, PasswordBox, DatePicker) -->
+        <Style x:Key="FormInputField" TargetType="Control">
+            <Setter Property="Height" Value="60"/>
+            <Setter Property="FontSize" Value="18"/>
+            <Setter Property="Background" Value="#1F2937"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="BorderBrush" Value="#4B5563"/>
+            <Setter Property="BorderThickness" Value="4"/>
+            <Setter Property="Padding" Value="15,0"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+            <Setter Property="Margin" Value="0,0,0,20"/>
+        </Style>
+
+        <!-- Terug-knop in de header -->
+        <Style x:Key="HeaderBackButton" TargetType="Button">
+            <Setter Property="Height" Value="60"/>
+            <Setter Property="Width" Value="180"/>
+            <Setter Property="FontSize" Value="20"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="Background" Value="White"/>
+            <Setter Property="Foreground" Value="Black"/>
+            <Setter Property="BorderBrush" Value="White"/>
+            <Setter Property="BorderThickness" Value="4"/>
+            <Setter Property="Cursor" Value="Hand"/>
+        </Style>
+
+        <!-- Primaire actie-knop (Account Aanmaken) -->
+        <Style x:Key="PrimaryFormButton" TargetType="Button">
+            <Setter Property="Height" Value="80"/>
+            <Setter Property="FontSize" Value="24"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="Background" Value="#9333EA"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="BorderBrush" Value="#A855F7"/>
+            <Setter Property="BorderThickness" Value="4"/>
+            <Setter Property="Cursor" Value="Hand"/>
+        </Style>
+    </Window.Resources>
+
 	<Grid Margin="30">
 		<Grid.RowDefinitions>
 			<RowDefinition Height="Auto"/>
@@ -24,15 +73,7 @@
 
 			<Button x:Name="BackButton"
                     Grid.Column="0"
-                    Height="60"
-                    Width="180"
-                    FontSize="20"
-                    FontWeight="Bold"
-                    Background="White"
-                    Foreground="Black"
-                    BorderBrush="White"
-                    BorderThickness="4"
-                    Cursor="Hand"
+                    Style="{StaticResource HeaderBackButton}"
                     Click="BackButton_Click">
 				<StackPanel Orientation="Horizontal">
 					<TextBlock Text="←" FontSize="24" Margin="0,0,10,0"/>
@@ -84,121 +125,32 @@
 						</StackPanel>
 
 						<!-- Voornaam -->
-						<TextBlock Text="Voornaam *"
-                                 FontSize="20"
-                                 FontWeight="SemiBold"
-                                 Foreground="White"
-                                 Margin="0,0,0,8"/>
-						<TextBox x:Name="VoornaamBox"
-                               Height="60"
-                               FontSize="18"
-                               Background="#1F2937"
-                               Foreground="White"
-                               BorderBrush="#4B5563"
-                               BorderThickness="4"
-                               Padding="15,0"
-                               VerticalContentAlignment="Center"
-                               Margin="0,0,0,20"/>
+						<TextBlock Text="Voornaam *" Style="{StaticResource FormFieldLabel}"/>
+						<TextBox x:Name="VoornaamBox" Style="{StaticResource FormInputField}"/>
 
 						<!-- Achternaam -->
-						<TextBlock Text="Achternaam *"
-                                 FontSize="20"
-                                 FontWeight="SemiBold"
-                                 Foreground="White"
-                                 Margin="0,0,0,8"/>
-						<TextBox x:Name="AchternaamBox"
-                               Height="60"
-                               FontSize="18"
-                               Background="#1F2937"
-                               Foreground="White"
-                               BorderBrush="#4B5563"
-                               BorderThickness="4"
-                               Padding="15,0"
-                               VerticalContentAlignment="Center"
-                               Margin="0,0,0,20"/>
+						<TextBlock Text="Achternaam *" Style="{StaticResource FormFieldLabel}"/>
+						<TextBox x:Name="AchternaamBox" Style="{StaticResource FormInputField}"/>
 
 						<!-- Email -->
-						<TextBlock Text="Email *"
-                                 FontSize="20"
-                                 FontWeight="SemiBold"
-                                 Foreground="White"
-                                 Margin="0,0,0,8"/>
-						<TextBox x:Name="EmailBox"
-                               Height="60"
-                               FontSize="18"
-                               Background="#1F2937"
-                               Foreground="White"
-                               BorderBrush="#4B5563"
-                               BorderThickness="4"
-                               Padding="15,0"
-                               VerticalContentAlignment="Center"
-                               Margin="0,0,0,20"/>
+						<TextBlock Text="Email *" Style="{StaticResource FormFieldLabel}"/>
+						<TextBox x:Name="EmailBox" Style="{StaticResource FormInputField}"/>
 
 						<!-- Wachtwoord -->
-						<TextBlock Text="Wachtwoord *"
-                                 FontSize="20"
-                                 FontWeight="SemiBold"
-                                 Foreground="White"
-                                 Margin="0,0,0,8"/>
-						<PasswordBox x:Name="WachtwoordBox"
-                                   Height="60"
-                                   FontSize="18"
-                                   Background="#1F2937"
-                                   Foreground="White"
-                                   BorderBrush="#4B5563"
-                                   BorderThickness="4"
-                                   Padding="15,0"
-                                   VerticalContentAlignment="Center"
-                                   Margin="0,0,0,20"/>
+						<TextBlock Text="Wachtwoord *" Style="{StaticResource FormFieldLabel}"/>
+						<PasswordBox x:Name="WachtwoordBox" Style="{StaticResource FormInputField}"/>
 
 						<!-- Wachtwoord Bevestigen -->
-						<TextBlock Text="Wachtwoord Bevestigen *"
-                                 FontSize="20"
-                                 FontWeight="SemiBold"
-                                 Foreground="White"
-                                 Margin="0,0,0,8"/>
-						<PasswordBox x:Name="BevestigBox"
-                                   Height="60"
-                                   FontSize="18"
-                                   Background="#1F2937"
-                                   Foreground="White"
-                                   BorderBrush="#4B5563"
-                                   BorderThickness="4"
-                                   Padding="15,0"
-                                   VerticalContentAlignment="Center"
-                                   Margin="0,0,0,20"/>
+						<TextBlock Text="Wachtwoord Bevestigen *" Style="{StaticResource FormFieldLabel}"/>
+						<PasswordBox x:Name="BevestigBox" Style="{StaticResource FormInputField}"/>
 
 						<!-- Telefoonnummer -->
-						<TextBlock Text="Telefoonnummer *"
-                                 FontSize="20"
-                                 FontWeight="SemiBold"
-                                 Foreground="White"
-                                 Margin="0,0,0,8"/>
-						<TextBox x:Name="TelefoonBox"
-                               Height="60"
-                               FontSize="18"
-                               Background="#1F2937"
-                               Foreground="White"
-                               BorderBrush="#4B5563"
-                               BorderThickness="4"
-                               Padding="15,0"
-                               VerticalContentAlignment="Center"
-                               Margin="0,0,0,20"/>
+						<TextBlock Text="Telefoonnummer *" Style="{StaticResource FormFieldLabel}"/>
+						<TextBox x:Name="TelefoonBox" Style="{StaticResource FormInputField}"/>
 
 						<!-- Geboortedatum -->
-						<TextBlock Text="Geboortedatum *"
-                                 FontSize="20"
-                                 FontWeight="SemiBold"
-                                 Foreground="White"
-                                 Margin="0,0,0,8"/>
-                        <DatePicker x:Name="GeboortePicker"
-                                Height="60"
-                                FontSize="18"
-                                Background="#1F2937"
-                                Foreground="White"
-                                BorderBrush="#4B5563"
-                                BorderThickness="4"
-                                Margin="0,0,0,20">
+						<TextBlock Text="Geboortedatum *" Style="{StaticResource FormFieldLabel}"/>
+                        <DatePicker x:Name="GeboortePicker" Style="{StaticResource FormInputField}">
                             <DatePicker.Resources>
                                 <Style TargetType="DatePickerTextBox">
                                     <Setter Property="Foreground" Value="White"/>
@@ -215,21 +167,8 @@
 
                         <!-- Adres -->
                         <!-- Straatnaam -->
-                        <TextBlock Text="Straatnaam *"
-                                FontSize="20"
-                                FontWeight="SemiBold"
-                                Foreground="White"
-                                Margin="0,0,0,8"/>
-                        <TextBox x:Name="StraatBox"
-                                Height="60"
-                                FontSize="18"
-                                Background="#1F2937"
-                                Foreground="White"
-                                BorderBrush="#4B5563"
-                                BorderThickness="4"
-                                Padding="15,0"
-                                VerticalContentAlignment="Center"
-                                Margin="0,0,0,20"/>
+                        <TextBlock Text="Straatnaam *" Style="{StaticResource FormFieldLabel}"/>
+                        <TextBox x:Name="StraatBox" Style="{StaticResource FormInputField}"/>
 
                         <!-- Huisnummer en Bus -->
                         <Grid Margin="0,0,0,20">
@@ -240,107 +179,38 @@
                             </Grid.ColumnDefinitions>
 
                             <StackPanel Grid.Column="0">
-                                <TextBlock Text="Huisnummer *"
-                                        FontSize="20"
-                                        FontWeight="SemiBold"
-                                        Foreground="White"
-                                        Margin="0,0,0,8"/>
-                                <TextBox x:Name="HuisnrBox"
-                                        Height="60"
-                                        FontSize="18"
-                                        Background="#1F2937"
-                                        Foreground="White"
-                                        BorderBrush="#4B5563"
-                                        BorderThickness="4"
-                                        Padding="15,0"
-                                        VerticalContentAlignment="Center"/>
+                                <TextBlock Text="Huisnummer *" Style="{StaticResource FormFieldLabel}"/>
+                                <TextBox x:Name="HuisnrBox" Style="{StaticResource FormInputField}" Margin="0"/>
                             </StackPanel>
 
                             <StackPanel Grid.Column="2">
-                                <TextBlock Text="Bus (optioneel)"
-                                        FontSize="20"
-                                        FontWeight="SemiBold"
-                                        Foreground="White"
-                                        Margin="0,0,0,8"/>
-                                <TextBox x:Name="BusBox"
-                                        Height="60"
-                                        FontSize="18"
-                                        Background="#1F2937"
-                                        Foreground="White"
-                                        BorderBrush="#4B5563"
-                                        BorderThickness="4"
-                                        Padding="15,0"
-                                        VerticalContentAlignment="Center"/>
+                                <TextBlock Text="Bus (optioneel)" Style="{StaticResource FormFieldLabel}"/>
+                                <TextBox x:Name="BusBox" Style="{StaticResource FormInputField}" Margin="0"/>
                             </StackPanel>
                         </Grid>
 
                         <!-- Postcode -->
-                        <TextBlock Text="Postcode *"
-                                FontSize="20"
-                                FontWeight="SemiBold"
-                                Foreground="White"
-                                Margin="0,0,0,8"/>
-                        <TextBox x:Name="PostcodeBox"
-                                Height="60"
-                                FontSize="18"
-                                Background="#1F2937"
-                                Foreground="White"
-                                BorderBrush="#4B5563"
-                                BorderThickness="4"
-                                Padding="15,0"
-                                VerticalContentAlignment="Center"
-                                Margin="0,0,0,20"/>
+                        <TextBlock Text="Postcode *" Style="{StaticResource FormFieldLabel}"/>
+                        <TextBox x:Name="PostcodeBox" Style="{StaticResource FormInputField}"/>
 
                         <!-- Gemeente -->
-                        <TextBlock Text="Gemeente *"
-                                FontSize="20"
-                                FontWeight="SemiBold"
-                                Foreground="White"
-                                Margin="0,0,0,8"/>
-                        <TextBox x:Name="GemeenteBox"
-                                Height="60"
-                                FontSize="18"
-                                Background="#1F2937"
-                                Foreground="White"
-                                BorderBrush="#4B5563"
-                                BorderThickness="4"
-                                Padding="15,0"
-                                VerticalContentAlignment="Center"
-                                Margin="0,0,0,20"/>
+                        <TextBlock Text="Gemeente *" Style="{StaticResource FormFieldLabel}"/>
+                        <TextBox x:Name="GemeenteBox" Style="{StaticResource FormInputField}"/>
 
                         <!-- Land -->
-                        <TextBlock Text="Land *"
-                                FontSize="20"
-                                FontWeight="SemiBold"
-                                Foreground="White"
-                                Margin="0,0,0,8"/>
-                        <TextBox x:Name="LandBox"
-                                Height="60"
-                                FontSize="18"
-                                Background="#1F2937"
-                                Foreground="White"
-                                BorderBrush="#4B5563"
-                                BorderThickness="4"
-                                Padding="15,0"
-                                VerticalContentAlignment="Center"
-                                Margin="0,0,0,30"/>
+                        <TextBlock Text="Land *" Style="{StaticResource FormFieldLabel}"/>
+                        <TextBox x:Name="LandBox" Style="{StaticResource FormInputField}" Margin="0,0,0,30"/>
 
-                        <TextBlock Text="Uw IBAN en kaartnummer worden automatisch toegewezen na succesvolle registratie" 
-                                   Foreground="#9CA3AF" 
-                                   FontSize="16" 
-                                   TextWrapping="Wrap" 
-                                   Margin="0,0,0,30" 
+                        <TextBlock Text="Uw IBAN en kaartnummer worden automatisch toegewezen na succesvolle registratie"
+                                   Foreground="#9CA3AF"
+                                   FontSize="16"
+                                   TextWrapping="Wrap"
+                                   Margin="0,0,0,30"
                                    HorizontalAlignment="Center"/>
 
                         <!-- Registreer Knop -->
 						<Button x:Name="RegistreerBtn"
-                              Height="80"
-                              FontSize="24"
-                              FontWeight="Bold"
-                              Background="#9333EA"
-                              Foreground="White"
-                              BorderBrush="#A855F7"
-                              BorderThickness="4"
+                              Style="{StaticResource PrimaryFormButton}"
                               Cursor="Hand"
                               Content="Account Aanmaken"
                                 Click="RegistreerBtn_Click"/>

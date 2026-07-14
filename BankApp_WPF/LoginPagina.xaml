@@ -1,4 +1,4 @@
-﻿<Window x:Class="BankApp_WPF.LoginPagina"
+<Window x:Class="BankApp_WPF.LoginPagina"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         Title="AccessBank - Login"
@@ -8,6 +8,30 @@
         WindowState="Maximized"
         Background="#000000"
         >
+
+    <Window.Resources>
+        <!-- Formulierlabel (boven elk invoerveld) -->
+        <Style x:Key="LoginFieldLabel" TargetType="TextBlock">
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="FontSize" Value="16"/>
+        </Style>
+
+        <!-- Invoerveld (TextBox, PasswordBox) -->
+        <Style x:Key="LoginInputField" TargetType="Control">
+            <Setter Property="Height" Value="35"/>
+            <Setter Property="Margin" Value="0,5,0,15"/>
+            <Setter Property="FontSize" Value="16"/>
+        </Style>
+
+        <!-- Actieknop (kleur wordt per knop lokaal overschreven) -->
+        <Style x:Key="LoginActionButton" TargetType="Button">
+            <Setter Property="Height" Value="40"/>
+            <Setter Property="FontSize" Value="16"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Margin" Value="0,0,10,0"/>
+        </Style>
+    </Window.Resources>
 
     <Grid>
         <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Width="400">
@@ -21,22 +45,14 @@
                        HorizontalAlignment="Center"/>
 
             <!-- E-mail -->
-            <TextBlock Text="E-mail:"
-                       Foreground="White"
-                       FontSize="16"/>
+            <TextBlock Text="E-mail:" Style="{StaticResource LoginFieldLabel}"/>
             <TextBox x:Name="TxtEmail"
-                     Height="35"
-                     Margin="0,5,0,15"
-                     FontSize="16"/>
+                     Style="{StaticResource LoginInputField}"/>
 
             <!-- Wachtwoord -->
-            <TextBlock Text="Wachtwoord:"
-                       Foreground="White"
-                       FontSize="16"/>
+            <TextBlock Text="Wachtwoord:" Style="{StaticResource LoginFieldLabel}"/>
             <PasswordBox x:Name="TxtPassword"
-                         Height="35"
-                         Margin="0,5,0,15"
-                         FontSize="16"
+                         Style="{StaticResource LoginInputField}"
                          KeyDown="TxtPassword_KeyDown"/>
 
             <!-- Foutmelding -->
@@ -51,33 +67,24 @@
                 <Button x:Name="BtnLogin"
                         Content="Inloggen"
                         Width="120"
-                        Height="40"
-                        FontSize="16"
+                        Style="{StaticResource LoginActionButton}"
                         Background="#10B981"
-                        Foreground="White"
-                        BorderThickness="0"
-                        Margin="0,0,10,0"
                         Click="BtnLogin_Click"/>
 
                 <Button x:Name="BtnBack"
                         Content="Terug"
                         Width="100"
-                        Height="40"
-                        FontSize="16"
+                        Style="{StaticResource LoginActionButton}"
                         Background="#1E88E5"
-                        Foreground="White"
-                        BorderThickness="0"
-                        Margin="0,0,10,0"
                         Click="BtnBack_Click"/>
 
                 <Button x:Name="BtnTheme"
                         Content="☀"
                         Width="60"
-                        Height="40"
                         FontSize="20"
+                        Style="{StaticResource LoginActionButton}"
                         Background="#FDB022"
-                        Foreground="White"
-                        BorderThickness="0"
+                        Margin="0"
                         Click="BtnTheme_Click"/>
             </StackPanel>
 
