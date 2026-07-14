@@ -195,7 +195,7 @@ Je kan de app testen met deze gebruikers:
 
 **Admin Account:**
 - Email: admin@bankapp.local
-- Wachtwoord: Password123!
+- Wachtwoord: Admin123!
 - Rol: Admin (volledige toegang)
 
 ## Screenshots

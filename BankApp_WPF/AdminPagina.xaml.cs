@@ -473,6 +473,85 @@ namespace BankApp_WPF
 
 
 
+        // Gebruiker blokkeren (zelfde aanpak als AdminController.BlokkeerGebruikerConfirmed)
+        private void BtnGebruikerBlokkeren_Click(object sender, RoutedEventArgs e)
+        {
+            Button btn = (Button)sender;
+            string gebruikerId = btn.Tag.ToString();
+
+            var result = MessageBox.Show(
+                $"Gebruiker {gebruikerId} blokkeren?",
+                "Bevestigen",
+                MessageBoxButton.YesNo,
+                MessageBoxImage.Warning);
+
+            if (result == MessageBoxResult.Yes)
+            {
+                try
+                {
+                    using (var context = new AppDbContext())
+                    {
+                        var gebruiker = context.Users.FirstOrDefault(g => g.Id == gebruikerId);
+                        if (gebruiker != null)
+                        {
+                            gebruiker.LockoutEnd = DateTimeOffset.UtcNow.AddYears(100);
+                            context.SaveChanges();
+
+                            MessageBox.Show($"Gebruiker {gebruikerId} is geblokkeerd!",
+                                "Succes", MessageBoxButton.OK, MessageBoxImage.Information);
+
+                            LaadKlanten();
+                        }
+                        else
+                        {
+                            MessageBox.Show("Gebruiker niet gevonden!",
+                                "Fout", MessageBoxButton.OK, MessageBoxImage.Error);
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"Fout bij blokkeren gebruiker: {ex.Message}",
+                        "Database Fout", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
+            }
+        }
+
+        // Gebruiker deblokkeren (zelfde aanpak als AdminController.DeBlokkeerGebruiker)
+        private void BtnGebruikerDeblokkeren_Click(object sender, RoutedEventArgs e)
+        {
+            Button btn = (Button)sender;
+            string gebruikerId = btn.Tag.ToString();
+
+            try
+            {
+                using (var context = new AppDbContext())
+                {
+                    var gebruiker = context.Users.FirstOrDefault(g => g.Id == gebruikerId);
+                    if (gebruiker != null)
+                    {
+                        gebruiker.LockoutEnd = null;
+                        context.SaveChanges();
+
+                        MessageBox.Show($"Gebruiker {gebruikerId} is gedeblokkeerd!",
+                            "Succes", MessageBoxButton.OK, MessageBoxImage.Information);
+
+                        LaadKlanten();
+                    }
+                    else
+                    {
+                        MessageBox.Show("Gebruiker niet gevonden!",
+                            "Fout", MessageBoxButton.OK, MessageBoxImage.Error);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Fout bij deblokkeren gebruiker: {ex.Message}",
+                    "Database Fout", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
         // Annuleren knop - leeg formulier
         private void BtnAnnuleren_Click(object sender, RoutedEventArgs e)
         {

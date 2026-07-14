@@ -40,6 +40,22 @@ namespace BankApp_Models
         // Identity Framework - Optionele user link
         public string? GebruikerId { get; set; }
         public BankUser? Gebruiker { get; set; }
+
+        // Databank - Dummy record
+        public static readonly KlantBericht Dummy = new()
+        {
+            Id = -1,
+            Naam = "-",
+            Email = "-",
+            Onderwerp = "-",
+            Bericht = "-",
+            Datum = DateTime.MinValue,
+            Status = "-",
+            BehandeldDoor = null,
+            BehandeldOp = null,
+            Deleted = DateTime.MaxValue,
+            GebruikerId = "-"
+        };
     }
 }
 

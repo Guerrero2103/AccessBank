@@ -83,6 +83,24 @@
                                      VerticalAlignment="Center"/>
 						</StackPanel>
 
+						<!-- Vanaf rekening -->
+						<TextBlock Text="Vanaf rekening *"
+                                 FontSize="20"
+                                 FontWeight="SemiBold"
+                                 Foreground="White"
+                                 Margin="0,0,0,8"/>
+						<ComboBox x:Name="cmbVanRekening"
+                               Height="60"
+                               FontSize="18"
+                               Background="#1F2937"
+                               Foreground="White"
+                               BorderBrush="#4B5563"
+                               BorderThickness="4"
+                               Padding="15,0"
+                               VerticalContentAlignment="Center"
+                               DisplayMemberPath="Iban"
+                               Margin="0,0,0,20"/>
+
 						<!-- IBAN van ontvanger -->
 						<TextBlock Text="IBAN van ontvanger *"
                                  FontSize="20"

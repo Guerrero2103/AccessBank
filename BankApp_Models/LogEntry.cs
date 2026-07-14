@@ -31,6 +31,23 @@ namespace BankApp_Models
         // Identity Framework - Optionele user link
         public string? GebruikerId { get; set; }
         public BankUser? Gebruiker { get; set; }
+
+        // Databank - Soft delete verplicht
+        public DateTime Deleted { get; set; } = DateTime.MaxValue;
+
+        // Databank - Dummy record
+        public static readonly LogEntry Dummy = new()
+        {
+            Id = -1,
+            TimeStamp = DateTime.MinValue,
+            Application = "-",
+            LogLevel = "-",
+            Message = "-",
+            ExceptionMessage = null,
+            StackTrace = null,
+            GebruikerId = "-",
+            Deleted = DateTime.MaxValue
+        };
     }
 }
 

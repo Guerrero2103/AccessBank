@@ -59,6 +59,7 @@ namespace BankApp_Models
             modelBuilder.Entity<Kaart>().HasQueryFilter(k => k.Deleted == DateTime.MaxValue);
             modelBuilder.Entity<Transactie>().HasQueryFilter(t => t.Deleted == DateTime.MaxValue);
             modelBuilder.Entity<KlantBericht>().HasQueryFilter(kb => kb.Deleted == DateTime.MaxValue);
+            modelBuilder.Entity<LogEntry>().HasQueryFilter(l => l.Deleted == DateTime.MaxValue);
 
             // === RELATIES ===
             modelBuilder.Entity<BankUser>()

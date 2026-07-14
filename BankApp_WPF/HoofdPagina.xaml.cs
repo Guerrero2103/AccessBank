@@ -131,15 +131,17 @@ namespace BankApp_WPF
                     var totaalSaldo = await rekeningService.GetTotaalSaldoAsync(gebruikerId);
                     Console.WriteLine($"Totaal saldo: €{totaalSaldo}");
 
-                    // Toon saldo op scherm
-                    lblTotalSaldo.Content = $"€{totaalSaldo:N2}";
-
-                    // Toon rekeningnummer
+                    // Toon saldo op scherm via SaldoCardControl
                     var zichtRekening = rekeningen.FirstOrDefault();
+
+                    SaldoCard.DataContext = new Rekening
+                    {
+                        Iban = zichtRekening?.Iban ?? "-",
+                        Saldo = totaalSaldo
+                    };
 
                     if (zichtRekening != null)
                     {
-                        lblAccountNumber.Content = $"Zichtrekening {zichtRekening.Iban}";
                         Console.WriteLine($"Zichtrekening: {zichtRekening.Iban}");
                     }
 
@@ -159,8 +161,7 @@ namespace BankApp_WPF
                     MessageBoxImage.Error);
 
                 // Zet standaard waarden
-                lblTotalSaldo.Content = "€0.00";
-                lblAccountNumber.Content = "Geen rekening";
+                SaldoCard.DataContext = new Rekening { Iban = "Geen rekening", Saldo = 0 };
             }
         }
 

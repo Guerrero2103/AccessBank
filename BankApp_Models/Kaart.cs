@@ -28,6 +28,16 @@ namespace BankApp_Models
         // Entity Framework - Relatie gebruiker (Identity Framework)
         public string GebruikerId { get; set; } = string.Empty;
         public BankUser Gebruiker { get; set; } = null!;
+
+        // Databank - Dummy kaart
+        public static readonly Kaart Dummy = new()
+        {
+            Id = -1,
+            KaartNummer = "-",
+            Status = KaartStatus.Geblokkeerd,
+            Deleted = DateTime.MaxValue,
+            GebruikerId = "-"
+        };
     }
 }
 

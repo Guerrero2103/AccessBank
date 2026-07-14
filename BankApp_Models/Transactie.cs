@@ -45,6 +45,21 @@ namespace BankApp_Models
         // Identity Frameworks - Uitvoerder
         public string? GebruikerId { get; set; }
         public BankUser? Gebruiker { get; set; }
+
+        // Databank - Dummy record
+        public static readonly Transactie Dummy = new()
+        {
+            Id = -1,
+            VanIban = "-",
+            NaarIban = "-",
+            NaamOntvanger = "-",
+            Bedrag = 0,
+            Omschrijving = "-",
+            Datum = DateTime.MinValue,
+            Status = TransactieStatus.Afgewezen,
+            Deleted = DateTime.MaxValue,
+            GebruikerId = "-"
+        };
     }
 }
 

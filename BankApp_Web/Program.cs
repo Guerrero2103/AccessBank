@@ -1,3 +1,4 @@
+using BankApp_BusinessLogic;
 using BankApp_Models;
 using BankApp_Web.Services;
 using Microsoft.AspNetCore.Identity;
@@ -52,6 +53,8 @@ builder.Services.AddIdentity<BankUser, IdentityRole>(options =>
 
 // Custom IdentityErrorDescriber voor meertalige foutmeldingen
 builder.Services.AddScoped<IdentityErrorDescriber, LocalizedIdentityErrorDescriber>();
+builder.Services.AddScoped<IRekeningService, RekeningService>();
+builder.Services.AddScoped<IRegistratieService, RegistratieService>();
 
 // Configureer SignInManager om email te accepteren
 builder.Services.Configure<IdentityOptions>(options =>

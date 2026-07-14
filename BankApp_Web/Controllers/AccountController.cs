@@ -1,3 +1,4 @@
+using BankApp_BusinessLogic;
 using BankApp_Models;
 using BankApp_Web.Translations;
 using BankApp_Web.Models;
@@ -23,6 +24,7 @@ namespace BankApp_Web.Controllers
         private readonly AppDbContext _context;
         private readonly RoleManager<IdentityRole> _roleManager;
         private readonly Microsoft.Extensions.Localization.IStringLocalizer<BankApp_Web.Translations.SharedResource> _localizer;
+        private readonly IRegistratieService _registratieService;
 
         public AccountController(
             UserManager<BankUser> userManager,
@@ -30,7 +32,8 @@ namespace BankApp_Web.Controllers
             ILogger<AccountController> logger,
             AppDbContext context,
             RoleManager<IdentityRole> roleManager,
-            Microsoft.Extensions.Localization.IStringLocalizer<BankApp_Web.Translations.SharedResource> localizer)
+            Microsoft.Extensions.Localization.IStringLocalizer<BankApp_Web.Translations.SharedResource> localizer,
+            IRegistratieService registratieService)
         {
             _userManager = userManager;
             _signInManager = signInManager;
@@ -38,6 +41,7 @@ namespace BankApp_Web.Controllers
             _context = context;
             _roleManager = roleManager;
             _localizer = localizer;
+            _registratieService = registratieService;
         }
 
         // GET: Account/Login
@@ -138,88 +142,33 @@ namespace BankApp_Web.Controllers
                 return View(model);
             }
 
-            // Controleer of email al bestaat
-            if (await _context.Users.AnyAsync(u => u.Email == model.Email))
+            var resultaat = await _registratieService.RegistreerAsync(new RegistratieGegevens
             {
-                ModelState.AddModelError("Email", _localizer["Er bestaat al een account met dit e-mailadres."]);
-                return View(model);
-            }
-
-            // Maak adres aan
-            var adres = new Adres
-            {
-                Straat = model.Straat,
-                Huisnummer = model.Huisnummer,
-                Bus = string.IsNullOrWhiteSpace(model.Bus) ? null : model.Bus,
-                Postcode = model.Postcode,
-                Gemeente = model.Gemeente,
-                Land = model.Land ?? "België"
-            };
-            _context.Adressen.Add(adres);
-            await _context.SaveChangesAsync();
-
-            // Maak gebruiker aan
-            var gebruiker = new BankUser
-            {
-                UserName = model.Email,
                 Email = model.Email,
-                EmailConfirmed = true,
+                Wachtwoord = model.Wachtwoord,
                 Voornaam = model.Voornaam,
                 Achternaam = model.Achternaam,
                 Telefoonnummer = model.Telefoonnummer,
-                Geboortedatum = model.Geboortedatum.Value,
-                AdresId = adres.Id,
-                Adres = adres
-            };
+                Geboortedatum = model.Geboortedatum,
+                Straat = model.Straat,
+                Huisnummer = model.Huisnummer,
+                Bus = model.Bus,
+                Postcode = model.Postcode,
+                Gemeente = model.Gemeente,
+                Land = model.Land
+            });
 
-            var result = await _userManager.CreateAsync(gebruiker, model.Wachtwoord);
-            if (!result.Succeeded)
+            if (!resultaat.Succes || resultaat.Gebruiker == null)
             {
-                foreach (var error in result.Errors)
+                foreach (var fout in resultaat.Fouten)
                 {
-                    ModelState.AddModelError(string.Empty, error.Description);
+                    ModelState.AddModelError(string.Empty, fout);
                 }
                 return View(model);
             }
 
-            // Voeg rol "Klant" toe
-            if (await _roleManager.RoleExistsAsync("Klant"))
-            {
-                await _userManager.AddToRoleAsync(gebruiker, "Klant");
-            }
-
-            // Maak rekening aan
-            var nieuweRekening = new Rekening
-            {
-                Iban = "BE" + DateTime.Now.Ticks.ToString().Substring(0, 10),
-                Saldo = 0.0m,
-                GebruikerId = gebruiker.Id,
-                Deleted = DateTime.MaxValue
-            };
-            _context.Rekeningen.Add(nieuweRekening);
-            await _context.SaveChangesAsync();
-
-            // Maak kaart aan
-            try
-            {
-                string kaartNummer = GenereerUniekKaartNummer();
-                var nieuweKaart = new Kaart
-                {
-                    KaartNummer = kaartNummer,
-                    Status = KaartStatus.Actief,
-                    GebruikerId = gebruiker.Id,
-                    Deleted = DateTime.MaxValue
-                };
-                _context.Kaarten.Add(nieuweKaart);
-                await _context.SaveChangesAsync();
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Fout bij aanmaken kaart voor gebruiker {Email}", gebruiker.Email);
-            }
-
             // Log gebruiker automatisch in
-            await _signInManager.SignInAsync(gebruiker, isPersistent: false);
+            await _signInManager.SignInAsync(resultaat.Gebruiker, isPersistent: false);
             _logger.LogInformation("Nieuwe gebruiker geregistreerd: {Email}", model.Email);
 
             return RedirectToAction("Index", "Home");
@@ -463,44 +412,6 @@ namespace BankApp_Web.Controllers
 
         private bool HeeftHoofdletterEnCijfer(string wachtwoord) =>
             Regex.IsMatch(wachtwoord, @"[A-Z]") && Regex.IsMatch(wachtwoord, @"\d");
-
-        private string GenereerKaartNummer()
-        {
-            byte[] bytes = new byte[8];
-            using (var rng = RandomNumberGenerator.Create())
-            {
-                rng.GetBytes(bytes);
-            }
-            
-            StringBuilder sb = new StringBuilder();
-            for (int i = 0; i < 4; i++)
-            {
-                if (i > 0) sb.Append("-");
-                sb.Append(BitConverter.ToUInt16(bytes, i * 2).ToString("D4"));
-            }
-            return sb.ToString();
-        }
-
-        private string GenereerUniekKaartNummer()
-        {
-            string kaartNummer;
-            int maxPogingen = 100;
-            int poging = 0;
-
-            do
-            {
-                kaartNummer = GenereerKaartNummer();
-                poging++;
-
-                bool bestaatAl = _context.Kaarten.Any(k => k.KaartNummer == kaartNummer);
-                if (!bestaatAl)
-                {
-                    return kaartNummer;
-                }
-            } while (poging < maxPogingen);
-
-            return GenereerKaartNummer() + "-" + DateTime.Now.Ticks.ToString().Substring(Math.Max(0, DateTime.Now.Ticks.ToString().Length - 4));
-        }
 
         // GET: Account/ConfirmEmail
         [HttpGet]

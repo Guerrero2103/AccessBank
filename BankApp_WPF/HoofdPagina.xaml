@@ -1,6 +1,7 @@
 ﻿<Window x:Class="BankApp_WPF.HoofdPagina"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:custom="clr-namespace:BankApp_WPF.CustomControls"
         Title="AccessBank"
         Height="900"
         Width="1600"
@@ -77,23 +78,7 @@
                 <!-- Saldo Card -->
                 <Border Style="{StaticResource SaldoCard}">
                     <StackPanel>
-                        <Label Content="Huidig Saldo"
-                               FontSize="22"
-                               Foreground="#000000"
-                               Margin="0,0,0,10"/>
-
-                        <Label x:Name="lblTotalSaldo"
-                               Content="€12543.75"
-                               FontSize="72"
-                               FontWeight="Bold"
-                               Foreground="#000000"
-                               Margin="0,0,0,10"/>
-
-                        <Label x:Name="lblAccountNumber"
-                               Content="Zichtrekening •••• 4892"
-                               FontSize="18"
-                               Foreground="#000000"
-                               Opacity="0.8"/>
+                        <custom:SaldoCardControl x:Name="SaldoCard"/>
 
                         <!-- Saldo Raadplegen Button -->
                         <Button Content="Saldo Raadplegen →"

@@ -2,6 +2,7 @@
 using BankApp_Models;
 using System;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
 using Microsoft.EntityFrameworkCore;
@@ -24,6 +25,33 @@ namespace BankApp_WPF
             this.KeyDown += Window_KeyDown;
             this.Focusable = true;
             this.Focus();
+
+            _ = LaadEigenRekeningenAsync();
+        }
+
+        // Vult de "Vanaf rekening"-ComboBox met de eigen rekeningen van de ingelogde gebruiker
+        private async Task LaadEigenRekeningenAsync()
+        {
+            try
+            {
+                using (var context = new AppDbContext())
+                {
+                    var rekeningService = new RekeningService(context);
+                    var gebruikerId = UserSession.IngelogdeGebruiker!.Id;
+                    var eigenRekeningen = await rekeningService.GetRekeningenByGebruikerIdAsync(gebruikerId);
+
+                    cmbVanRekening.ItemsSource = eigenRekeningen;
+                    if (eigenRekeningen.Any())
+                    {
+                        cmbVanRekening.SelectedIndex = 0;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Fout bij laden van je rekeningen: {ex.Message}", "Fout",
+                    MessageBoxButton.OK, MessageBoxImage.Error);
+            }
         }
         private void Window_KeyDown(object sender, KeyEventArgs e)
         {
@@ -59,6 +87,13 @@ namespace BankApp_WPF
         private async void BtnVerzenden_Click(object sender, RoutedEventArgs e)
         {
             // Validaties
+            if (cmbVanRekening.SelectedItem is not Rekening vanRekening)
+            {
+                MessageBox.Show("Kies een rekening om vanaf over te schrijven.", "Validatiefout",
+                    MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
             if (string.IsNullOrWhiteSpace(txtIban.Text))
             {
                 MessageBox.Show("Voer een IBAN in.", "Validatiefout",
@@ -106,20 +141,7 @@ namespace BankApp_WPF
                 using (var context = new AppDbContext())
                 {
                     var transactieService = new TransactieService(context);
-                    var rekeningService = new RekeningService(context);
-
                     var gebruikerId = UserSession.IngelogdeGebruiker!.Id;
-                    var gebruikerRekeningen = await rekeningService
-                        .GetRekeningenByGebruikerIdAsync(gebruikerId);
-
-                    var vanRekening = gebruikerRekeningen.FirstOrDefault();
-
-                    if (vanRekening == null)
-                    {
-                        MessageBox.Show("Je hebt geen rekening.",
-                            "Geen rekening", MessageBoxButton.OK, MessageBoxImage.Error);
-                        return;
-                    }
 
                     var (succes, bericht, transactie) = await transactieService.MaakOverschrijvingAsync(
                         vanIban: vanRekening.Iban,

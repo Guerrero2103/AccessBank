@@ -26,6 +26,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\BankApp_Models\BankApp_Models.csproj" />
+    <ProjectReference Include="..\BankApp_BusinessLogic\BankApp_BusinessLogic.csproj" />
   </ItemGroup>
 
   <ItemGroup>

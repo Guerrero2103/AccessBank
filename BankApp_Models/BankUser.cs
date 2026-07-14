@@ -116,6 +116,19 @@ namespace BankApp_Models
             }
         }
 
+        // Databank - Dummy record
+        public static readonly BankUser Dummy = new()
+        {
+            Id = "-1",
+            UserName = "-",
+            Email = "-",
+            Voornaam = "-",
+            Achternaam = "-",
+            Telefoonnummer = "-",
+            Geboortedatum = DateTime.MinValue,
+            Deleted = DateTime.MaxValue
+        };
+
         // Seeder methode voor Identity Framework
         public static async Task Seeder(AppDbContext context)
         {

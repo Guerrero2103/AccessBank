@@ -1,3 +1,4 @@
+using BankApp_BusinessLogic;
 using BankApp_Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -19,19 +20,22 @@ namespace BankApp_Web.API_Controllers
         private readonly IConfiguration _configuration;
         private readonly ILogger<AccountApiController> _logger;
         private readonly IStringLocalizer<SharedResource> _localizer;
+        private readonly IRegistratieService _registratieService;
 
         public AccountApiController(
             UserManager<BankUser> userManager,
             SignInManager<BankUser> signInManager,
             IConfiguration configuration,
             ILogger<AccountApiController> logger,
-            IStringLocalizer<SharedResource> localizer)
+            IStringLocalizer<SharedResource> localizer,
+            IRegistratieService registratieService)
         {
             _userManager = userManager;
             _signInManager = signInManager;
             _configuration = configuration;
             _logger = logger;
             _localizer = localizer;
+            _registratieService = registratieService;
         }
 
         // Inloggen
@@ -96,38 +100,26 @@ namespace BankApp_Web.API_Controllers
                 return BadRequest(new { message = _localizer["Ongeldige gegevens"] });
             }
 
-            // Controleer of email al bestaat
-            var existingUser = await _userManager.FindByEmailAsync(request.Email);
-            if (existingUser != null)
+            var resultaat = await _registratieService.RegistreerAsync(new RegistratieGegevens
             {
-                return BadRequest(new { message = _localizer["Email is al in gebruik"] });
-            }
-
-            var user = new BankUser
-            {
-                UserName = request.Email.Split('@')[0],
                 Email = request.Email,
+                Wachtwoord = request.Password,
                 Voornaam = request.Voornaam,
-                Achternaam = request.Achternaam,
-                EmailConfirmed = true // E-mail verificatie niet vereist
-            };
+                Achternaam = request.Achternaam
+            });
 
-            var result = await _userManager.CreateAsync(user, request.Password);
-
-            if (!result.Succeeded)
+            if (!resultaat.Succes || resultaat.Gebruiker == null)
             {
-                return BadRequest(new { message = string.Join(", ", result.Errors.Select(e => e.Description)) });
+                return BadRequest(new { message = string.Join(", ", resultaat.Fouten) });
             }
 
-            // Geef gebruiker de rol "Klant"
-            await _userManager.AddToRoleAsync(user, "Klant");
+            var user = resultaat.Gebruiker;
 
             // Maak inlogtoken aan
             var token = await GenerateJwtToken(user);
 
-
-            return Ok(new 
-            { 
+            return Ok(new
+            {
                 message = "Registratie succesvol!",
 
                 token = token,

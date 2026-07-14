@@ -215,7 +215,7 @@ namespace BankApp_WPF
             if (WachtwoordBox.Password.Length < 8)
                 sb.AppendLine("• Wachtwoord moet minimaal 8 tekens bevatten.");
             else if (!HeeftHoofdletterEnCijfer(WachtwoordBox.Password))
-                sb.AppendLine("• Wachtwoord moet minimaal 1 hoofdletter en 1 cijfer bevatten.");
+                sb.AppendLine("• Wachtwoord moet minimaal 1 hoofdletter, 1 kleine letter, 1 cijfer en 1 speciaal teken bevatten.");
 
             if (WachtwoordBox.Password != BevestigBox.Password)
                 sb.AppendLine("• Wachtwoorden komen niet overeen.");
@@ -263,7 +263,10 @@ namespace BankApp_WPF
         }
 
         private bool HeeftHoofdletterEnCijfer(string wachtwoord) =>
-            Regex.IsMatch(wachtwoord, @"[A-Z]") && Regex.IsMatch(wachtwoord, @"\d");
+            Regex.IsMatch(wachtwoord, @"[A-Z]") &&
+            Regex.IsMatch(wachtwoord, @"[a-z]") &&
+            Regex.IsMatch(wachtwoord, @"\d") &&
+            Regex.IsMatch(wachtwoord, @"[^a-zA-Z0-9]");
 
         private void MaakVeldenLeeg()
         {

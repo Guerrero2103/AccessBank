@@ -521,6 +521,24 @@
                                                                 Tag="{Binding Id}">
                                                             🗑️ Verwijderen
                                                         </Button>
+                                                        <Button Background="#fbbf24"
+                                                                Foreground="White"
+                                                                Padding="15,8"
+                                                                Margin="5"
+                                                                Cursor="Hand"
+                                                                Click="BtnGebruikerBlokkeren_Click"
+                                                                Tag="{Binding Id}">
+                                                            🔒 Blokkeren
+                                                        </Button>
+                                                        <Button Background="#22c55e"
+                                                                Foreground="White"
+                                                                Padding="15,8"
+                                                                Margin="5"
+                                                                Cursor="Hand"
+                                                                Click="BtnGebruikerDeblokkeren_Click"
+                                                                Tag="{Binding Id}">
+                                                            🔓 Deblokkeren
+                                                        </Button>
                                                     </StackPanel>
                                                 </Grid>
                                             </Border>
