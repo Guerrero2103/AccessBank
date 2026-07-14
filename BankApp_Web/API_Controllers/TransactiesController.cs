@@ -89,6 +89,20 @@ namespace BankApp_Web.API_Controllers
         public async Task<ActionResult<Transactie>> PostTransactie(Transactie transactie)
         {
             string gebruikerId = _context.Users.First(u => u.UserName == User.Identity.Name).Id;
+
+            var vanRekening = await _context.Rekeningen
+                .FirstOrDefaultAsync(r => r.Iban == transactie.VanIban && r.Deleted == DateTime.MaxValue);
+
+            if (vanRekening == null)
+            {
+                return BadRequest("Rekening niet gevonden");
+            }
+
+            if (vanRekening.GebruikerId != gebruikerId)
+            {
+                return Forbid(JwtBearerDefaults.AuthenticationScheme);
+            }
+
             transactie.GebruikerId = gebruikerId;
             transactie.Datum = DateTime.Now;
             transactie.Status = transactie.Bedrag >= 500 ? TransactieStatus.Wachtend : TransactieStatus.Voltooid;
@@ -97,12 +111,10 @@ namespace BankApp_Web.API_Controllers
             // Bij bedrag onder 500 euro: direct geld overmaken
             if (transactie.Status == TransactieStatus.Voltooid)
             {
-                var vanRekening = await _context.Rekeningen
-                    .FirstOrDefaultAsync(r => r.Iban == transactie.VanIban && r.Deleted == DateTime.MaxValue);
                 var naarRekening = await _context.Rekeningen
                     .FirstOrDefaultAsync(r => r.Iban == transactie.NaarIban && r.Deleted == DateTime.MaxValue);
 
-                if (vanRekening != null && naarRekening != null && vanRekening.Saldo >= transactie.Bedrag)
+                if (naarRekening != null && vanRekening.Saldo >= transactie.Bedrag)
                 {
                     vanRekening.Saldo -= transactie.Bedrag;
                     naarRekening.Saldo += transactie.Bedrag;
