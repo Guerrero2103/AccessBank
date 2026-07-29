@@ -517,6 +517,52 @@ namespace BankApp_WPF
             }
         }
 
+        // Kaart verwijderen (soft-delete)
+        private void BtnKaartVerwijderen_Click(object sender, RoutedEventArgs e)
+        {
+            Button btn = (Button)sender;
+            int cardId = int.Parse(btn.Tag.ToString());
+
+            var result = MessageBox.Show(
+                $"Weet u zeker dat u kaart {cardId} wilt verwijderen?",
+                "Bevestigen",
+                MessageBoxButton.YesNo,
+                MessageBoxImage.Warning);
+
+            if (result == MessageBoxResult.Yes)
+            {
+                try
+                {
+                    using (var context = new AppDbContext())
+                    {
+                        var kaart = context.Kaarten
+                            .FirstOrDefault(k => k.Id == cardId && k.Deleted == DateTime.MaxValue);
+
+                        if (kaart != null)
+                        {
+                            kaart.Deleted = DateTime.UtcNow;
+                            context.SaveChanges();
+
+                            MessageBox.Show($"Kaart {cardId} is verwijderd!",
+                                "Succes", MessageBoxButton.OK, MessageBoxImage.Information);
+
+                            LaadKaarten(); // Herlaad kaarten lijst
+                        }
+                        else
+                        {
+                            MessageBox.Show("Kaart niet gevonden!",
+                                "Fout", MessageBoxButton.OK, MessageBoxImage.Error);
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"Fout bij verwijderen kaart: {ex.Message}",
+                        "Database Fout", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
+            }
+        }
+
         // Gebruiker deblokkeren (zelfde aanpak als AdminController.DeBlokkeerGebruiker)
         private void BtnGebruikerDeblokkeren_Click(object sender, RoutedEventArgs e)
         {

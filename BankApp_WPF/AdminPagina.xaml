@@ -640,6 +640,15 @@
                                                                 Tag="{Binding Id}">
                                                             ✅ Actief maken
                                                         </Button>
+														<Button Background="#6b7280"
+                                                                Foreground="White"
+                                                                Padding="15,8"
+                                                                Margin="5"
+                                                                Cursor="Hand"
+                                                                Click="BtnKaartVerwijderen_Click"
+                                                                Tag="{Binding Id}">
+															🗑️ Verwijderen
+														</Button>
 
                                                         <Button Background="#fbbf24"
                                                                 Foreground="White"
