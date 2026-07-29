@@ -135,14 +135,16 @@ namespace BankApp_Models
             // Gebruik dezelfde PasswordHasher configuratie als de applicatie
             var passwordHasher = new Microsoft.AspNetCore.Identity.PasswordHasher<BankUser>();
 
+            var lookupNormalizer = new Microsoft.AspNetCore.Identity.UpperInvariantLookupNormalizer();
+
             using var userManager = new Microsoft.AspNetCore.Identity.UserManager<BankUser>(
                 new Microsoft.AspNetCore.Identity.EntityFrameworkCore.UserStore<BankUser>(context),
                 null!, passwordHasher,
-                null!, null!, null!, null!, null!, null!);
+                null!, null!, lookupNormalizer, null!, null!, null!);
 
             using var roleManager = new Microsoft.AspNetCore.Identity.RoleManager<Microsoft.AspNetCore.Identity.IdentityRole>(
                 new Microsoft.AspNetCore.Identity.EntityFrameworkCore.RoleStore<Microsoft.AspNetCore.Identity.IdentityRole>(context),
-                null!, null!, null!, null!);
+                null!, lookupNormalizer, null!, null!);
 
             // Voeg rollen toe (Identity Roles) via RoleManager
             if (!await roleManager.RoleExistsAsync("Klant"))
@@ -195,13 +197,11 @@ namespace BankApp_Models
             }
             else
             {
-                // Reset wachtwoord als gebruiker al bestaat
-                var token = await userManager.GeneratePasswordResetTokenAsync(existingUser1);
-                var resetResult = await userManager.ResetPasswordAsync(existingUser1, token, "Password123!");
-                if (resetResult.Succeeded)
-                {
-                    await context.SaveChangesAsync();
-                }
+                // Reset wachtwoord als gebruiker al bestaat (rechtstreeks hashen i.p.v. via
+                // token-flow, want deze handmatig aangemaakte UserManager heeft geen
+                // geregistreerde token-provider)
+                existingUser1.PasswordHash = passwordHasher.HashPassword(existingUser1, "Password123!");
+                await context.SaveChangesAsync();
             }
 
             // Test gebruiker 2: Sarah Janssens (Medewerker)
@@ -236,13 +236,9 @@ namespace BankApp_Models
             }
             else
             {
-                // Reset wachtwoord als gebruiker al bestaat
-                var token = await userManager.GeneratePasswordResetTokenAsync(existingUser2);
-                var resetResult = await userManager.ResetPasswordAsync(existingUser2, token, "Password123!");
-                if (resetResult.Succeeded)
-                {
-                    await context.SaveChangesAsync();
-                }
+                // Reset wachtwoord als gebruiker al bestaat (rechtstreeks hashen, zie toelichting hierboven)
+                existingUser2.PasswordHash = passwordHasher.HashPassword(existingUser2, "Password123!");
+                await context.SaveChangesAsync();
             }
 
             // Test gebruiker 3: Admin
@@ -277,13 +273,9 @@ namespace BankApp_Models
             }
             else
             {
-                // Reset wachtwoord als gebruiker al bestaat
-                var token = await userManager.GeneratePasswordResetTokenAsync(existingAdmin);
-                var resetResult = await userManager.ResetPasswordAsync(existingAdmin, token, "Admin123!");
-                if (resetResult.Succeeded)
-                {
-                    await context.SaveChangesAsync();
-                }
+                // Reset wachtwoord als gebruiker al bestaat (rechtstreeks hashen, zie toelichting hierboven)
+                existingAdmin.PasswordHash = passwordHasher.HashPassword(existingAdmin, "Admin123!");
+                await context.SaveChangesAsync();
             }
 
             // Zorg dat alle wijzigingen worden opgeslagen
