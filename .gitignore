@@ -17,3 +17,7 @@ Release/
 *.pdb
 *.dll
 *.exe
+
+# ASP.NET Core Data Protection keys - bevatten onversleuteld sleutelmateriaal,
+# horen nooit in versiebeheer (worden automatisch opnieuw aangemaakt)
+BankApp_Web/DataProtection-Keys/
