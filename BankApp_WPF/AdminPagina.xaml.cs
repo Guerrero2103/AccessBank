@@ -30,10 +30,9 @@ namespace BankApp_WPF
         {
             InitializeComponent();
             Klanten = new System.Collections.ObjectModel.ObservableCollection<BankUser>();
-            LaadKlanten(); // Laad klanten bij opstarten
-            LaadKaarten(); // Laad kaarten voor Kaarten tab
-            
-            // Event handler voor zoekveld wordt via XAML gebonden
+            LaadKlanten();
+            NieuweKaartKlantComboBox.ItemsSource = Klanten;  // <-- deze regel toevoegen
+            LaadKaarten();
         }
 
         // Laad alle klanten uit de database
@@ -163,15 +162,10 @@ namespace BankApp_WPF
             try
             {
                 using (var context = new AppDbContext())
-                using (var userManager = new UserManager<BankUser>(
-                    new UserStore<BankUser>(context),
-                    null!, new PasswordHasher<BankUser>(),
-                    null!, null!, null!, null!, null!, null!))
+                using (var userManager = IdentityManagerFactory.CreateUserManager(context))
                 {
                     // Zorg dat rollen bestaan voordat we ze toewijzen
-                    var roleManager = new RoleManager<Microsoft.AspNetCore.Identity.IdentityRole>(
-                        new RoleStore<Microsoft.AspNetCore.Identity.IdentityRole>(context),
-                        null!, null!, null!, null!);
+                    var roleManager = IdentityManagerFactory.CreateRoleManager(context);
 
                     // Controleer en maak rollen aan als ze niet bestaan
                     string[] rollenNamen = { "Klant", "Medewerker", "Admin" };
@@ -356,10 +350,7 @@ namespace BankApp_WPF
             try
             {
                 using (var context = new AppDbContext())
-                using (var userManager = new UserManager<BankUser>(
-                    new UserStore<BankUser>(context),
-                    null!, new PasswordHasher<BankUser>(),
-                    null!, null!, null!, null!, null!, null!))
+                using (var userManager = IdentityManagerFactory.CreateUserManager(context))
                 {
                     // Zoek gebruiker in database
                     var gebruiker = context.Users
@@ -560,6 +551,47 @@ namespace BankApp_WPF
                     MessageBox.Show($"Fout bij verwijderen kaart: {ex.Message}",
                         "Database Fout", MessageBoxButton.OK, MessageBoxImage.Error);
                 }
+            }
+        }
+
+        // Nieuwe kaart aanmaken voor geselecteerde klant
+        private async void BtnKaartAanmaken_Click(object sender, RoutedEventArgs e)
+        {
+            var geselecteerdeKlant = NieuweKaartKlantComboBox.SelectedItem as BankUser;
+
+            if (geselecteerdeKlant == null)
+            {
+                MessageBox.Show("Selecteer eerst een klant.", "Validatiefout",
+                    MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
+            try
+            {
+                using (var context = new AppDbContext())
+                {
+                    string kaartNummer = GenereerUniekKaartNummer(context);
+                    var nieuweKaart = new Kaart
+                    {
+                        KaartNummer = kaartNummer,
+                        Status = KaartStatus.Actief,
+                        GebruikerId = geselecteerdeKlant.Id,
+                        Deleted = DateTime.MaxValue
+                    };
+
+                    context.Kaarten.Add(nieuweKaart);
+                    await context.SaveChangesAsync();
+
+                    MessageBox.Show($"Nieuwe kaart aangemaakt!\n\nKaartnummer: {kaartNummer}\nKlant: {geselecteerdeKlant.Email}",
+                        "Succes", MessageBoxButton.OK, MessageBoxImage.Information);
+
+                    LaadKaarten(); // Herlaad kaartenlijst
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Fout bij aanmaken kaart: {ex.Message}",
+                    "Database Fout", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
