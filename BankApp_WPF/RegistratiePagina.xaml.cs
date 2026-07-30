@@ -55,15 +55,10 @@ namespace BankApp_WPF
             try
             {
                 using (var db = new AppDbContext())
-                using (var userManager = new UserManager<BankUser>(
-                    new UserStore<BankUser>(db),
-                    null!, new PasswordHasher<BankUser>(),
-                    null!, null!, null!, null!, null!, null!))
+                using (var userManager = IdentityManagerFactory.CreateUserManager(db))
                 {
                     // Zorg dat rollen bestaan voordat we ze toewijzen
-                    var roleManager = new RoleManager<Microsoft.AspNetCore.Identity.IdentityRole>(
-                        new RoleStore<Microsoft.AspNetCore.Identity.IdentityRole>(db),
-                        null!, null!, null!, null!);
+                    var roleManager = IdentityManagerFactory.CreateRoleManager(db);
 
                     // Controleer en maak rollen aan als ze niet bestaan
                     string[] rollen = { "Klant", "Medewerker", "Admin" };

@@ -88,10 +88,7 @@ namespace BankApp_WPF
                 bool isAdmin = false;
                 
                 using (var context = new AppDbContext())
-                using (var userManager = new UserManager<BankUser>(
-                    new UserStore<BankUser>(context),
-                    null!, new PasswordHasher<BankUser>(),
-                    null!, null!, null!, null!, null!, null!))
+                using (var userManager = IdentityManagerFactory.CreateUserManager(context))
                 {
                     // Haal gebruiker opnieuw op om rollen te kunnen bekijken
                     var gebruikerMetRollen = await context.Users
@@ -218,10 +215,7 @@ namespace BankApp_WPF
         private async Task<BankUser?> ValidateLoginAsync(string email, string password)
         {
             using var context = new AppDbContext();
-            using var userManager = new UserManager<BankUser>(
-                new UserStore<BankUser>(context),
-                null!, new PasswordHasher<BankUser>(),
-                null!, null!, null!, null!, null!, null!);
+            using var userManager = IdentityManagerFactory.CreateUserManager(context);
 
             var gebruiker = await context.Users
                 .Include(u => u.Adres)

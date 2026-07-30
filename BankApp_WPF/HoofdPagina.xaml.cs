@@ -234,10 +234,7 @@ namespace BankApp_WPF
                     return;
 
                 using var context = new AppDbContext();
-                using var userManager = new UserManager<BankUser>(
-                    new UserStore<BankUser>(context),
-                    null!, new PasswordHasher<BankUser>(),
-                    null!, null!, null!, null!, null!, null!);
+                using var userManager = IdentityManagerFactory.CreateUserManager(context);
 
                 var gebruiker = await context.Users
                     .FirstOrDefaultAsync(u => u.Id == UserSession.IngelogdeGebruiker.Id);

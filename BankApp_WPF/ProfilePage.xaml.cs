@@ -97,10 +97,7 @@ namespace BankApp_WPF
             try
             {
                 using (var context = new AppDbContext())
-                using (var userManager = new UserManager<BankUser>(
-                    new UserStore<BankUser>(context),
-                    null, new PasswordHasher<BankUser>(),
-                    null, null, null, null, null, null))
+                using (var userManager = IdentityManagerFactory.CreateUserManager(context))
                 {
                     var gebruikerInDb = await context.Users
                         .Include(g => g.Adres)
