@@ -573,7 +573,13 @@
 								  BorderBrush="#3a4152"
 								  Padding="10,8"
 								  Height="35"
-								  FontSize="14"/>
+								  FontSize="14">
+							<ComboBox.ItemContainerStyle>
+								<Style TargetType="ComboBoxItem">
+									<Setter Property="Foreground" Value="Black"/>
+								</Style>
+							</ComboBox.ItemContainerStyle>
+						</ComboBox>
 						<Button Grid.Column="2"
 								Content="Kaart aanmaken"
 								Background="#22c55e"
