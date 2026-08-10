@@ -307,6 +307,51 @@ namespace BankApp_WPF
             }
         }
 
+        private void BtnTransactieVerwijderen_Click(object sender, RoutedEventArgs e)
+        {
+            Button btn = (Button)sender;
+            int transactieId = int.Parse(btn.Tag.ToString());
+
+            var result = MessageBox.Show(
+                $"Weet u zeker dat u transactie {transactieId} wilt verwijderen?",
+                "Bevestigen",
+                MessageBoxButton.YesNo,
+                MessageBoxImage.Warning);
+
+            if (result == MessageBoxResult.Yes)
+            {
+                try
+                {
+                    using (var context = new AppDbContext())
+                    {
+                        var transactie = context.Transacties
+                            .FirstOrDefault(t => t.Id == transactieId && t.Deleted == DateTime.MaxValue);
+
+                        if (transactie != null)
+                        {
+                            transactie.Deleted = DateTime.UtcNow;
+                            context.SaveChanges();
+
+                            MessageBox.Show($"Transactie {transactieId} is verwijderd!",
+                                "Succes", MessageBoxButton.OK, MessageBoxImage.Information);
+
+                            LaadWachtendeOverschrijvingen(); // Herlaad transactie lijst
+                        }
+                        else
+                        {
+                            MessageBox.Show("Transactie niet gevonden!",
+                                "Fout", MessageBoxButton.OK, MessageBoxImage.Error);
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"Fout bij verwijderen transactie: {ex.Message}",
+                        "Database Fout", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
+            }
+        }
+
         // ========== TAB 2: KLANTGEGEVENS BEHEREN ==========
 
         private async void LaadKlanten()
@@ -605,6 +650,7 @@ namespace BankApp_WPF
             {
                 using var context = new AppDbContext();
                 var berichten = await context.KlantBerichten
+                    .Where(b => b.Deleted == DateTime.MaxValue)
                     .OrderByDescending(b => b.Datum)
                     .ToListAsync();
 
@@ -656,6 +702,51 @@ namespace BankApp_WPF
             catch (Exception ex)
             {
                 MessageBox.Show($"Fout: {ex.Message}", "Fout", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        private void BtnKlantBerichtVerwijderen_Click(object sender, RoutedEventArgs e)
+        {
+            Button btn = (Button)sender;
+            int berichtId = int.Parse(btn.Tag.ToString());
+
+            var result = MessageBox.Show(
+                $"Weet u zeker dat u dit klantbericht wilt verwijderen?",
+                "Bevestigen",
+                MessageBoxButton.YesNo,
+                MessageBoxImage.Warning);
+
+            if (result == MessageBoxResult.Yes)
+            {
+                try
+                {
+                    using (var context = new AppDbContext())
+                    {
+                        var bericht = context.KlantBerichten
+                            .FirstOrDefault(b => b.Id == berichtId && b.Deleted == DateTime.MaxValue);
+
+                        if (bericht != null)
+                        {
+                            bericht.Deleted = DateTime.UtcNow;
+                            context.SaveChanges();
+
+                            MessageBox.Show($"Klantbericht is verwijderd!",
+                                "Succes", MessageBoxButton.OK, MessageBoxImage.Information);
+
+                            LaadKlantBerichten(); // Herlaad berichten lijst
+                        }
+                        else
+                        {
+                            MessageBox.Show("Klantbericht niet gevonden!",
+                                "Fout", MessageBoxButton.OK, MessageBoxImage.Error);
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"Fout bij verwijderen klantbericht: {ex.Message}",
+                        "Database Fout", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
             }
         }
 

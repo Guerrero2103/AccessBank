@@ -249,6 +249,21 @@
                                                 </Button>
                                             </Grid>
 
+                                            <Button Height="45"
+                                                    FontSize="16"
+                                                    FontWeight="Bold"
+                                                    Background="#6b7280"
+                                                    Foreground="White"
+                                                    Margin="0,10,0,0"
+                                                    Tag="{Binding Id}"
+                                                    Cursor="Hand"
+                                                    Click="BtnTransactieVerwijderen_Click">
+                                                <StackPanel Orientation="Horizontal">
+                                                    <TextBlock Text="🗑️" FontSize="18" Margin="0,0,10,0"/>
+                                                    <TextBlock Text="Verwijderen"/>
+                                                </StackPanel>
+                                            </Button>
+
                                         </StackPanel>
                                     </Border>
 
@@ -482,6 +497,15 @@
                                                         Tag="{Binding}"
                                                         Click="BtnBehandeld_Click"
                                                         Margin="0,0,10,0"/>
+                                                <Button Content="🗑️ Verwijderen"
+                                                        Background="#6b7280"
+                                                        Foreground="White"
+                                                        Padding="15,8"
+                                                        Height="35"
+                                                        FontSize="14"
+                                                        Cursor="Hand"
+                                                        Tag="{Binding Id}"
+                                                        Click="BtnKlantBerichtVerwijderen_Click"/>
                                             </StackPanel>
                                         </StackPanel>
                                     </Border>
