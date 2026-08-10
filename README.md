@@ -1,5 +1,7 @@
 # BankApp Project - AccessBank
 
+> **Let op:** deze solution bevat ook de projecten `BankApp_Web` en `BankApp_MAUI`, die horen bij het vak .NET Advanced. Voor de WPF-opdracht (dit vak) zijn enkel `BankApp_Models` en `BankApp_WPF` relevant.
+
 ## Over dit project
 
 Dit is een banktoepassing gebouwd met .NET 9.0 MAUI voor mobiel en desktop. Het project is gemaakt door drie personen die elk verschillende onderdelen hebben ontwikkeld.
