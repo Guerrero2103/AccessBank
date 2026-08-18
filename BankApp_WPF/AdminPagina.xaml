@@ -551,48 +551,6 @@
                 </ScrollViewer>
             </TabItem>
 
-			<!-- Nieuwe kaart aanmaken -->
-			<Border Background="#1f2533" BorderBrush="#3a4152" BorderThickness="1" CornerRadius="5" Padding="15" Margin="0,0,0,15">
-				<StackPanel>
-					<TextBlock Text="Nieuwe kaart aanmaken"
-							   Foreground="White"
-							   FontSize="14"
-							   FontWeight="Bold"
-							   Margin="0,0,0,10"/>
-					<Grid>
-						<Grid.ColumnDefinitions>
-							<ColumnDefinition Width="*"/>
-							<ColumnDefinition Width="10"/>
-							<ColumnDefinition Width="Auto"/>
-						</Grid.ColumnDefinitions>
-						<ComboBox x:Name="NieuweKaartKlantComboBox"
-								  Grid.Column="0"
-								  DisplayMemberPath="Email"
-								  Background="#2a3142"
-								  Foreground="White"
-								  BorderBrush="#3a4152"
-								  Padding="10,8"
-								  Height="35"
-								  FontSize="14">
-							<ComboBox.ItemContainerStyle>
-								<Style TargetType="ComboBoxItem">
-									<Setter Property="Foreground" Value="Black"/>
-								</Style>
-							</ComboBox.ItemContainerStyle>
-						</ComboBox>
-						<Button Grid.Column="2"
-								Content="Kaart aanmaken"
-								Background="#22c55e"
-								Foreground="White"
-								BorderThickness="0"
-								Padding="20,8"
-								Height="35"
-								Cursor="Hand"
-								Click="BtnKaartAanmaken_Click"/>
-					</Grid>
-				</StackPanel>
-			</Border>
-
             <!-- Kaarten tab -->
             <TabItem Header="Kaarten" Height="38" VerticalAlignment="Top">
                 <!-- ScrollViewer met CanContentScroll fix -->
@@ -607,6 +565,48 @@
                                 CornerRadius="5"
                                 Padding="20">
                             <StackPanel>
+                                <!-- Nieuwe kaart aanmaken -->
+                                <Border Background="#1f2533" BorderBrush="#3a4152" BorderThickness="1" CornerRadius="5" Padding="15" Margin="0,0,0,15">
+                                    <StackPanel>
+                                        <TextBlock Text="Nieuwe kaart aanmaken"
+                                                   Foreground="White"
+                                                   FontSize="14"
+                                                   FontWeight="Bold"
+                                                   Margin="0,0,0,10"/>
+                                        <Grid>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition Width="10"/>
+                                                <ColumnDefinition Width="Auto"/>
+                                            </Grid.ColumnDefinitions>
+                                            <ComboBox x:Name="NieuweKaartKlantComboBox"
+                                                      Grid.Column="0"
+                                                      DisplayMemberPath="Email"
+                                                      Background="#2a3142"
+                                                      Foreground="White"
+                                                      BorderBrush="#3a4152"
+                                                      Padding="10,8"
+                                                      Height="35"
+                                                      FontSize="14">
+                                                <ComboBox.ItemContainerStyle>
+                                                    <Style TargetType="ComboBoxItem">
+                                                        <Setter Property="Foreground" Value="Black"/>
+                                                    </Style>
+                                                </ComboBox.ItemContainerStyle>
+                                            </ComboBox>
+                                            <Button Grid.Column="2"
+                                                    Content="Kaart aanmaken"
+                                                    Background="#22c55e"
+                                                    Foreground="White"
+                                                    BorderThickness="0"
+                                                    Padding="20,8"
+                                                    Height="35"
+                                                    Cursor="Hand"
+                                                    Click="BtnKaartAanmaken_Click"/>
+                                        </Grid>
+                                    </StackPanel>
+                                </Border>
+
                                 <!-- Zoekveld voor kaarten -->
                                 <Border Background="#1f2533" BorderBrush="#3a4152" BorderThickness="1" CornerRadius="5" Padding="15" Margin="0,0,0,15">
                                     <Grid>
