@@ -74,7 +74,14 @@ namespace BankApp_WPF
                 return;
             }
 
-            var gebruiker = await ValidateLoginAsync(email, password);
+            var (gebruiker, isGeblokkeerd) = await ValidateLoginAsync(email, password);
+
+            if (isGeblokkeerd)
+            {
+                ShowError("Uw account is geblokkeerd. Neem contact op met de klantendienst.");
+                TxtPassword.Clear();
+                return;
+            }
 
             if (gebruiker != null)
             {
@@ -212,7 +219,7 @@ namespace BankApp_WPF
         }
 
         // Controleer inloggegevens
-        private async Task<BankUser?> ValidateLoginAsync(string email, string password)
+        private async Task<(BankUser? Gebruiker, bool IsGeblokkeerd)> ValidateLoginAsync(string email, string password)
         {
             using var context = new AppDbContext();
             using var userManager = IdentityManagerFactory.CreateUserManager(context);
@@ -224,16 +231,21 @@ namespace BankApp_WPF
                     u.Deleted == DateTime.MaxValue);
 
             if (gebruiker == null)
-                return null;
+                return (null, false);
+
+            // Controleer lockout vóór het wachtwoord (zelfde volgorde als ASP.NET Core Identity's
+            // SignInManager), zodat BtnGebruikerBlokkeren_Click (die LockoutEnd zet) ook echt effect heeft
+            if (gebruiker.LockoutEnd != null && gebruiker.LockoutEnd > DateTimeOffset.UtcNow)
+                return (null, true);
 
             // Controleer wachtwoord
             var result = await userManager.CheckPasswordAsync(gebruiker, password);
             if (result)
             {
-                return gebruiker;
+                return (gebruiker, false);
             }
 
-            return null;
+            return (null, false);
         }
     }
 }
