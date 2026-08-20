@@ -2,14 +2,14 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:vm="clr-namespace:BankApp_MAUI.ViewModels"
-             x:Class="BankApp_MAUI.Pages.LoginPage"
-             x:DataType="vm:LoginViewModel"
+             x:Class="BankApp_MAUI.Pages.RegistratiePage"
+             x:DataType="vm:RegistratieViewModel"
              Shell.NavBarIsVisible="False"
              BackgroundColor="{StaticResource BackgroundBlack}">
 
     <ScrollView>
         <VerticalStackLayout Padding="30" Spacing="20" VerticalOptions="Center">
-            
+
             <!-- Logo -->
             <Label Text="AccessBank"
                    FontSize="48"
@@ -18,17 +18,31 @@
                    TextColor="White"
                    Margin="0,0,0,40"/>
 
-            <!-- Card voor login form -->
+            <!-- Card voor registratieformulier -->
             <Frame BackgroundColor="White"
                    CornerRadius="10"
                    Padding="20"
                    HasShadow="True">
-                
+
                 <VerticalStackLayout Spacing="15">
-                    <Label Text="Inloggen bij AccessBank"
+                    <Label Text="Account aanmaken"
                            FontSize="24"
                            FontAttributes="Bold"
                            HorizontalOptions="Center"/>
+
+                    <!-- Voornaam -->
+                    <Label Text="Voornaam"/>
+                    <Entry Text="{Binding Voornaam}"
+                           Placeholder="Voornaam"
+                           BackgroundColor="{StaticResource InputGray}"
+                           TextColor="White"/>
+
+                    <!-- Achternaam -->
+                    <Label Text="Achternaam"/>
+                    <Entry Text="{Binding Achternaam}"
+                           Placeholder="Achternaam"
+                           BackgroundColor="{StaticResource InputGray}"
+                           TextColor="White"/>
 
                     <!-- Email -->
                     <Label Text="E-mail"/>
@@ -40,7 +54,15 @@
 
                     <!-- Wachtwoord -->
                     <Label Text="Wachtwoord"/>
-                    <Entry Text="{Binding Password}"
+                    <Entry Text="{Binding Wachtwoord}"
+                           IsPassword="True"
+                           Placeholder="********"
+                           BackgroundColor="{StaticResource InputGray}"
+                           TextColor="White"/>
+
+                    <!-- Wachtwoord bevestigen -->
+                    <Label Text="Wachtwoord bevestigen"/>
+                    <Entry Text="{Binding WachtwoordBevestiging}"
                            IsPassword="True"
                            Placeholder="********"
                            BackgroundColor="{StaticResource InputGray}"
@@ -52,9 +74,9 @@
                            IsVisible="{Binding ErrorMessage, Converter={StaticResource StringToBoolConverter}}"
                            FontSize="12"/>
 
-                    <!-- Login button -->
-                    <Button Text="Inloggen"
-                            Command="{Binding LoginCommand}"
+                    <!-- Registreer button -->
+                    <Button Text="Registreren"
+                            Command="{Binding RegistreerCommand}"
                             IsEnabled="{Binding IsBusy, Converter={StaticResource InvertedBoolConverter}}"
                             BackgroundColor="{StaticResource PrimaryGreen}"
                             TextColor="White"
@@ -67,28 +89,16 @@
                 </VerticalStackLayout>
             </Frame>
 
-            <!-- Link naar registratie -->
-            <Label Text="Nog geen account? Registreer hier"
+            <!-- Link terug naar login -->
+            <Label Text="Heb je al een account? Log hier in"
                    TextColor="White"
                    FontSize="14"
                    HorizontalOptions="Center"
                    Margin="0,20,0,0">
                 <Label.GestureRecognizers>
-                    <TapGestureRecognizer Command="{Binding GaNaarRegistratieCommand}"/>
+                    <TapGestureRecognizer Command="{Binding GaNaarLoginCommand}"/>
                 </Label.GestureRecognizers>
             </Label>
-
-            <!-- Test accounts info -->
-            <Label Text="Test accounts:"
-                   TextColor="White"
-                   FontSize="12"
-                   Margin="0,20,0,0"/>
-            <Label Text="jan.peeters@example.com / Password123!"
-                   TextColor="White"
-                   FontSize="10"/>
-            <Label Text="admin@bankapp.local / Admin123!"
-                   TextColor="White"
-                   FontSize="10"/>
 
         </VerticalStackLayout>
     </ScrollView>

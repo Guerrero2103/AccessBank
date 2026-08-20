@@ -1,3 +1,4 @@
+using BankApp_MAUI.Pages;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 
@@ -79,6 +80,16 @@ namespace BankApp_MAUI.ViewModels
             finally
             {
                 IsBusy = false;
+            }
+        }
+
+        [RelayCommand]
+        private void GaNaarRegistratie()
+        {
+            var registratiePage = _serviceProvider.GetRequiredService<RegistratiePage>();
+            if (Application.Current?.Windows.Count > 0)
+            {
+                Application.Current.Windows[0].Page = new NavigationPage(registratiePage);
             }
         }
     }

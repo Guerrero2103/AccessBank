@@ -20,6 +20,7 @@ public static class MauiProgram
 
         // ViewModels registreren
         builder.Services.AddTransient<LoginViewModel>();
+        builder.Services.AddTransient<RegistratieViewModel>();
         builder.Services.AddTransient<MainViewModel>();
         builder.Services.AddTransient<RekeningenViewModel>();
         builder.Services.AddTransient<TransactiesViewModel>();
@@ -27,6 +28,7 @@ public static class MauiProgram
 
         // Pages registreren
         builder.Services.AddTransient<LoginPage>();
+        builder.Services.AddTransient<RegistratiePage>();
         builder.Services.AddTransient<MainPage>();
         builder.Services.AddTransient<RekeningenPage>();
         builder.Services.AddTransient<TransactiesPage>();

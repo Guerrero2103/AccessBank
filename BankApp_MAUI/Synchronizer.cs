@@ -127,6 +127,82 @@ namespace BankApp_MAUI
             }
         }
 
+        public async Task<(bool Succes, string? FoutBoodschap)> RegistreerAsync(string email, string wachtwoord, string voornaam, string achternaam)
+        {
+            try
+            {
+                System.Diagnostics.Debug.WriteLine($"RegistreerAsync: Attempting registration for {email}");
+                var registerData = new { Email = email, Password = wachtwoord, Voornaam = voornaam, Achternaam = achternaam };
+
+                // Verwijder oude authorization header eerst
+                client.DefaultRequestHeaders.Authorization = null;
+
+                var response = await client.PostAsJsonAsync("account/register", registerData);
+                System.Diagnostics.Debug.WriteLine($"RegistreerAsync: Response status = {response.StatusCode}");
+
+                if (response.IsSuccessStatusCode)
+                {
+                    // De register-endpoint geeft dezelfde vorm terug als login (token, userId, email)
+                    var result = await response.Content.ReadFromJsonAsync<LoginResponse>(sOptions);
+                    if (result != null)
+                    {
+                        System.Diagnostics.Debug.WriteLine($"RegistreerAsync: Success! UserId = {result.userId}, Email = {result.email}");
+
+                        // Sla token en user info op in Preferences (zelfde als Login)
+                        Preferences.Set("auth_token", result.token);
+                        Preferences.Set("user_id", result.userId);
+                        Preferences.Set("user_email", result.email);
+
+                        General.UserId = result.userId;
+
+                        // Zet authorization header voor alle volgende requests
+                        client.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", result.token);
+                        System.Diagnostics.Debug.WriteLine($"RegistreerAsync: Authorization header set");
+
+                        // Sla gebruiker ook op in lokale SQLite database
+                        var lokaleGebruiker = new LocalUser
+                        {
+                            Id = result.userId,
+                            Email = result.email,
+                            Voornaam = voornaam,
+                            Achternaam = achternaam
+                        };
+                        await _context.SaveUserAsync(lokaleGebruiker);
+
+                        return (true, null);
+                    }
+                    return (false, "Onverwacht antwoord van de server.");
+                }
+                else
+                {
+                    var errorContent = await response.Content.ReadAsStringAsync();
+                    System.Diagnostics.Debug.WriteLine($"RegistreerAsync: Failed with status {response.StatusCode}, error: {errorContent}");
+
+                    string? foutBoodschap = null;
+                    try
+                    {
+                        var errorDoc = JsonDocument.Parse(errorContent);
+                        if (errorDoc.RootElement.TryGetProperty("message", out var msgProp))
+                        {
+                            foutBoodschap = msgProp.GetString();
+                        }
+                    }
+                    catch
+                    {
+                        // Geen geldige JSON in de foutrespons, val terug op generieke melding
+                    }
+
+                    return (false, foutBoodschap ?? "Registratie mislukt.");
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"RegistreerAsync: Exception = {ex.Message}");
+                System.Diagnostics.Debug.WriteLine($"RegistreerAsync: Stack trace = {ex.StackTrace}");
+                return (false, $"Er ging iets mis: {ex.Message}");
+            }
+        }
+
         public void Logout()
         {
             Preferences.Clear();
