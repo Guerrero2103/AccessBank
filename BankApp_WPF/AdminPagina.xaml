@@ -583,7 +583,7 @@
                                                       Grid.Column="0"
                                                       DisplayMemberPath="Email"
                                                       Background="#2a3142"
-                                                      Foreground="White"
+                                                      Foreground="Black"
                                                       BorderBrush="#3a4152"
                                                       Padding="10,8"
                                                       Height="35"
