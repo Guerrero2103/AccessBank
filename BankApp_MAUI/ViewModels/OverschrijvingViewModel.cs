@@ -121,18 +121,6 @@ namespace BankApp_MAUI.ViewModels
                 await _localDb.SaveTransactieAsync(transactie);
                 System.Diagnostics.Debug.WriteLine($"Overschrijving opgeslagen lokaal: {transactie.Id}, IsSynced: {transactie.IsSynced}");
 
-                // Update lokaal saldo (als status Voltooid is)
-                if (transactie.Status == "Voltooid")
-                {
-                    var rekening = await _localDb.GetRekeningByIbanAsync(GeselecteerdeRekening.Iban);
-                    if (rekening != null)
-                    {
-                        rekening.Saldo -= Bedrag;
-                        await _localDb.SaveRekeningAsync(rekening);
-                        System.Diagnostics.Debug.WriteLine($"Lokaal saldo aangepast: {rekening.Saldo}");
-                    }
-                }
-
                 // Probeer direct te verzenden als er internet is
                 bool isOnline = await _synchronizer.IsOnline();
                 if (isOnline)
@@ -148,30 +136,58 @@ namespace BankApp_MAUI.ViewModels
                     };
 
                     var (success, message) = await _synchronizer.MaakOverschrijving(apiTransactie);
-                    
+
                     if (success)
                     {
                         transactie.IsSynced = true;
                         transactie.LastSync = DateTime.Now;
                         await _localDb.SaveTransactieAsync(transactie);
                         System.Diagnostics.Debug.WriteLine("Overschrijving succesvol gesynchroniseerd");
-                        
-                        // Synchroniseer rekeningen om saldo bij te werken
+
+                        // Nu pas het lokale saldo bijwerken - de server heeft de overschrijving
+                        // effectief bevestigd, dus dit is veilig (geen rollback nodig bij afwijzing)
+                        if (transactie.Status == "Voltooid")
+                        {
+                            var rekening = await _localDb.GetRekeningByIbanAsync(GeselecteerdeRekening.Iban);
+                            if (rekening != null)
+                            {
+                                rekening.Saldo -= Bedrag;
+                                await _localDb.SaveRekeningAsync(rekening);
+                                System.Diagnostics.Debug.WriteLine($"Lokaal saldo aangepast: {rekening.Saldo}");
+                            }
+                        }
+
+                        // Synchroniseer rekeningen om saldo definitief gelijk te trekken met de server
                         await _synchronizer.SynchronizeAll();
-                        
-                        SuccessMessage = Bedrag >= 500 
-                            ? "Overschrijving in behandeling (€500+)" 
+
+                        SuccessMessage = Bedrag >= 500
+                            ? "Overschrijving in behandeling (€500+)"
                             : "Overschrijving succesvol!";
                     }
                     else
                     {
+                        // Server heeft de overschrijving geweigerd - lokaal saldo NIET aanpassen
                         System.Diagnostics.Debug.WriteLine($"Synchronisatie mislukt: {message}");
                         ErrorMessage = $"Overschrijving opgeslagen maar niet verzonden: {message}";
                     }
                 }
                 else
                 {
+                    // Offline: we vertrouwen erop dat dit later succesvol synchroniseert,
+                    // dus het lokale saldo mag alvast (optimistisch) bijgewerkt worden
                     System.Diagnostics.Debug.WriteLine("Offline - overschrijving wordt later gesynchroniseerd");
+
+                    if (transactie.Status == "Voltooid")
+                    {
+                        var rekening = await _localDb.GetRekeningByIbanAsync(GeselecteerdeRekening.Iban);
+                        if (rekening != null)
+                        {
+                            rekening.Saldo -= Bedrag;
+                            await _localDb.SaveRekeningAsync(rekening);
+                            System.Diagnostics.Debug.WriteLine($"Lokaal saldo (offline) aangepast: {rekening.Saldo}");
+                        }
+                    }
+
                     SuccessMessage = "Overschrijving opgeslagen (offline). Wordt verzonden bij synchronisatie.";
                 }
 
