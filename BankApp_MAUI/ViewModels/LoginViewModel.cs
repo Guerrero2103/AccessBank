@@ -23,6 +23,14 @@ namespace BankApp_MAUI.ViewModels
             _synchronizer = synchronizer;
             _serviceProvider = serviceProvider;
             Title = "Login";
+
+            // Toon een melding als we hier zijn beland omdat de sessie verliep (zie App.xaml.cs)
+            var sessieVerlopenMelding = Preferences.Get("session_expired_message", string.Empty);
+            if (!string.IsNullOrEmpty(sessieVerlopenMelding))
+            {
+                ErrorMessage = sessieVerlopenMelding;
+                Preferences.Remove("session_expired_message");
+            }
         }
 
         [RelayCommand]

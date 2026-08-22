@@ -11,7 +11,22 @@ public partial class App : Application
         _serviceProvider = serviceProvider;
 
         InitializeComponent();
-        
+
+        // Sessie verlopen (401 van de API): stuur gebruiker terug naar het loginscherm
+        // met een duidelijke melding, i.p.v. dat sync-acties stil blijven falen.
+        synchronizer.SessieVerlopen += () =>
+        {
+            MainThread.BeginInvokeOnMainThread(() =>
+            {
+                if (Application.Current?.Windows.Count > 0)
+                {
+                    Preferences.Set("session_expired_message", "Je sessie is verlopen. Log opnieuw in.");
+                    var loginPage = serviceProvider.GetRequiredService<Pages.LoginPage>();
+                    Application.Current.Windows[0].Page = new NavigationPage(loginPage);
+                }
+            });
+        };
+
         // Synchroniseer automatisch als gebruiker is ingelogd
         if (Preferences.ContainsKey("auth_token"))
         {
