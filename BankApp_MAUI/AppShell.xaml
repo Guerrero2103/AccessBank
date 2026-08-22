@@ -23,6 +23,10 @@
         <ShellContent ContentTemplate="{DataTemplate pages:TransactiesPage}" Route="transacties" />
     </FlyoutItem>
 
+    <FlyoutItem Title="Mijn profiel">
+        <ShellContent ContentTemplate="{DataTemplate pages:ProfielPage}" Route="profiel" />
+    </FlyoutItem>
+
     <MenuItem Text="Uitloggen" Clicked="OnLogoutClicked" />
 
 </Shell>

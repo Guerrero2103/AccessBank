@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:BankApp_MAUI.ViewModels"
+             x:Class="BankApp_MAUI.Pages.ProfielPage"
+             x:DataType="vm:ProfielViewModel"
+             Shell.NavBarIsVisible="True"
+             Title="{Binding Title}"
+             BackgroundColor="{StaticResource BackgroundBlack}">
+
+    <ScrollView>
+        <VerticalStackLayout Padding="20" Spacing="15">
+
+            <Label Text="Mijn profiel"
+                   FontSize="28"
+                   FontAttributes="Bold"
+                   TextColor="White"
+                   Margin="0,0,0,10"/>
+
+            <!-- E-mail (alleen-lezen) -->
+            <Label Text="E-mail" TextColor="White"/>
+            <Entry Text="{Binding Email}"
+                   IsEnabled="False"
+                   BackgroundColor="{StaticResource InputGray}"
+                   TextColor="White"/>
+
+            <!-- Voornaam -->
+            <Label Text="Voornaam" TextColor="White"/>
+            <Entry Text="{Binding Voornaam}"
+                   BackgroundColor="{StaticResource InputGray}"
+                   TextColor="White"/>
+
+            <!-- Achternaam -->
+            <Label Text="Achternaam" TextColor="White"/>
+            <Entry Text="{Binding Achternaam}"
+                   BackgroundColor="{StaticResource InputGray}"
+                   TextColor="White"/>
+
+            <!-- Telefoonnummer -->
+            <Label Text="Telefoonnummer" TextColor="White"/>
+            <Entry Text="{Binding Telefoonnummer}"
+                   Keyboard="Telephone"
+                   BackgroundColor="{StaticResource InputGray}"
+                   TextColor="White"/>
+
+            <!-- Straat + huisnummer -->
+            <Label Text="Straat" TextColor="White"/>
+            <Entry Text="{Binding Straat}"
+                   BackgroundColor="{StaticResource InputGray}"
+                   TextColor="White"/>
+
+            <Label Text="Huisnummer" TextColor="White"/>
+            <Entry Text="{Binding Huisnummer}"
+                   BackgroundColor="{StaticResource InputGray}"
+                   TextColor="White"/>
+
+            <Label Text="Bus (optioneel)" TextColor="White"/>
+            <Entry Text="{Binding Bus}"
+                   BackgroundColor="{StaticResource InputGray}"
+                   TextColor="White"/>
+
+            <!-- Postcode + gemeente -->
+            <Label Text="Postcode" TextColor="White"/>
+            <Entry Text="{Binding Postcode}"
+                   BackgroundColor="{StaticResource InputGray}"
+                   TextColor="White"/>
+
+            <Label Text="Gemeente" TextColor="White"/>
+            <Entry Text="{Binding Gemeente}"
+                   BackgroundColor="{StaticResource InputGray}"
+                   TextColor="White"/>
+
+            <Label Text="Land" TextColor="White"/>
+            <Entry Text="{Binding Land}"
+                   BackgroundColor="{StaticResource InputGray}"
+                   TextColor="White"/>
+
+            <!-- Meldingen -->
+            <Label Text="{Binding ErrorMessage}"
+                   TextColor="Red"
+                   IsVisible="{Binding ErrorMessage, Converter={StaticResource StringToBoolConverter}}"
+                   FontSize="12"/>
+
+            <Label Text="{Binding SuccessMessage}"
+                   TextColor="{StaticResource PrimaryGreen}"
+                   IsVisible="{Binding SuccessMessage, Converter={StaticResource StringToBoolConverter}}"
+                   FontSize="12"/>
+
+            <!-- Opslaan -->
+            <Button Text="Opslaan"
+                    Command="{Binding OpslaanCommand}"
+                    IsEnabled="{Binding IsBusy, Converter={StaticResource InvertedBoolConverter}}"
+                    BackgroundColor="{StaticResource PrimaryGreen}"
+                    TextColor="White"
+                    FontSize="18"
+                    FontAttributes="Bold"
+                    HeightRequest="60"
+                    CornerRadius="10"
+                    Margin="0,15,0,0"/>
+
+            <ActivityIndicator IsRunning="{Binding IsBusy}"
+                             IsVisible="{Binding IsBusy}"
+                             Color="{StaticResource PrimaryGreen}"/>
+
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>

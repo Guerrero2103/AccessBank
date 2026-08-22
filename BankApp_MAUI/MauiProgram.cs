@@ -25,6 +25,7 @@ public static class MauiProgram
         builder.Services.AddTransient<RekeningenViewModel>();
         builder.Services.AddTransient<TransactiesViewModel>();
         builder.Services.AddTransient<OverschrijvingViewModel>();
+        builder.Services.AddTransient<ProfielViewModel>();
 
         // Pages registreren
         builder.Services.AddTransient<LoginPage>();
@@ -33,6 +34,7 @@ public static class MauiProgram
         builder.Services.AddTransient<RekeningenPage>();
         builder.Services.AddTransient<TransactiesPage>();
         builder.Services.AddTransient<OverschrijvingPage>();
+        builder.Services.AddTransient<ProfielPage>();
         
         // Shell registreren
         builder.Services.AddTransient<AppShell>();

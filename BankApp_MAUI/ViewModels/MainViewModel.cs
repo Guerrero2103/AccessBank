@@ -49,6 +49,12 @@ namespace BankApp_MAUI.ViewModels
             await Shell.Current.GoToAsync("//transacties");
         }
 
+        [RelayCommand]
+        private async Task NavigateToProfielAsync()
+        {
+            await Shell.Current.GoToAsync("//profiel");
+        }
+
         public async Task InitializeAsync()
         {
             // Laad eerst lokale data

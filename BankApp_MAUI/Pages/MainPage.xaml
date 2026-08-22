@@ -102,6 +102,16 @@
                     HeightRequest="60"
                     CornerRadius="10"/>
 
+            <!-- Mijn profiel -->
+            <Button Text="Mijn Profiel"
+                    Command="{Binding NavigateToProfielCommand}"
+                    BackgroundColor="{StaticResource ProfilePurple}"
+                    TextColor="White"
+                    FontSize="18"
+                    FontAttributes="Bold"
+                    HeightRequest="60"
+                    CornerRadius="10"/>
+
             <!-- Synchroniseren -->
             <Button Text="Synchroniseren"
                     Command="{Binding SyncDataCommand}"

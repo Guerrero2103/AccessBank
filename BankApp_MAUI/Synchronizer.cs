@@ -38,6 +38,23 @@ namespace BankApp_MAUI
             };
         }
 
+        // Wordt getriggerd wanneer een geautoriseerde aanroep 401 Unauthorized teruggeeft,
+        // wat betekent dat het opgeslagen token verlopen/ongeldig is geworden. Abonnees
+        // (App.xaml.cs) sturen de gebruiker dan terug naar het loginscherm.
+        public event Action? SessieVerlopen;
+
+        private bool VerwerkOnverwachtOnbevoegd(System.Net.Http.HttpResponseMessage response)
+        {
+            if (response.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+            {
+                System.Diagnostics.Debug.WriteLine("Synchronizer: 401 Unauthorized ontvangen - token is verlopen/ongeldig, sessie wordt beëindigd");
+                Logout();
+                SessieVerlopen?.Invoke();
+                return true;
+            }
+            return false;
+        }
+
         // --- AUTHENTICATIE ---
 
         public async Task<bool> IsAuthorized()
@@ -203,6 +220,90 @@ namespace BankApp_MAUI
             }
         }
 
+        // --- PROFIEL ---
+
+        public async Task<ProfielResponse?> HaalProfielOpAsync()
+        {
+            try
+            {
+                System.Diagnostics.Debug.WriteLine("HaalProfielOpAsync: Ophalen profiel");
+                var response = await client.GetAsync("account/profile");
+                System.Diagnostics.Debug.WriteLine($"HaalProfielOpAsync: Response status = {response.StatusCode}");
+
+                if (VerwerkOnverwachtOnbevoegd(response)) return null;
+
+                if (response.IsSuccessStatusCode)
+                {
+                    return await response.Content.ReadFromJsonAsync<ProfielResponse>(sOptions);
+                }
+
+                var errorContent = await response.Content.ReadAsStringAsync();
+                System.Diagnostics.Debug.WriteLine($"HaalProfielOpAsync: Failed with status {response.StatusCode}, error: {errorContent}");
+                return null;
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"HaalProfielOpAsync: Exception = {ex.Message}");
+                return null;
+            }
+        }
+
+        public async Task<(bool Succes, string? FoutBoodschap)> WerkProfielBijAsync(
+            string voornaam, string achternaam, string telefoonnummer,
+            string? straat, string? huisnummer, string? bus, string? postcode, string? gemeente, string? land)
+        {
+            try
+            {
+                var updateData = new
+                {
+                    Voornaam = voornaam,
+                    Achternaam = achternaam,
+                    Telefoonnummer = telefoonnummer,
+                    Straat = straat,
+                    Huisnummer = huisnummer,
+                    Bus = bus,
+                    Postcode = postcode,
+                    Gemeente = gemeente,
+                    Land = land
+                };
+
+                System.Diagnostics.Debug.WriteLine("WerkProfielBijAsync: Profiel bijwerken");
+                var response = await client.PutAsJsonAsync("account/profile", updateData);
+                System.Diagnostics.Debug.WriteLine($"WerkProfielBijAsync: Response status = {response.StatusCode}");
+
+                if (VerwerkOnverwachtOnbevoegd(response)) return (false, "Je sessie is verlopen. Log opnieuw in.");
+
+                if (response.IsSuccessStatusCode)
+                {
+                    return (true, null);
+                }
+
+                var errorContent = await response.Content.ReadAsStringAsync();
+                System.Diagnostics.Debug.WriteLine($"WerkProfielBijAsync: Failed with status {response.StatusCode}, error: {errorContent}");
+
+                string? foutBoodschap = null;
+                try
+                {
+                    var errorDoc = JsonDocument.Parse(errorContent);
+                    if (errorDoc.RootElement.TryGetProperty("message", out var msgProp))
+                    {
+                        foutBoodschap = msgProp.GetString();
+                    }
+                }
+                catch
+                {
+                    // Geen geldige JSON in de foutrespons
+                }
+
+                return (false, foutBoodschap ?? "Bijwerken van profiel mislukt.");
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"WerkProfielBijAsync: Exception = {ex.Message}");
+                return (false, $"Er ging iets mis: {ex.Message}");
+            }
+        }
+
         public void Logout()
         {
             Preferences.Clear();
@@ -277,9 +378,14 @@ namespace BankApp_MAUI
 
                         System.Diagnostics.Debug.WriteLine($"UploadUnsyncedTransacties: Uploading transaction ID={localT.Id}, Bedrag={localT.Bedrag}, VanIban={localT.VanIban}, NaarIban={localT.NaarIban}");
                         var response = await client.PostAsJsonAsync("Transacties", t, sOptions);
-                        
+
                         System.Diagnostics.Debug.WriteLine($"UploadUnsyncedTransacties: Response status = {response.StatusCode}");
-                        
+
+                        if (VerwerkOnverwachtOnbevoegd(response))
+                        {
+                            return;
+                        }
+
                         if (response.IsSuccessStatusCode)
                         {
                             localT.IsSynced = true;
@@ -329,9 +435,14 @@ namespace BankApp_MAUI
                 }
                 
                 var response = await client.GetAsync("Rekeningen");
-                
+
                 System.Diagnostics.Debug.WriteLine($"DownloadRekeningen: Response status = {response.StatusCode}");
-                
+
+                if (VerwerkOnverwachtOnbevoegd(response))
+                {
+                    return;
+                }
+
                 if (!response.IsSuccessStatusCode)
                 {
                     var errorContent = await response.Content.ReadAsStringAsync();
@@ -397,9 +508,14 @@ namespace BankApp_MAUI
             {
                 System.Diagnostics.Debug.WriteLine($"DownloadTransacties: Starting download for user {General.UserId}");
                 var response = await client.GetAsync("Transacties");
-                
+
                 System.Diagnostics.Debug.WriteLine($"DownloadTransacties: Response status = {response.StatusCode}");
-                
+
+                if (VerwerkOnverwachtOnbevoegd(response))
+                {
+                    return;
+                }
+
                 if (!response.IsSuccessStatusCode)
                 {
                     var errorContent = await response.Content.ReadAsStringAsync();
@@ -516,6 +632,12 @@ namespace BankApp_MAUI
             try
             {
                 var response = await client.PostAsJsonAsync("Transacties", t, sOptions);
+
+                if (VerwerkOnverwachtOnbevoegd(response))
+                {
+                    return (false, "Je sessie is verlopen. Log opnieuw in.");
+                }
+
                 if (response.IsSuccessStatusCode)
                 {
                     return (true, "Succes");
@@ -536,6 +658,21 @@ namespace BankApp_MAUI
         public string token { get; set; } = string.Empty;
         public string userId { get; set; } = string.Empty;
         public string email { get; set; } = string.Empty;
+    }
+
+    // Helper klasse voor profiel-API-response
+    public class ProfielResponse
+    {
+        public string voornaam { get; set; } = string.Empty;
+        public string achternaam { get; set; } = string.Empty;
+        public string email { get; set; } = string.Empty;
+        public string? telefoonnummer { get; set; }
+        public string? straat { get; set; }
+        public string? huisnummer { get; set; }
+        public string? bus { get; set; }
+        public string? postcode { get; set; }
+        public string? gemeente { get; set; }
+        public string? land { get; set; }
     }
 }
 

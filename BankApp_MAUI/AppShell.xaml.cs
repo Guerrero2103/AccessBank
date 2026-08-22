@@ -15,6 +15,7 @@ public partial class AppShell : Shell
         Routing.RegisterRoute("rekeningen", typeof(RekeningenPage));
         Routing.RegisterRoute("overschrijving", typeof(OverschrijvingPage));
         Routing.RegisterRoute("transacties", typeof(TransactiesPage));
+        Routing.RegisterRoute("profiel", typeof(ProfielPage));
     }
 
     // Constructor met DI voor gebruik vanaf App.xaml.cs
