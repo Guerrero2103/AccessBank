@@ -67,22 +67,74 @@ namespace BankApp_MAUI
                 return false;
             }
 
+            // Controleer lokaal (zonder netwerkaanroep) of het token al verlopen is, via de
+            // "exp"-claim in de JWT. Dit vangt een verlopen token proactief af i.p.v. pas te
+            // wachten tot de server een 401 teruggeeft - en zorgt dat de gebruiker daarbij
+            // dezelfde duidelijke "sessie verlopen"-melding + redirect krijgt als bij een
+            // reactieve 401 (zie VerwerkOnverwachtOnbevoegd/SessieVerlopen).
+            if (IsTokenVerlopen(token))
+            {
+                System.Diagnostics.Debug.WriteLine("IsAuthorized: Token is verlopen (lokale exp-controle)");
+                Logout();
+                SessieVerlopen?.Invoke();
+                return false;
+            }
+
             // Haal de UserId en Email op uit Preferences
             General.UserId = Preferences.Get("user_id", "");
-            
+
             if (string.IsNullOrEmpty(General.UserId))
             {
                 System.Diagnostics.Debug.WriteLine("IsAuthorized: No user_id found");
                 return false;
             }
-            
+
             // Zet authorization header voor alle requests
             client.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
-            
+
             // Verifieer dat header correct is ingesteld
             var authHeader = client.DefaultRequestHeaders.Authorization?.ToString();
             System.Diagnostics.Debug.WriteLine($"IsAuthorized: UserId = {General.UserId}, Token length = {token.Length}, Auth header = {authHeader?.Substring(0, Math.Min(20, authHeader.Length))}...");
             return true;
+        }
+
+        // Decodeert enkel de payload van de JWT (geen handtekeningcontrole nodig - dat doet de
+        // server toch al bij elke aanroep) om de "exp"-claim te lezen, zodat een verlopen token
+        // lokaal en zonder netwerkverkeer gedetecteerd kan worden.
+        private static bool IsTokenVerlopen(string jwt)
+        {
+            try
+            {
+                var delen = jwt.Split('.');
+                if (delen.Length < 2)
+                {
+                    return true; // Geen geldig JWT-formaat
+                }
+
+                string payload = delen[1].Replace('-', '+').Replace('_', '/');
+                switch (payload.Length % 4)
+                {
+                    case 2: payload += "=="; break;
+                    case 3: payload += "="; break;
+                }
+
+                var bytes = Convert.FromBase64String(payload);
+                var json = System.Text.Encoding.UTF8.GetString(bytes);
+                using var doc = JsonDocument.Parse(json);
+
+                if (doc.RootElement.TryGetProperty("exp", out var expElement))
+                {
+                    long expUnix = expElement.GetInt64();
+                    var expDatum = DateTimeOffset.FromUnixTimeSeconds(expUnix);
+                    return expDatum <= DateTimeOffset.UtcNow;
+                }
+
+                return false; // Geen exp-claim gevonden, kan niet bepalen - ga uit van geldig
+            }
+            catch
+            {
+                return true; // Kon token niet decoderen - beschouw als ongeldig/verlopen
+            }
         }
 
         public async Task<bool> Login(string email, string password)
