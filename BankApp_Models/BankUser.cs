@@ -31,6 +31,13 @@ namespace BankApp_Models
         // Databank - Soft delete verplicht
         public DateTime Deleted { get; set; } = DateTime.MaxValue;
 
+        // Wachtwoord-vergeten: tijdelijke resetcode + vervaltijd (UTC). In productie zou de
+        // code per e-mail verstuurd worden i.p.v. rechtstreeks in de UI getoond; er is geen
+        // e-mailserver in dit project, dus dit is de vereenvoudigde, functionele aanpak.
+        [MaxLength(6)]
+        public string? WachtwoordResetCode { get; set; }
+        public DateTime? WachtwoordResetVervaltijd { get; set; }
+
         // Databank - Adres koppeling
         public int? AdresId { get; set; }
         public Adres? Adres { get; set; }

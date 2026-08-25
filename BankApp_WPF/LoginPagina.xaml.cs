@@ -179,8 +179,9 @@ namespace BankApp_WPF
 
         private void LinkForgotPassword_Click(object sender, RoutedEventArgs e)
         {
-            MessageBox.Show("Wachtwoord Reset: Stuur email naar support@accessbank.be",
-                "Wachtwoord Vergeten", MessageBoxButton.OK, MessageBoxImage.Information);
+            var wachtwoordVergetenPagina = new WachtwoordVergetenPagina();
+            wachtwoordVergetenPagina.Show();
+            this.Close();
         }
 
         private void TxtPassword_KeyDown(object sender, KeyEventArgs e)

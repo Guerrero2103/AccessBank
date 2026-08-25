@@ -1,0 +1,105 @@
+<Window x:Class="BankApp_WPF.NieuwWachtwoordPagina"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="AccessBank - Nieuw Wachtwoord"
+        Height="900"
+        Width="1600"
+        WindowStartupLocation="CenterScreen"
+        WindowState="Maximized"
+        Background="#000000">
+
+    <Window.Resources>
+        <!-- Formulierlabel (boven elk invoerveld) -->
+        <Style x:Key="LoginFieldLabel" TargetType="TextBlock">
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="FontSize" Value="16"/>
+        </Style>
+
+        <!-- Invoerveld (TextBox, PasswordBox) -->
+        <Style x:Key="LoginInputField" TargetType="Control">
+            <Setter Property="Height" Value="35"/>
+            <Setter Property="Margin" Value="0,5,0,15"/>
+            <Setter Property="FontSize" Value="16"/>
+        </Style>
+
+        <!-- Actieknop (kleur wordt per knop lokaal overschreven) -->
+        <Style x:Key="LoginActionButton" TargetType="Button">
+            <Setter Property="Height" Value="40"/>
+            <Setter Property="FontSize" Value="16"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Margin" Value="0,0,10,0"/>
+        </Style>
+    </Window.Resources>
+
+    <Grid>
+        <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Width="450">
+
+            <!-- Titel -->
+            <TextBlock Text="Nieuw Wachtwoord Instellen"
+                       FontSize="28"
+                       FontWeight="Bold"
+                       Foreground="White"
+                       Margin="0,0,0,10"
+                       HorizontalAlignment="Center"/>
+
+            <TextBlock x:Name="TxtEmailInfo"
+                       Foreground="#999999"
+                       FontSize="13"
+                       Margin="0,0,0,25"
+                       HorizontalAlignment="Center"
+                       TextWrapping="Wrap"/>
+
+            <!-- Resetcode -->
+            <TextBlock Text="Resetcode:" Style="{StaticResource LoginFieldLabel}"/>
+            <TextBox x:Name="TxtCode"
+                     Style="{StaticResource LoginInputField}"
+                     MaxLength="6"/>
+
+            <!-- Nieuw wachtwoord -->
+            <TextBlock Text="Nieuw wachtwoord:" Style="{StaticResource LoginFieldLabel}"/>
+            <PasswordBox x:Name="TxtNieuwWachtwoord"
+                         Style="{StaticResource LoginInputField}"/>
+
+            <!-- Bevestig wachtwoord -->
+            <TextBlock Text="Bevestig nieuw wachtwoord:" Style="{StaticResource LoginFieldLabel}"/>
+            <PasswordBox x:Name="TxtBevestigWachtwoord"
+                         Style="{StaticResource LoginInputField}"/>
+
+            <!-- Foutmelding -->
+            <TextBlock x:Name="TxtError"
+                       Foreground="Red"
+                       Visibility="Collapsed"
+                       FontSize="14"
+                       TextWrapping="Wrap"
+                       Margin="0,0,0,15"/>
+
+            <!-- Succesmelding -->
+            <TextBlock x:Name="TxtSucces"
+                       Foreground="#10B981"
+                       Visibility="Collapsed"
+                       FontSize="14"
+                       TextWrapping="Wrap"
+                       Margin="0,0,0,15"/>
+
+            <!-- Knoppen -->
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,10,0,0">
+                <Button x:Name="BtnWijzigen"
+                        Content="Wachtwoord Wijzigen"
+                        Width="200"
+                        Style="{StaticResource LoginActionButton}"
+                        Background="#10B981"
+                        Click="BtnWijzigen_Click"/>
+
+                <Button x:Name="BtnTerug"
+                        Content="Terug naar Login"
+                        Width="150"
+                        Style="{StaticResource LoginActionButton}"
+                        Background="#6b7280"
+                        Margin="0"
+                        Click="BtnTerug_Click"/>
+            </StackPanel>
+
+        </StackPanel>
+    </Grid>
+</Window>
