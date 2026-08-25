@@ -117,6 +117,116 @@ namespace BankApp_Web.Controllers
             return View(model);
         }
 
+        // GET: Account/ForgotPassword
+        [HttpGet]
+        public IActionResult ForgotPassword()
+        {
+            return View(new ForgotPasswordViewModel());
+        }
+
+        // POST: Account/ForgotPassword
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ForgotPassword(ForgotPasswordViewModel model)
+        {
+            if (!ModelState.IsValid)
+            {
+                return View(model);
+            }
+
+            var gebruiker = await _context.Users.FirstOrDefaultAsync(u =>
+                u.Email != null && u.Email.ToLower() == model.Email.ToLower() && u.Deleted == DateTime.MaxValue);
+
+            if (gebruiker == null)
+            {
+                ModelState.AddModelError(string.Empty, _localizer["Geen account gevonden met dit e-mailadres."]);
+                return View(model);
+            }
+
+            // Genereer een tijdelijke, willekeurige 6-cijferige resetcode (zelfde aanpak als BankApp_WPF).
+            // In productie zou deze code per e-mail verstuurd worden; dit project heeft geen
+            // SMTP-configuratie, dus we tonen ze hier rechtstreeks voor demo-/testdoeleinden.
+            var random = new Random();
+            string code = random.Next(100000, 1000000).ToString();
+            gebruiker.WachtwoordResetCode = code;
+            gebruiker.WachtwoordResetVervaltijd = DateTime.UtcNow.AddMinutes(15);
+            await _context.SaveChangesAsync();
+
+            TempData["DemoCode"] = $"Voor demo-doeleinden: uw resetcode is {code} — geldig tot " +
+                $"{gebruiker.WachtwoordResetVervaltijd.Value.ToLocalTime():HH:mm}. In productie zou dit per e-mail verstuurd worden.";
+
+            return RedirectToAction("ResetPassword", new { email = gebruiker.Email });
+        }
+
+        // GET: Account/ResetPassword
+        [HttpGet]
+        public IActionResult ResetPassword(string? email = null)
+        {
+            ViewBag.DemoCode = TempData["DemoCode"];
+            return View(new ResetPasswordViewModel { Email = email ?? string.Empty });
+        }
+
+        // POST: Account/ResetPassword
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ResetPassword(ResetPasswordViewModel model)
+        {
+            if (!ModelState.IsValid)
+            {
+                return View(model);
+            }
+
+            var gebruiker = await _context.Users.FirstOrDefaultAsync(u =>
+                u.Email != null && u.Email.ToLower() == model.Email.ToLower() && u.Deleted == DateTime.MaxValue);
+
+            if (gebruiker == null)
+            {
+                ModelState.AddModelError(string.Empty, _localizer["Gebruiker niet gevonden."]);
+                return View(model);
+            }
+
+            if (string.IsNullOrEmpty(gebruiker.WachtwoordResetCode) || gebruiker.WachtwoordResetVervaltijd == null)
+            {
+                ModelState.AddModelError(string.Empty, _localizer["Er is geen actieve resetaanvraag. Vraag een nieuwe code aan."]);
+                return View(model);
+            }
+
+            if (gebruiker.WachtwoordResetVervaltijd.Value < DateTime.UtcNow)
+            {
+                ModelState.AddModelError(string.Empty, _localizer["De resetcode is verlopen. Vraag een nieuwe code aan."]);
+                return View(model);
+            }
+
+            if (gebruiker.WachtwoordResetCode != model.Code)
+            {
+                ModelState.AddModelError(string.Empty, _localizer["Onjuiste resetcode."]);
+                return View(model);
+            }
+
+            // In tegenstelling tot BankApp_WPF is de UserManager hier wel correct
+            // gekoppeld aan geregistreerde token-providers (zie Program.cs,
+            // .AddDefaultTokenProviders()), dus we gebruiken Identity's eigen
+            // reset-flow om ook de SecurityStamp correct te laten roteren.
+            var token = await _userManager.GeneratePasswordResetTokenAsync(gebruiker);
+            var result = await _userManager.ResetPasswordAsync(gebruiker, token, model.NieuweWachtwoord);
+
+            if (!result.Succeeded)
+            {
+                foreach (var error in result.Errors)
+                {
+                    ModelState.AddModelError(string.Empty, error.Description);
+                }
+                return View(model);
+            }
+
+            gebruiker.WachtwoordResetCode = null;
+            gebruiker.WachtwoordResetVervaltijd = null;
+            await _context.SaveChangesAsync();
+
+            TempData["SuccessMessage"] = _localizer["Wachtwoord succesvol gewijzigd! U kan nu inloggen met uw nieuwe wachtwoord."].Value;
+            return RedirectToAction("Login");
+        }
+
         // GET: Account/Register
         [HttpGet]
         public IActionResult Register()
