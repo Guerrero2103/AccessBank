@@ -58,12 +58,31 @@ Alle NuGet-packages die in dit project gebruikt worden zijn **MIT-gelicentieerd*
 
 Een deel van de code in dit project is tot stand gekomen met hulp van **Claude Code** (Anthropic), een AI-coding-assistent, onder begeleiding en met review van het team. Dit betreft specifiek:
 
+**Web API / BusinessLogic**
 - De autorisatiecontrole in `TransactiesController.PostTransactie` (controle of `VanIban` toebehoort aan de ingelogde gebruiker) en het bijhorende testscenario in `docs/test-transactie-autorisatie.md`
 - De centrale `RegistratieService` in `BankApp_BusinessLogic`, die de drie registratiepaden (Identity Pages, `AccountController`, `AccountApiController`) samenvoegt en de ontbrekende rekening/kaart-aanmaak bij API-registratie herstelt
 - Soft-delete op `LogEntry` (property + query filter + EF Core-migratie) en de `Dummy`-objecten op de modellen
-- Rollenbeheer (blokkeren/deblokkeren) in `BankApp_WPF/AdminPagina`, het daadwerkelijk gebruiken van `SaldoCardControl` in `HoofdPagina`, en de rekening-`ComboBox` in `OverschrijvingenPagina`
+- De fix voor `BankApp_Web` dat enkel op `localhost` luisterde en daardoor niet bereikbaar was vanaf de Android-emulator (`launchSettings.json`)
+- De "Wachtwoord vergeten"-functionaliteit in `BankApp_Web` (`AccountController.ForgotPassword`/`ResetPassword`, bijhorende views en ViewModels)
+
+**BankApp_WPF**
+- Rollenbeheer (blokkeren/deblokkeren) in `AdminPagina`, het daadwerkelijk gebruiken van `SaldoCardControl` in `HoofdPagina`, en de rekening-`ComboBox` in `OverschrijvingenPagina`
 - Het consistent maken van de XAML-styling (gedeelde `Style`-resources) in `LoginPagina` en `RegistratiePagina`
-- Deze README-secties (licenties en AI-vermelding)
+- De fix voor de `Seeder` (ontbrekende `ILookupNormalizer` brak idempotent herseeden) en voor een crash bij mislukte login (ontbrekende logger in de handmatige `UserManager`)
+- CRUD-uitbreidingen in `AdminPagina`/`MedewerkerPagina`: kaart aanmaken voor een klant, kaart verwijderen (soft-delete), en verwijderen van transacties/klantberichten
+- De fix voor onzichtbare tekst in de `ComboBox`-dropdowns (`NieuweKaartKlantComboBox`, zowel gesloten als open weergave) en voor het "Nieuwe kaart aanmaken"-blok dat buiten de Kaarten-tab stond
+- De fix waarbij een geblokkeerde gebruiker toch nog kon inloggen (`LockoutEnd` werd niet gecontroleerd vóór het wachtwoord)
+- Het verwijderen van per ongeluk gecommitte DataProtection-sleutelbestanden uit versiebeheer (en van schijf)
+- De "Wachtwoord vergeten"-functionaliteit (`WachtwoordVergetenPagina`, `NieuwWachtwoordPagina`, gekoppelde velden op `BankUser`)
+
+**BankApp_MAUI**
+- Het registratiescherm (`RegistratiePage`/`RegistratieViewModel`) en het profielscherm (`ProfielPage`/`ProfielViewModel`)
+- De fix waarbij het lokale saldo te vroeg werd bijgewerkt bij een overschrijving (vóór bevestiging door de server)
+- De afhandeling van een verlopen/ongeldig JWT-token: automatisch uitloggen i.p.v. stil falende synchronisatie, en een proactieve lokale controle van de `exp`-claim (`Synchronizer.IsTokenVerlopen`)
+- De GDPR-documentatie (`Gdpr.md`): bewaartermijn, opslaglocatie en toestemming
+
+**Documentatie**
+- Deze README-secties (licenties en AI-vermelding, en de verduidelijking welke projecten bij welk vak horen)
 
 De oorspronkelijke basisapplicatie (zie "Verdeling van het werk" hieronder) is door de drie teamleden zelf gebouwd, zonder AI-ondersteuning.
 
