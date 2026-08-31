@@ -185,12 +185,12 @@ Dit is de mobiele en desktop app met:
 
 ## Hoe werkt de synchronisatie?
 
-De app gebruikt de Synchronizer class die:
-- Checkt of er internet is
-- Haalt data op van de API als er internet is
-- Bewaart alles lokaal in SQLite
-- Stuurt nieuwe transacties naar de API zodra er weer internet is
-- Werkt dus gewoon door als er geen internet is
+De app gebruikt de `Synchronizer`-klasse (`BankApp_MAUI/Synchronizer.cs`) die:
+- Checkt of er internet is (`IsOnline()`)
+- Bij een succesvolle login of app-start met een bestaand token: haalt via `SynchronizeAll()` de rekeningen (`DownloadRekeningen()`) en transacties (`DownloadTransacties()`) van de API op en bewaart ze lokaal in SQLite via `LocalDbContext` (`BankApp_MAUI/Data/LocalDbContext.cs`)
+- Stuurt nog niet-gesynchroniseerde transacties (aangemaakt terwijl er geen internet was) naar de API zodra er weer verbinding is (`UploadUnsyncedTransacties()`)
+- Werkt dus gewoon door met de lokaal opgeslagen data als er geen internet is
+- Bewaart het JWT-token in `Preferences` (device-opslag) na het inloggen, en controleert bij elke app-start (`App.xaml.cs`) en bij elke API-aanroep (`IsAuthorized()`) of dit token nog geldig is — via de `exp`-claim in het token zelf, zonder eerst een netwerkoproep te moeten doen (`IsTokenVerlopen()`). Zo hoeft een gebruiker zich maar één keer expliciet aan te melden; nadien gebeurt dit stil in de achtergrond, tot het token effectief verloopt.
 
 ## Database
 
@@ -237,6 +237,11 @@ Het basisproject is af met:
 
 **Database setup:**
 De database wordt automatisch aangemaakt bij de eerste start. Er zijn standaard testgebruikers beschikbaar.
+
+**MAUI op een Android-emulator uitvoeren:**
+- De API-URL ligt per platform vast in `BankApp_MAUI/General.cs`: `http://10.0.2.2:5000/api/` voor Android (dit adres is een vaste alias die de Android-emulator gebruikt om naar de hostmachine te verwijzen — dus **niet** `localhost`, dat zou vanuit de emulator zelf verwijzen), en `http://localhost:5000/api/` voor Windows.
+- `BankApp_Web` moet dus **eerst draaien** (op poort 5000) vóór je de MAUI-app op de emulator start, en moet bereikbaar zijn van buiten het loopback-adres — controleer dat `launchSettings.json` bindt op `0.0.0.0` en niet enkel op `localhost`.
+- Kies in Visual Studio het juiste **Debug Target** (het dropdown-menu naast de Start-knop): een Android-emulatorprofiel voor de mobiele app, of "Windows Machine" voor de desktopversie. Als de app niet start of blijft hangen zonder duidelijke foutmelding, is dit dropdown-menu de eerste plek om te controleren.
 
 ## Test Gebruikers
 
